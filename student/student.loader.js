@@ -1,6 +1,8 @@
+// *************** IMPORT CORE ***************
 const DataLoader = require("dataloader");
 const School = require("../school/school.model");
 
+// Function for dataLoader
 function createSchoolByIdLoader() {
   return new DataLoader(async (schoolIds) => {
     const schools = await School.find({ _id: { $in: schoolIds } });
