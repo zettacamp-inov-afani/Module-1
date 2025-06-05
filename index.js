@@ -4,6 +4,10 @@ const mongoose = require("mongoose");
 const { mergeTypeDefs } = require("@graphql-tools/merge");
 const { mergeResolvers } = require("@graphql-tools/merge");
 
+// Import dataLoader
+const createStudentsBySchoolLoader = require("./school/school.loader");
+const createSchoolByIdLoader = require("./student/student.loader");
+
 // Import typedef & resolver
 const userTypeDefs = require("./user/user.typedef");
 const userResolvers = require("./user/user.resolvers");
@@ -25,7 +29,16 @@ const resolvers = mergeResolvers([
 async function startServer() {
   const app = express();
 
-  const server = new ApolloServer({ typeDefs, resolvers });
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: () => ({
+      loaders: {
+        studentsBySchool: createStudentsBySchoolLoader(),
+        schoolById: createSchoolByIdLoader(),
+      },
+    }),
+  });
 
   // How to Server.start() in Apollo Server v2
   server.applyMiddleware({ app });
