@@ -1,38 +1,43 @@
-require("dotenv").config();
+const { ApolloServer, gql } = require("apollo-server-express");
 const express = require("express");
-const connectDB = require("./config/db");
+const mongoose = require("mongoose");
+const { mergeTypeDefs } = require("@graphql-tools/merge");
+const { mergeResolvers } = require("@graphql-tools/merge");
 
-// Import model
-require("./user/user.model");
-require("./student/student.model");
-require("./school/school.model");
+// Import typedef & resolver
+const userTypeDefs = require("./user/user.typedef");
+const userResolvers = require("./user/user.resolvers");
 
-const app = express();
-app.use(express.json());
+const studentTypeDefs = require("./student/student.typedef");
+const studentResolvers = require("./student/student.resolvers");
 
-connectDB();
+const schoolTypeDefs = require("./school/school.typedef");
+const schoolResolvers = require("./school/school.resolvers");
 
-app.get("/", (req, res) => res.send("API OK"));
+// Merge typedef and resolver
+const typeDefs = mergeTypeDefs([userTypeDefs, studentTypeDefs, schoolTypeDefs]);
+const resolvers = mergeResolvers([
+  userResolvers,
+  studentResolvers,
+  schoolResolvers,
+]);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+async function startServer() {
+  const app = express();
 
-// Setup apollo server v2
-const { ApolloServer } = require("apollo-server");
-const typeDefs = require("./graphql/typeDefs");
-const resolvers = require("./graphql/resolvers");
-const { default: mongoose } = require("mongoose");
+  const server = new ApolloServer({ typeDefs, resolvers });
 
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewURLParser: true,
+  // How to Server.start() in Apollo Server v2
+  server.applyMiddleware({ app });
+
+  await mongoose.connect("mongodb://localhost:27017/zettaschool", {
+    useNewUrlParser: true,
     useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("MongoDB connected");
-    const server = new ApolloServer({ typeDefs, resolvers });
-    server.listen().then(({ url }) => {
-      console.log(`🚀 Server ready at ${url}`);
-    });
-  })
-  .catch((err) => console.error(err));
+  });
+
+  app.listen({ port: 4000 }, () =>
+    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+  );
+}
+
+startServer();

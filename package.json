@@ -19,11 +19,15 @@
   "homepage": "https://github.com/zettacamp-inov-afani/Module-1#readme",
   "type": "module",
   "dependencies": {
-    "apollo-server": "^3.13.0",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "graphql": "^16.11.0",
-    "mongoose": "^8.15.1"
+    "@graphql-tools/load-files": "^6.2.2",
+    "@graphql-tools/merge": "^6.2.2",
+    "@graphql-tools/schema": "^8.3.0",
+    "apollo-server-express": "^2.8.2",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "graphql": "^15.8.0",
+    "graphql-tools": "^4.0.8",
+    "mongoose": "^5.6.13"
   },
   "devDependencies": {}
 }
