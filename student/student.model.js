@@ -12,7 +12,11 @@ const StudentSchema = new mongoose.Schema(
       ref: "School",
       required: true,
     },
-    deleted_at: { type: Date, default: null },
+    status: {
+      type: String,
+      enum: ["is_active", "deleted"],
+      default: "is_active",
+    },
   },
   { timestamps: true }
 );

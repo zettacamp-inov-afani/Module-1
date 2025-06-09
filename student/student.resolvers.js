@@ -1,41 +1,64 @@
 // *************** IMPORT CORE ***************
-const User = require("../student/student.model");
+const Student = require("./student.model");
+
+// *************** QUERY ***************
+async function GetStudent(_, { id }) {
+  return await Student.findOne({ _id: id, status: "is_active" });
+}
+
+async function GetAllStudents() {
+  return await Student.find({ status: "is_active" });
+}
 
 // *************** MUTATION ***************
-const resolvers = {
+async function CreateStudent(_, { input }) {
+  const student = new Student({
+    first_name: input.name.first_name,
+    last_name: input.name.last_name,
+    school: input.school_id,
+    status: "is_active",
+  });
+
+  return await student.save();
+}
+
+async function UpdateStudent(_, { input }) {
+  const { id, name, school_id } = input;
+
+  // Update the data
+  await Student.findOneAndUpdate(
+    { _id: id, status: "is_active" },
+    {
+      first_name: name.first_name,
+      last_name: name.last_name,
+      school: school_id,
+    }
+  );
+
+  // Return the data
+  return await Student.findById(id);
+}
+
+async function SoftDeleteStudent(_, { id }) {
+  // Update the status
+  await Student.findOneAndUpdate(
+    { _id: id, status: "is_active" },
+    { status: "deleted" }
+  );
+
+  // Return the data
+  return await Student.findById(id);
+}
+
+// *************** EXPORT MODULE ***************
+module.exports = {
   Query: {
-    students: async () => await Student.find(),
-    GetAllStudents: async () => Student.find({ delete_at: null }),
-    GetOneStudent: async (_, { id }) =>
-      await Student.findOne({ _id: id, deleted_at: null }),
+    GetStudent,
+    GetAllStudents,
   },
   Mutation: {
-    // Mutation for Student
-    CreateStudent: async (_, { input }) => {
-      const newStudent = new Student(input);
-      return await newStudent.save();
-    },
-
-    UpdateStudent: async (_, { id, input }) => {
-      return await Student.findOneAndUpdate(
-        { _id: id, deleted_at: null },
-        input,
-        { new: true }
-      );
-    },
-    DeleteStudent: async (_, { id }) => {
-      return await Student.findOneAndUpdate(
-        { _id: id },
-        { deleted_at: new Date() },
-        { new: true }
-      );
-    },
-  },
-  School: {
-    students: async (parent) => {
-      return await Student.find({ schoolId: parent.id });
-    },
+    CreateStudent,
+    UpdateStudent,
+    SoftDeleteStudent,
   },
 };
-
-module.exports = resolvers;

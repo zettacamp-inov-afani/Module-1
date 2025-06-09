@@ -1,42 +1,64 @@
 // *************** IMPORT CORE ***************
-const School = require("../school/school.model");
+const School = require("./school.model");
+
+// *************** QUERY ***************
+async function GetSchool(_, { id }) {
+  return await School.findOne({ _id: id, status: "is_active" });
+}
+
+async function GetAllSchools() {
+  return await School.find({ status: "is_active" });
+}
 
 // *************** MUTATION ***************
-const resolvers = {
+async function CreateSchool(_, { input }) {
+  const school = new School({
+    long_name: input.name.long_name,
+    short_name: input.name.short_name,
+    address: input.address,
+    status: "is_active",
+  });
+
+  return await school.save();
+}
+
+async function UpdateSchool(_, { input }) {
+  const { id, name, address } = input;
+
+  // Update the data
+  await School.findOneAndUpdate(
+    { _id: id, status: "is_active" },
+    {
+      long_name: name.long_name,
+      short_name: name.short_name,
+      address,
+    }
+  );
+
+  // Return the data
+  return await School.findById(id);
+}
+
+async function SoftDeleteSchool(_, { id }) {
+  // Update the status
+  await School.findOneAndUpdate(
+    { _id: id, status: "is_active" },
+    { status: "deleted" }
+  );
+
+  // Return the data
+  return await School.findById(id);
+}
+
+// *************** EXPORT MODULE ***************
+module.exports = {
   Query: {
-    schools: async () => await School.find(),
-    GetAllSchools: async () => School.find({ deleted_at: null }),
-    GetOneSchool: async (_, { id }) =>
-      School.findOne({ _id: id, deleted_at: null }),
+    GetSchool,
+    GetAllSchools,
   },
   Mutation: {
-    // Mutation for School
-    CreateSchool: async (_, { input }) => {
-      const newSchool = new School(input);
-      return await newSchool.save();
-    },
-
-    UpdateSchool: async (_, { input }) => {
-      return await School.findOneAndUpdate(
-        { _id: input.id, deleted_at: null },
-        input,
-        { new: true }
-      );
-    },
-
-    DeleteSchool: async (_, { id }) => {
-      return await School.findOneAndUpdate(
-        { _id: id },
-        { deleted_at: new Date() },
-        { new: true }
-      );
-    },
-  },
-  School: {
-    students: async (parent) => {
-      return await Student.find({ schoolId: parent.id });
-    },
+    CreateSchool,
+    UpdateSchool,
+    SoftDeleteSchool,
   },
 };
-
-module.exports = resolvers;

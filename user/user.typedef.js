@@ -2,7 +2,7 @@
 const { gql } = require("apollo-server-express");
 
 // *************** QUERY ***************
-const UserTypeDefs = gql`
+const userTypeDefs = gql`
   scalar Date
 
   type User {
@@ -10,6 +10,7 @@ const UserTypeDefs = gql`
     first_name: String!
     last_name: String!
     email: String!
+    password: String!
     role: String!
     deleted_at: Date
   }
@@ -18,6 +19,7 @@ const UserTypeDefs = gql`
     first_name: String!
     last_name: String!
     email: String!
+    password: String!
     role: String!
   }
 
@@ -30,6 +32,7 @@ const UserTypeDefs = gql`
   }
 
   type Query {
+    GetUser(id: ID!): Student
     GetAllUsers: [User]
     GetOneUser(id: ID!): User
   }
@@ -37,8 +40,9 @@ const UserTypeDefs = gql`
   type Mutation {
     CreateUser(input: CreateUserInput!): User
     UpdateUser(input: UpdateUserInput!): User
-    DeleteUser(id: ID!): User
+    SoftDeleteUser(id: ID!): User
   }
 `;
 
-module.exports = UserTypeDefs;
+// *************** EXPORT MODULE ***************
+module.exports = userTypeDefs;

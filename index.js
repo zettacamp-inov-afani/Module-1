@@ -1,14 +1,15 @@
+// *************** IMPORT CORE ***************
 const { ApolloServer, gql } = require("apollo-server-express");
 const express = require("express");
 const mongoose = require("mongoose");
 const { mergeTypeDefs } = require("@graphql-tools/merge");
 const { mergeResolvers } = require("@graphql-tools/merge");
 
-// Import dataLoader
+// *************** IMPORT DATALOADER ***************
 const createStudentsBySchoolLoader = require("./school/school.loader");
 const createSchoolByIdLoader = require("./student/student.loader");
 
-// Import typedef & resolver
+// *************** IMPORT MODULE ***************
 const userTypeDefs = require("./user/user.typedef");
 const userResolvers = require("./user/user.resolvers");
 

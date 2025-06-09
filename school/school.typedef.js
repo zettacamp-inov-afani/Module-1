@@ -1,46 +1,58 @@
 // *************** IMPORT CORE ***************
 const { gql } = require("apollo-server-express");
 
-// *************** QUERY ***************
-const typeDefs = gql`
-  scalar Date
+const schoolTypeDefs = gql`
+  type Address {
+    detail: String!
+    city: String!
+    country: String!
+    zipcode: Int!
+  }
 
   type School {
-    id: ID!
-    name: String!
-    address: String
-    students: [Student]
-    deleted_at: Date
+    _id: ID!
+    long_name: String!
+    short_name: String!
+    address: [Address!]!
+    students: [ID!]!
+    status: String!
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  input AddressInput {
+    detail: String!
+    city: String!
+    country: String!
+    zipcode: Int!
+  }
+
+  input SchoolNameInput {
+    long_name: String!
+    short_name: String!
   }
 
   input CreateSchoolInput {
-    name: String!
-    address: String
+    name: SchoolNameInput!
+    address: [AddressInput!]!
   }
 
   input UpdateSchoolInput {
     id: ID!
-    name: String
-    address: String
-  }
-
-  input DeleteSchoolInput {
-    id: ID!
+    name: SchoolNameInput!
+    address: [AddressInput!]!
   }
 
   type Query {
-    users: [User]
-    students: [Student]
-    schools: [School]
-    GetAllSchools: [School]
-    GetOneSchool(id: ID!): School
+    GetSchool(id: ID!): School
+    GetAllSchools: [School!]!
   }
 
   type Mutation {
-    CreateSchool(input: CreateSchoolInput!): School
-    UpdateSchool(input: UpdateSchoolInput!): School
-    DeleteSchool(input: DeleteSchoolInput!): School
+    CreateSchool(input: CreateSchoolInput!): School!
+    UpdateSchool(input: UpdateSchoolInput!): School!
+    SoftDeleteSchool(id: ID!): School!
   }
 `;
 
-module.exports = typeDefs;
+module.exports = schoolTypeDefs;
