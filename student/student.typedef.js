@@ -2,25 +2,39 @@
 const { gql } = require("apollo-server-express");
 
 const studentTypeDefs = gql`
+  type School {
+    _id: ID!
+    long_name: String!
+    short_name: String!
+    address: [Address!]!
+    students: [ID!]!
+    status: String!
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  type Address {
+    detail: String!
+    city: String!
+    country: String!
+    zipcode: Int!
+  }
+
   type Student {
     _id: ID!
     first_name: String!
     last_name: String!
     email: String!
     date_of_birth: String
-    school_id: ID!
+    school_id: School!
     status: String!
     createdAt: String
     updatedAt: String
   }
 
-  input StudentNameInput {
+  input CreateStudentInput {
     first_name: String!
     last_name: String!
-  }
-
-  input CreateStudentInput {
-    name: StudentNameInput!
     email: String!
     date_of_birth: String
     school_id: ID!
@@ -28,7 +42,8 @@ const studentTypeDefs = gql`
 
   input UpdateStudentInput {
     id: ID!
-    name: StudentNameInput!
+    first_name: String!
+    last_name: String!
     email: String
     date_of_birth: String
     school_id: ID!
@@ -46,4 +61,5 @@ const studentTypeDefs = gql`
   }
 `;
 
+// *************** EXPORT MODULE ***************
 module.exports = studentTypeDefs;

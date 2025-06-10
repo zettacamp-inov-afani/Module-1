@@ -25,7 +25,6 @@ async function CreateSchool(_, { input }) {
 async function UpdateSchool(_, { input }) {
   const { id, name, address } = input;
 
-  // Update the data
   await School.findOneAndUpdate(
     { _id: id, status: "is_active" },
     {
@@ -35,18 +34,15 @@ async function UpdateSchool(_, { input }) {
     }
   );
 
-  // Return the data
   return await School.findById(id);
 }
 
 async function SoftDeleteSchool(_, { id }) {
-  // Update the status
   await School.findOneAndUpdate(
     { _id: id, status: "is_active" },
     { status: "deleted" }
   );
 
-  // Return the data
   return await School.findById(id);
 }
 

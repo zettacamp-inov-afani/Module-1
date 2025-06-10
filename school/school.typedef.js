@@ -55,4 +55,5 @@ const schoolTypeDefs = gql`
   }
 `;
 
+// *************** EXPORT MODULE ***************
 module.exports = schoolTypeDefs;

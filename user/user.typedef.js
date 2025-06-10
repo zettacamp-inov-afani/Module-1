@@ -12,7 +12,7 @@ const userTypeDefs = gql`
     email: String!
     password: String!
     role: String!
-    deleted_at: Date
+    status: String!
   }
 
   input CreateUserInput {
