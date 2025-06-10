@@ -27,13 +27,23 @@ const resolvers = mergeResolvers([
   schoolResolvers,
 ]);
 
+/**
+ * Initializes and starts the Apollo GraphQL server with Express and MongoDB.
+ *
+ * @async
+ * @function
+ * @returns {Promise<void>}
+ */
 async function startServer() {
+  // Initialize Express app
   const app = express();
 
+  // Initialize Apollo Server with schema and context
   const server = new ApolloServer({
     typeDefs,
     resolvers,
     context: () => ({
+      // Initialize DataLoader instances for batching and caching
       loaders: {
         studentsBySchool: createStudentsBySchoolLoader(),
         schoolById: createSchoolByIdLoader(),
@@ -41,19 +51,23 @@ async function startServer() {
     }),
   });
 
-  // How to Server.start() in Apollo Server v2
+  // Apply Apollo middleware to Express app
   server.applyMiddleware({ app });
 
+  // Connect to MongoDB
   await mongoose.connect("mongodb://localhost:27017/zettaschool", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
 
+  // Set the debug for dataLoader
   await mongoose.set("debug", true);
 
+  // Start the Express server
   app.listen({ port: 4000 }, () =>
     console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
   );
 }
 
+// *************** START SERVER ***************
 startServer();
