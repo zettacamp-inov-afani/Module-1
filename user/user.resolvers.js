@@ -49,28 +49,28 @@ async function GetAllUsers() {
  * @returns {Promise<Object>} The created user document.
  */
 async function CreateUser(_, { input }) {
-  // Create a new User instance with data from input
+  // *************** Create a new User instance with data from input
   const user = new User({
-    // Set user's first name
+    // *************** Set user's first name
     first_name: input.first_name,
 
-    // Set user's last name
+    // *************** Set user's last name
     last_name: input.last_name,
 
-    // Set user's email
+    // *************** Set user's email
     email: input.email,
 
-    // Set user's password
+    // *************** Set user's password
     password: input.password,
 
-    // Default to "operator" if no role is provided
+    // *************** Default to "operator" if no role is provided
     role: input.role || "operator",
 
-    // Set initial status
+    // *************** Set initial status
     status: "is_active",
   });
 
-  // Save the user and return the result
+  // *************** Save the user and return the result
   return await user.save();
 }
 
@@ -88,24 +88,24 @@ async function CreateUser(_, { input }) {
 async function UpdateUser(_, { input }) {
   const { id, first_name, last_name, email, password, role } = input;
 
-  // Update the user data if active
+  // *************** Update the user data if active
   await User.findOneAndUpdate(
-    // Match active user by ID
+    // *************** Match active user by ID
     { _id: id, status: "is_active" },
     {
-      // Update first name
+      // *************** Update first name
       first_name,
 
-      // Update last name
+      // *************** Update last name
       last_name,
 
-      // Update email
+      // *************** Update email
       email,
 
-      // Update password
+      // *************** Update password
       password,
 
-      // Update role
+      // *************** Update role
       role,
     }
   );
@@ -127,22 +127,22 @@ async function UpdateUser(_, { input }) {
  * @throws {Error} If unauthorized or user not found.
  */
 async function SoftDeleteUser(_, { id }) {
-  // Check if dummy user has permission
+  // *************** Check if dummy user has permission
   if (dummyUser.role !== "operator" && dummyUser.role !== "acadir") {
     throw new Error("Unauthorized: Only operator or acadir can delete users.");
   }
 
-  // Check if user exists and is active
+  // *************** Check if user exists and is active
   const user = await User.findOne({ _id: id, status: "is_active" });
 
   if (!user) {
     throw new Error("User not found or already deleted.");
   }
 
-  // Perform soft delete by setting status to "deleted"
+  // *************** Perform soft delete by setting status to "deleted"
   user.status = "deleted";
 
-  // Save and return updated user
+  // *************** Save and return updated user
   await user.save();
   return user;
 }

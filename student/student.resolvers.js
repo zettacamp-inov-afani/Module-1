@@ -64,25 +64,25 @@ async function school_id(student, _, { loaders }) {
  * @returns {Promise<Object>} The newly created student document.
  */
 async function CreateStudent(_, { input }) {
-  // Create a new instance of the Student model using input data
+  // *************** Create a new instance of the Student model using input data
   const student = new Student({
-    // Assign first name
+    // *************** Assign first name
     first_name: input.first_name,
 
-    // Assign last name
+    // *************** Assign last name
     last_name: input.last_name,
 
-    // Assign email
+    // *************** Assign email
     email: input.email,
 
-    // Assign school_id
+    // *************** Assign school_id
     school_id: input.school_id,
 
-    // Set status
+    // *************** Set status
     status: "is_active",
   });
 
-  // Save the new student to the database and return the result
+  // *************** Save the new student to the database and return the result
   return await student.save();
 }
 
@@ -106,31 +106,31 @@ async function CreateStudent(_, { input }) {
  * @returns {Promise<Object|null>} The updated student document, or null if not found.
  */
 async function UpdateStudent(_, { input }) {
-  // Destructure all the input fields
+  // *************** Destructure all the input fields
   const { id, first_name, last_name, email, date_of_birth, school_id } = input;
 
   await Student.findOneAndUpdate(
-    // Find student by ID and status
+    // *************** Find student by ID and status
     { _id: id, status: "is_active" },
     {
-      // Update first name
+      // *************** Update first name
       first_name,
 
-      // Update last name
+      // *************** Update last name
       last_name,
 
-      // Update email
+      // *************** Update email
       email,
 
-      // Update date of birth
+      // *************** Update date of birth
       date_of_birth,
 
-      // Update school_id
+      // *************** Update school_id
       school_id,
     }
   );
 
-  // Fetch and return the updated student document using findById
+  // *************** Fetch and return the updated student document using findById
   return await Student.findById(id);
 }
 
@@ -148,16 +148,16 @@ async function UpdateStudent(_, { input }) {
  * @returns {Promise<Object|null>} The soft-deleted student document, or null if not found.
  */
 async function SoftDeleteStudent(_, { id }) {
-  // Find the student with the given ID and "is_active" status, then update it to "deleted"
+  // *************** Find the student with the given ID and "is_active" status, then update it to "deleted"
   await Student.findOneAndUpdate(
-    // Filter by ID and active status
+    // *************** Filter by ID and active status
     { _id: id, status: "is_active" },
 
-    // Set status to "deleted" (soft delete)
+    // *************** Set status to "deleted" (soft delete)
     { status: "deleted" }
   );
 
-  // Fetch and return the updated student (now with "deleted" status)
+  // *************** Fetch and return the updated student (now with "deleted" status)
   return await Student.findById(id);
 }
 

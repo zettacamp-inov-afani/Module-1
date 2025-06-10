@@ -45,22 +45,22 @@ async function GetAllSchools() {
  * @returns {Promise<Object>} The newly created school document.
  */
 async function CreateSchool(_, { input }) {
-  // Create a new school instance with name and address from input
+  // *************** Create a new school instance with name and address from input
   const school = new School({
-    // Set long_name from nested input
+    // *************** Set long_name from nested input
     long_name: input.name.long_name,
 
-    // Set short_name from nested input
+    // *************** Set short_name from nested input
     short_name: input.name.short_name,
 
-    // Set address array
+    // *************** Set address array
     address: input.address,
 
-    // Set default status as active
+    // *************** Set default status as active
     status: "is_active",
   });
 
-  // Save and return the new school
+  // *************** Save and return the new school
   return await school.save();
 }
 
@@ -79,23 +79,23 @@ async function CreateSchool(_, { input }) {
 async function UpdateSchool(_, { input }) {
   const { id, name, address } = input;
 
-  // Update the school document if it's active
+  // *************** Update the school document if it's active
   await School.findOneAndUpdate(
-    // Filter by ID and status
+    // *************** Filter by ID and status
     { _id: id, status: "is_active" },
     {
-      // Update long_name
+      // *************** Update long_name
       long_name: name.long_name,
 
-      // Update short_name
+      // *************** Update short_name
       short_name: name.short_name,
 
-      // Update address
+      // *************** Update address
       address,
     }
   );
 
-  // Manually fetch and return the updated document
+  // *************** Manually fetch and return the updated document
   return await School.findById(id);
 }
 
@@ -112,16 +112,16 @@ async function UpdateSchool(_, { input }) {
  * @returns {Promise<Object|null>} The updated school document after soft deletion.
  */
 async function SoftDeleteSchool(_, { id }) {
-  // Update school status to "deleted" only if it's currently active
+  // *************** Update school status to "deleted" only if it's currently active
   await School.findOneAndUpdate(
-    // Match only active schools
+    // *************** Match only active schools
     { _id: id, status: "is_active" },
 
-    // Set status to "deleted"
+    // *************** Set status to "deleted"
     { status: "deleted" }
   );
 
-  // Return the updated school document
+  // *************** Return the updated school document
   return await School.findById(id);
 }
 

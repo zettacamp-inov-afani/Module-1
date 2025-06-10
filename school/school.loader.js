@@ -18,12 +18,12 @@ const Student = require("../student/student.model");
  * const studentsForSchool = await schoolStudentLoader.load("6647a8b2c1d3a1234567890f");
  */
 function SchoolStudentLoader() {
-  // Create new instance of DataLoader
+  // *************** Create new instance of DataLoader
   return new DataLoader(async (schoolIds) => {
-    // Find all Students whose school_id is in the schoolIds array
+    // *************** Find all Students whose school_id is in the schoolIds array
     const students = await Student.find({ school_id: { $in: schoolIds } });
 
-    // Create dictionary to group students by school_id
+    // *************** Create dictionary to group students by school_id
     const schoolIdToStudents = {};
     schoolIds.forEach((id) => (schoolIdToStudents[id] = []));
     students.forEach((student) => {
@@ -33,7 +33,7 @@ function SchoolStudentLoader() {
       }
     });
 
-    // Return an array containing student lists in the order of the requested schoolIds.
+    // *************** Return an array containing student lists in the order of the requested schoolIds.
     return schoolIds.map((id) => schoolIdToStudents[id]);
   });
 }

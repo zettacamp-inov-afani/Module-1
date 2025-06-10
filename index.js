@@ -35,15 +35,15 @@ const resolvers = mergeResolvers([
  * @returns {Promise<void>}
  */
 async function startServer() {
-  // Initialize Express app
+  // *************** Initialize Express app
   const app = express();
 
-  // Initialize Apollo Server with schema and context
+  // *************** Initialize Apollo Server with schema and context
   const server = new ApolloServer({
     typeDefs,
     resolvers,
     context: () => ({
-      // Initialize DataLoader instances for batching and caching
+      // *************** Initialize DataLoader instances for batching and caching
       loaders: {
         studentsBySchool: createStudentsBySchoolLoader(),
         schoolById: createSchoolByIdLoader(),
@@ -51,19 +51,19 @@ async function startServer() {
     }),
   });
 
-  // Apply Apollo middleware to Express app
+  // *************** Apply Apollo middleware to Express app
   server.applyMiddleware({ app });
 
-  // Connect to MongoDB
+  // *************** Connect to MongoDB
   await mongoose.connect("mongodb://localhost:27017/zettaschool", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
 
-  // Set the debug for dataLoader
+  // *************** Set the debug for dataLoader
   await mongoose.set("debug", true);
 
-  // Start the Express server
+  // *************** Start the Express server
   app.listen({ port: 4000 }, () =>
     console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
   );

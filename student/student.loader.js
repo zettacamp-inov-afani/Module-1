@@ -19,16 +19,16 @@ const School = require("../school/school.model");
 function createSchoolByIdLoader() {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (schoolIds) => {
-    // Find all Schools whose id is in the schoolIds array
+    // *************** Find all Schools whose id is in the schoolIds array
     const schools = await School.find({ _id: { $in: schoolIds } });
 
-    // Create schoolMap object for dictionary
+    // *************** Create schoolMap object for dictionary
     const schoolMap = {};
     schools.forEach((school) => {
       schoolMap[school._id.toString()] = school;
     });
 
-    // Return an array containing schools in the order of the requested schoolIds.
+    // *************** Return an array containing schools in the order of the requested schoolIds.
     return schoolIds.map((id) => schoolMap[id.toString()]);
   });
 }
