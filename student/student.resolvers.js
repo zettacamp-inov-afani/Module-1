@@ -14,8 +14,15 @@ const Student = require("./student.model");
  * @returns {Promise<Object|null>} The student document if found, otherwise null.
  */
 async function GetStudent(_, { id }) {
-  // *************** Find a school with matching ID and active status
-  return await Student.findOne({ _id: id, status: "is_active" });
+  // *************** Validate the input ID
+  if (!id) {
+    throw new Error("Student ID is required");
+  }
+  // *************** Find a student with matching ID and active status
+  const student = await Student.findOne({ _id: id, status: "is_active" });
+
+  // *************** Return the found student
+  return student;
 }
 
 /**
@@ -26,8 +33,14 @@ async function GetStudent(_, { id }) {
  * @returns {Promise<Array<Object>>} A list of active student documents.
  */
 async function GetAllStudents() {
-  // *************** Find all students with status "is_active"
-  return await Student.find({ status: "is_active" });
+  // *************** Retrieve all student documents with status "is_active"
+  const students = await Student.find({
+    // *************** Filter by status "is_active" only
+    status: "is_active",
+  });
+
+  // *************** Return the list of active students
+  return students;
 }
 
 /**

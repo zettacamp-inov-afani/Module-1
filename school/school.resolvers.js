@@ -14,8 +14,15 @@ const School = require("./school.model");
  * @returns {Promise<Object|null>} The school document if found, otherwise null.
  */
 async function GetSchool(_, { id }) {
+  // *************** Validate the input ID
+  if (!id) {
+    throw new Error("School ID's is required");
+  }
   // *************** Find a school with matching ID and active status
-  return await School.findOne({ _id: id, status: "is_active" });
+  const school = await School.findOne({ _id: id, status: "is_active" });
+
+  // *************** Return the found student
+  return school;
 }
 
 /**
@@ -26,8 +33,14 @@ async function GetSchool(_, { id }) {
  * @returns {Promise<Array>} A list of all active schools.
  */
 async function GetAllSchools() {
-  // *************** Find all schools with status "is_active"
-  return await School.find({ status: "is_active" });
+  // *************** Retrieve all school documents with status "is_active"
+  const schools = await School.find({
+    // *************** Filter by status "is_active" only
+    status: "is_active",
+  });
+
+  // *************** Return the list of active schools
+  return schools;
 }
 
 // *************** MUTATION ***************

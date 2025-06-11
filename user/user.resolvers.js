@@ -20,8 +20,19 @@ const dummyUser = {
  * @returns {Promise<Object|null>} The user document if found.
  */
 async function GetUser(_, { id }) {
+  // *************** Validate input ID
+  if (!id) {
+    throw new Error("User ID is required");
+  }
+
   // *************** Find a user with matching ID and active status
-  return await User.findOne({ _id: id, status: "is_active" });
+  const user = await User.findOne({
+    _id: id,
+    status: "is_active",
+  });
+
+  // *************** Return the found user
+  return user;
 }
 
 /**
@@ -32,8 +43,11 @@ async function GetUser(_, { id }) {
  * @returns {Promise<Array>} A list of active user documents.
  */
 async function GetAllUsers() {
-  // *************** Find all students with status "is_active"
-  return await User.find({ status: "is_active" });
+  // *************** Find all users with status "is_active"
+  const users = await User.find({ status: "is_active" });
+
+  // *************** Return the list of active users
+  return users;
 }
 
 // *************** MUTATION ***************
