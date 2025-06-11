@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT MODULE ***************
 const User = require("./user.model");
 
 // Dummy user login
@@ -20,7 +20,7 @@ const dummyUser = {
  * @returns {Promise<Object|null>} The user document if found.
  */
 async function GetUser(_, { id }) {
-  // Find a user by ID and ensure they are active
+  // *************** Find a user with matching ID and active status
   return await User.findOne({ _id: id, status: "is_active" });
 }
 
@@ -32,7 +32,7 @@ async function GetUser(_, { id }) {
  * @returns {Promise<Array>} A list of active user documents.
  */
 async function GetAllUsers() {
-  // Fetch all users whose status is active
+  // *************** Find all students with status "is_active"
   return await User.find({ status: "is_active" });
 }
 
@@ -88,8 +88,13 @@ async function CreateUser(_, { input }) {
 async function UpdateUser(_, { input }) {
   const { id, first_name, last_name, email, password, role } = input;
 
+  // *************** Validate required input fields
+  if (!id) throw new Error("User ID is required");
+  if (!first_name || !last_name)
+    throw new Error("First name and last name are required");
+
   // *************** Update the user data if active
-  await User.findOneAndUpdate(
+  const updatedUser = await User.findOneAndUpdate(
     // *************** Match active user by ID
     { _id: id, status: "is_active" },
     {
@@ -107,11 +112,14 @@ async function UpdateUser(_, { input }) {
 
       // *************** Update role
       role,
-    }
+    },
+
+    // *************** Get the newest result
+    { new: true }
   );
 
   // Return the updated document (manually retrieved)
-  return await User.findById(id);
+  return updatedUser;
 }
 
 /**

@@ -18,8 +18,9 @@ const studentResolvers = require("./student/student.resolvers");
 
 const schoolTypeDefs = require("./school/school.typedef");
 const schoolResolvers = require("./school/school.resolvers");
+const connectDB = require("./config/db");
 
-// Merge typedef and resolver
+// *************** Merge typedefs and resolvers
 const typeDefs = mergeTypeDefs([userTypeDefs, studentTypeDefs, schoolTypeDefs]);
 const resolvers = mergeResolvers([
   userResolvers,
@@ -55,13 +56,7 @@ async function startServer() {
   server.applyMiddleware({ app });
 
   // *************** Connect to MongoDB
-  await mongoose.connect("mongodb://localhost:27017/zettaschool", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-
-  // *************** Set the debug for dataLoader
-  await mongoose.set("debug", true);
+  await connectDB();
 
   // *************** Start the Express server
   app.listen({ port: 4000 }, () =>

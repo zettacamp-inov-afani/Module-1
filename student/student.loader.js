@@ -1,5 +1,7 @@
 // *************** IMPORT CORE ***************
 const DataLoader = require("dataloader");
+
+// *************** IMPORT MODULE ***************
 const School = require("../school/school.model");
 
 /**

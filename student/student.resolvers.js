@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT MODULE ***************
 const Student = require("./student.model");
 
 // *************** QUERY ***************
@@ -14,6 +14,7 @@ const Student = require("./student.model");
  * @returns {Promise<Object|null>} The student document if found, otherwise null.
  */
 async function GetStudent(_, { id }) {
+  // *************** Find a school with matching ID and active status
   return await Student.findOne({ _id: id, status: "is_active" });
 }
 
@@ -25,6 +26,7 @@ async function GetStudent(_, { id }) {
  * @returns {Promise<Array<Object>>} A list of active student documents.
  */
 async function GetAllStudents() {
+  // *************** Find all students with status "is_active"
   return await Student.find({ status: "is_active" });
 }
 
@@ -109,7 +111,13 @@ async function UpdateStudent(_, { input }) {
   // *************** Destructure all the input fields
   const { id, first_name, last_name, email, date_of_birth, school_id } = input;
 
-  await Student.findOneAndUpdate(
+  // *************** Validate required input fields
+  if (!id) throw new Error("Student ID is required");
+  if (!first_name || !last_name)
+    throw new Error("First name and last name are required");
+  if (!school_id) throw new Error("School ID is required");
+
+  const updatedStudent = await Student.findOneAndUpdate(
     // *************** Find student by ID and status
     { _id: id, status: "is_active" },
     {
@@ -127,11 +135,14 @@ async function UpdateStudent(_, { input }) {
 
       // *************** Update school_id
       school_id,
-    }
+    },
+
+    // *************** Get the newest result
+    { new: true }
   );
 
-  // *************** Fetch and return the updated student document using findById
-  return await Student.findById(id);
+  // *************** Return the updated student
+  return updatedStudent;
 }
 
 /**

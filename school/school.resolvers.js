@@ -14,7 +14,7 @@ const School = require("./school.model");
  * @returns {Promise<Object|null>} The school document if found, otherwise null.
  */
 async function GetSchool(_, { id }) {
-  // Find a school with matching ID and active status
+  // *************** Find a school with matching ID and active status
   return await School.findOne({ _id: id, status: "is_active" });
 }
 
@@ -26,7 +26,7 @@ async function GetSchool(_, { id }) {
  * @returns {Promise<Array>} A list of all active schools.
  */
 async function GetAllSchools() {
-  // Find all schools with status "is_active"
+  // *************** Find all schools with status "is_active"
   return await School.find({ status: "is_active" });
 }
 
@@ -79,8 +79,11 @@ async function CreateSchool(_, { input }) {
 async function UpdateSchool(_, { input }) {
   const { id, name, address } = input;
 
+  // *************** Validate required input fields
+  if (!id) throw new Error("School ID is required");
+
   // *************** Update the school document if it's active
-  await School.findOneAndUpdate(
+  const updatedSchool = await School.findOneAndUpdate(
     // *************** Filter by ID and status
     { _id: id, status: "is_active" },
     {
@@ -92,11 +95,14 @@ async function UpdateSchool(_, { input }) {
 
       // *************** Update address
       address,
-    }
+    },
+
+    // *************** Get the newest result
+    { new: true }
   );
 
   // *************** Manually fetch and return the updated document
-  return await School.findById(id);
+  return updatedSchool;
 }
 
 /**

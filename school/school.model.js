@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT MODULE ***************
 const mongoose = require("mongoose");
 
 const addressSchema = new mongoose.Schema({
