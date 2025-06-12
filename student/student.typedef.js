@@ -2,30 +2,21 @@
 const { gql } = require("apollo-server-express");
 
 const studentTypeDefs = gql`
-  type School {
-    _id: ID!
-    long_name: String!
-    short_name: String!
-    address: [Address!]!
-    students: [ID!]!
-    status: String!
-    createdAt: String!
-    updatedAt: String!
-  }
-
-  type Address {
-    detail: String!
-    city: String!
-    country: String!
-    zipcode: Int!
+  enum Civility {
+    Mr
+    Mrs
   }
 
   type Student {
     _id: ID!
+    civility: Civility!
     first_name: String!
     last_name: String!
     email: String!
-    date_of_birth: String
+    tele_phone: String!
+    date_of_birth: Date!
+    place_of_birth: String!
+    postal_code_of_birth: String!
     school_id: School!
     status: String!
     createdAt: String
@@ -33,19 +24,26 @@ const studentTypeDefs = gql`
   }
 
   input CreateStudentInput {
+    civility: Civility!
     first_name: String!
     last_name: String!
     email: String!
-    date_of_birth: String
+    tele_phone: String!
+    date_of_birth: Date!
+    place_of_birth: String!
+    postal_code_of_birth: String!
     school_id: ID!
   }
 
   input UpdateStudentInput {
     id: ID!
+    civility: Civility!
     first_name: String!
     last_name: String!
     email: String
-    date_of_birth: String
+    date_of_birth: Date
+    place_of_birth: String
+    postal_code_of_birth: String
     school_id: ID!
   }
 

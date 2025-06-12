@@ -2,38 +2,42 @@
 const DataLoader = require("dataloader");
 
 // *************** IMPORT MODULE ***************
-const School = require("../school/school.model");
+const Student = require("./student.model");
 
 /**
- * Creates a DataLoader instance to batch and cache school lookups by ID.
+ * Creates a DataLoader to batch and cache student lookups by school ID.
+ * This allows GraphQL to efficiently resolve the list of students for each school
+ * without triggering a separate database query per school (N+1 problem).
  *
- * This function helps prevent the N+1 query problem by combining multiple
- * requests for schools into a single database query. It then maps each
- * requested ID to the corresponding school document in the correct order.
- *
- * @function
- * @returns {DataLoader<string, Object>} A DataLoader that loads School documents by their ID.
- *
- * @example
- * const schoolLoader = createSchoolByIdLoader();
- * const school = await schoolLoader.load("6647a8b2c1d3a1234567890f");
+ * @function CreateStudentsBySchoolIdLoader
+ * @returns {DataLoader<string, Array<Object>>} A DataLoader instance that maps each school ID to its list of students.
  */
-function createSchoolByIdLoader() {
-  // *************** Create new instance of DataLoader
+function CreateStudentsBySchoolIdLoader() {
+  // *************** Fetch all students whose school_id is in the input list and are active
   return new DataLoader(async (schoolIds) => {
-    // *************** Find all Schools whose id is in the schoolIds array
-    const schools = await School.find({ _id: { $in: schoolIds } });
-
-    // *************** Create schoolMap object for dictionary
-    const schoolMap = {};
-    schools.forEach((school) => {
-      schoolMap[school._id.toString()] = school;
+    const students = await Student.find({
+      school_id: { $in: schoolIds },
+      status: "is_active",
     });
 
-    // *************** Return an array containing schools in the order of the requested schoolIds.
-    return schoolIds.map((id) => schoolMap[id.toString()]);
+    // *************** Create a Map to group students by their school_id
+    const map = new Map();
+    // *************** Initialize an empty array for each school ID in the input list
+    schoolIds.forEach((id) => map.set(id.toString(), []));
+
+    // *************** Populate the map with students grouped by their school_id
+    students.forEach((student) => {
+      const key = student.school_id.toString();
+      if (map.has(key)) map.get(key).push(student);
+    });
+
+    // *************** Return the students grouped per schoolId in the same order as received
+    const createStudentLoader = schoolIds.map(
+      (id) => map.get(id.toString()) || []
+    );
+    return createStudentLoader;
   });
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = createSchoolByIdLoader;
+module.exports = CreateStudentsBySchoolIdLoader;

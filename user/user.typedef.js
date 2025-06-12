@@ -5,8 +5,14 @@ const { gql } = require("apollo-server-express");
 const userTypeDefs = gql`
   scalar Date
 
+  enum Civility {
+    Mr
+    Mrs
+  }
+
   type User {
     id: ID!
+    civility: Civility!
     first_name: String!
     last_name: String!
     email: String!
@@ -16,6 +22,7 @@ const userTypeDefs = gql`
   }
 
   input CreateUserInput {
+    civility: Civility!
     first_name: String!
     last_name: String!
     email: String!
@@ -25,6 +32,7 @@ const userTypeDefs = gql`
 
   input UpdateUserInput {
     id: ID!
+    civility: Civility
     first_name: String
     last_name: String
     email: String

@@ -57,48 +57,102 @@ async function GetAllStudents() {
  * @param {DataLoader<string, Object>} context.loaders.schoolById - DataLoader for fetching schools by ID.
  * @returns {Promise<Object|null>} The associated school document, or null if not found.
  */
-async function school_id(student, _, { loaders }) {
-  return await loaders.schoolById.load(student.school_id.toString());
+async function SchoolLoaders(student, _, { loaders }) {
+  // *************** Use the DataLoader `schoolById` from context to fetch the related school.
+  const schoolLoaders = await loaders.schoolById.load(
+    student.school_id.toString()
+  );
+  return schoolLoaders;
 }
 
 // *************** MUTATION ***************
 
 /**
- * Creates a new student and saves it to the database with "is_active" status.
+ * Creates a new student document in the database.
+ *
+ * This function receives the student input from GraphQL arguments, validates the required fields,
+ * creates a new Student instance, and stores it in the database with a default status of "is_active".
  *
  * @async
- * @function
- * @param {Object} _ - Unused parent resolver argument.
- * @param {Object} args - Arguments containing the input for student creation.
- * @param {Object} args.input - The input object for student data.
- * @param {string} args.input.first_name - The first name of the student.
- * @param {string} args.input.last_name - The last name of the student.
- * @param {string} args.input.email - The email address of the student.
- * @param {string} [args.input.date_of_birth] - The optional date of birth.
- * @param {string} args.input.school_id - The ID of the school the student belongs to.
+ * @function CreateStudent
+ * @param {Object} _ - Unused parent resolver argument (as per GraphQL resolver convention).
+ * @param {Object} args - The GraphQL arguments object.
+ * @param {Object} args.input - Input object containing student details.
+ * @param {string} args.input.civility - Civility or title of the student (e.g., Mr/Ms).
+ * @param {string} args.input.first_name - Student's first name.
+ * @param {string} args.input.last_name - Student's last name.
+ * @param {string} args.input.email - Student's email address.
+ * @param {string} args.input.tele_phone - Student's telephone number.
+ * @param {string} args.input.date_of_birth - Student's date of birth.
+ * @param {string} args.input.place_of_birth - Student's place of birth.
+ * @param {string} args.input.postal_code_of_birth - Postal code of student's birthplace.
+ * @param {string} args.input.school_id - The ID of the school the student is associated with.
  * @returns {Promise<Object>} The newly created student document.
+ * @throws {Error} If any required field is missing.
  */
 async function CreateStudent(_, { input }) {
+  // *************** Destructing the assignment
+  const {
+    civility,
+    first_name,
+    last_name,
+    email,
+    tele_phone,
+    date_of_birth,
+    place_of_birth,
+    postal_code_of_birth,
+    school_id,
+  } = input;
+
+  // *************** Validate required fields
+  if (
+    !civility ||
+    !first_name ||
+    !last_name ||
+    !email ||
+    !tele_phone ||
+    !place_of_birth ||
+    !postal_code_of_birth ||
+    !school_id
+  ) {
+    throw new Error("Missing required fields");
+  }
   // *************** Create a new instance of the Student model using input data
   const student = new Student({
+    // *************** Assign civility
+    civility,
+
     // *************** Assign first name
-    first_name: input.first_name,
+    first_name,
 
     // *************** Assign last name
-    last_name: input.last_name,
+    last_name,
 
     // *************** Assign email
-    email: input.email,
+    email,
+
+    // *************** Assign telephone
+    tele_phone,
+
+    // *************** Assign date of birth
+    date_of_birth,
+
+    // *************** Assign place of birth
+    place_of_birth,
+
+    // *************** Assign postal code of birth
+    postal_code_of_birth,
 
     // *************** Assign school_id
-    school_id: input.school_id,
+    school_id,
 
     // *************** Set status
     status: "is_active",
   });
 
   // *************** Save the new student to the database and return the result
-  return await student.save();
+  const createStudent = await student.save();
+  return createStudent;
 }
 
 /**
@@ -122,18 +176,33 @@ async function CreateStudent(_, { input }) {
  */
 async function UpdateStudent(_, { input }) {
   // *************** Destructure all the input fields
-  const { id, first_name, last_name, email, date_of_birth, school_id } = input;
+  const {
+    id,
+    civility,
+    first_name,
+    last_name,
+    email,
+    tele_phone,
+    date_of_birth,
+    place_of_birth,
+    postal_code_of_birth,
+    school_id,
+  } = input;
 
   // *************** Validate required input fields
   if (!id) throw new Error("Student ID is required");
+
+  // *************** Validate optional input fields
   if (!first_name || !last_name)
-    throw new Error("First name and last name are required");
-  if (!school_id) throw new Error("School ID is required");
+    throw new Error("First name and last name must be assigned");
 
   const updatedStudent = await Student.findOneAndUpdate(
     // *************** Find student by ID and status
     { _id: id, status: "is_active" },
     {
+      // *************** Update civility
+      civility,
+
       // *************** Update first name
       first_name,
 
@@ -143,8 +212,17 @@ async function UpdateStudent(_, { input }) {
       // *************** Update email
       email,
 
+      // *************** Update telephone
+      tele_phone,
+
       // *************** Update date of birth
       date_of_birth,
+
+      // *************** Update place of birth
+      place_of_birth,
+
+      // *************** Update postal code of birth
+      postal_code_of_birth,
 
       // *************** Update school_id
       school_id,
@@ -172,17 +250,21 @@ async function UpdateStudent(_, { input }) {
  * @returns {Promise<Object|null>} The soft-deleted student document, or null if not found.
  */
 async function SoftDeleteStudent(_, { id }) {
+  // *************** Validate required input fields
+  if (!id) throw new Error("Student ID is required");
+
   // *************** Find the student with the given ID and "is_active" status, then update it to "deleted"
-  await Student.findOneAndUpdate(
+  const softDeletedStudent = await Student.findOneAndUpdate(
     // *************** Filter by ID and active status
     { _id: id, status: "is_active" },
 
     // *************** Set status to "deleted" (soft delete)
-    { status: "deleted" }
+    { status: "deleted" },
+    { new: true }
   );
 
   // *************** Fetch and return the updated student (now with "deleted" status)
-  return await Student.findById(id);
+  return softDeletedStudent;
 }
 
 // *************** EXPORT MODULE ***************
@@ -197,6 +279,6 @@ module.exports = {
     SoftDeleteStudent,
   },
   Student: {
-    school_id: school_id,
+    school_id: SchoolLoaders,
   },
 };

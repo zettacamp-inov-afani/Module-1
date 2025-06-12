@@ -63,19 +63,28 @@ async function GetAllUsers() {
  * @returns {Promise<Object>} The created user document.
  */
 async function CreateUser(_, { input }) {
+  const { civility, first_name, last_name, email, password, role } = input;
+
+  // *************** Validate required fields
+  if (!civility || !first_name || !last_name || !email || !password || !role) {
+    throw new Error("Missing required fields");
+  }
   // *************** Create a new User instance with data from input
   const user = new User({
+    // *************** Assign civility
+    civility,
+
     // *************** Set user's first name
-    first_name: input.first_name,
+    first_name,
 
     // *************** Set user's last name
-    last_name: input.last_name,
+    last_name,
 
     // *************** Set user's email
-    email: input.email,
+    email,
 
     // *************** Set user's password
-    password: input.password,
+    password,
 
     // *************** Default to "operator" if no role is provided
     role: input.role || "operator",
@@ -85,7 +94,8 @@ async function CreateUser(_, { input }) {
   });
 
   // *************** Save the user and return the result
-  return await user.save();
+  const createUser = await user.save();
+  return createUser;
 }
 
 /**

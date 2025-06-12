@@ -1,8 +1,15 @@
 // *************** IMPORT CORE ***************
 const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
+    // Civility of the student
+    civility: {
+      type: String,
+      enum: ["Mr", "Mrs"],
+      required: true,
+    },
+
     // User first name
     first_name: { type: String, required: true },
 
@@ -33,4 +40,4 @@ const UserSchema = new mongoose.Schema(
 );
 
 // *************** EXPORT MODULE ***************
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("User", userSchema);

@@ -14,7 +14,7 @@ const schoolTypeDefs = gql`
     long_name: String!
     short_name: String!
     address: [Address!]!
-    students: [ID!]!
+    students: [Student!]!
     status: String!
     createdAt: String!
     updatedAt: String!

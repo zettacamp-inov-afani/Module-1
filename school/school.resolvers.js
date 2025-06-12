@@ -43,6 +43,31 @@ async function GetAllSchools() {
   return schools;
 }
 
+/**
+ * Resolver for the `students` field on the `School` type.
+ * Uses DataLoader to fetch a list of students belonging to the given school ID.
+ *
+ * @async
+ * @function ResolveSchoolStudents
+ * @param {Object} parent - The parent object, representing a single School.
+ * @param {Object} _ - Unused GraphQL arguments placeholder.
+ * @param {Object} context - GraphQL context, providing shared resources.
+ * @param {Object} context.loaders - Object containing all configured DataLoaders.
+ * @param {DataLoader} context.loaders.studentsLoader - DataLoader that batches student lookups by school ID.
+ * @returns {Promise<Array<Object>>} A promise resolving to an array of student objects belonging to the school.
+ */
+async function ResolveSchoolStudents(parent, _, context) {
+  // *************** Destructure the studentsLoader from the context
+  const { studentsLoader } = context.loaders;
+
+  // *************** If the parent (School) has no _id, return an empty array early
+  if (!parent._id) return [];
+
+  // *************** Use the studentsLoader to fetch students by the school's _id
+  const studentLoad = await studentsLoader.load(parent._id.toString());
+  return studentLoad;
+}
+
 // *************** MUTATION ***************
 
 /**
@@ -74,7 +99,8 @@ async function CreateSchool(_, { input }) {
   });
 
   // *************** Save and return the new school
-  return await school.save();
+  const createSchool = await school.save();
+  return createSchool;
 }
 
 /**
@@ -141,7 +167,8 @@ async function SoftDeleteSchool(_, { id }) {
   );
 
   // *************** Return the updated school document
-  return await School.findById(id);
+  const softDeletedSchool = await School.findById(id);
+  return softDeletedSchool;
 }
 
 // *************** EXPORT MODULE ***************
@@ -154,5 +181,8 @@ module.exports = {
     CreateSchool,
     UpdateSchool,
     SoftDeleteSchool,
+  },
+  School: {
+    students: ResolveSchoolStudents,
   },
 };

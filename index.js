@@ -6,8 +6,8 @@ const { mergeTypeDefs } = require("@graphql-tools/merge");
 const { mergeResolvers } = require("@graphql-tools/merge");
 
 // *************** IMPORT DATALOADER ***************
-const createStudentsBySchoolLoader = require("./school/school.loader");
-const createSchoolByIdLoader = require("./student/student.loader");
+const CreateStudentsBySchoolIdLoader = require("./student/student.loader");
+const CreateSchoolByIdLoader = require("./school/school.loader");
 
 // *************** IMPORT MODULE ***************
 const userTypeDefs = require("./user/user.typedef");
@@ -46,8 +46,8 @@ async function startServer() {
     context: () => ({
       // *************** Initialize DataLoader instances for batching and caching
       loaders: {
-        studentsBySchool: createStudentsBySchoolLoader(),
-        schoolById: createSchoolByIdLoader(),
+        studentsLoader: CreateStudentsBySchoolIdLoader(),
+        schoolById: CreateSchoolByIdLoader(),
       },
     }),
   });

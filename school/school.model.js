@@ -8,7 +8,7 @@ const addressSchema = new mongoose.Schema({
   zipcode: { type: Number, required: true },
 });
 
-const SchoolSchema = new mongoose.Schema(
+const schoolSchema = new mongoose.Schema(
   {
     // Long name of the school
     long_name: { type: String, required: true },
@@ -18,9 +18,6 @@ const SchoolSchema = new mongoose.Schema(
 
     // School addresses
     address: [addressSchema],
-
-    // Student's reference
-    students: [{ type: mongoose.Schema.Types.ObjectId, ref: "Student" }],
 
     // Check stasuses
     status: {
@@ -33,4 +30,4 @@ const SchoolSchema = new mongoose.Schema(
 );
 
 // *************** EXPORT MODULE ***************
-module.exports = mongoose.model("School", SchoolSchema);
+module.exports = mongoose.model("School", schoolSchema);

@@ -2,43 +2,39 @@
 const DataLoader = require("dataloader");
 
 // *************** IMPORT MODULE ***************
-const Student = require("../student/student.model");
+const School = require("./school.model");
 
 /**
- * Creates a DataLoader instance to batch and cache lookups of Students by School ID.
+ * Creates a DataLoader instance to batch and cache school lookups by ID.
  *
- * This loader allows you to efficiently fetch all students belonging to each school,
- * solving the N+1 problem in GraphQL when resolving nested student lists in a School object.
- *
- * Each school ID will return an array of Student documents associated with that school.
+ * This function helps prevent the N+1 query problem by combining multiple
+ * requests for schools into a single database query. It then maps each
+ * requested ID to the corresponding school document in the correct order.
  *
  * @function
- * @returns {DataLoader<string, Object[]>} A DataLoader that loads arrays of students per school ID.
+ * @returns {DataLoader<string, Object>} A DataLoader that loads School documents by their ID.
  *
  * @example
- * const schoolStudentLoader = SchoolStudentLoader();
- * const studentsForSchool = await schoolStudentLoader.load("6647a8b2c1d3a1234567890f");
+ * const schoolLoader = createSchoolByIdLoader();
+ * const school = await schoolLoader.load("6647a8b2c1d3a1234567890f");
  */
-function SchoolStudentLoader() {
+function CreateSchoolByIdLoader() {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (schoolIds) => {
-    // *************** Find all Students whose school_id is in the schoolIds array
-    const students = await Student.find({ school_id: { $in: schoolIds } });
+    // *************** Find all Schools whose id is in the schoolIds array
+    const schools = await School.find({ _id: { $in: schoolIds } });
 
-    // *************** Create dictionary to group students by school_id
-    const schoolIdToStudents = {};
-    schoolIds.forEach((id) => (schoolIdToStudents[id] = []));
-    students.forEach((student) => {
-      const key = student.school_id.toString();
-      if (schoolIdToStudents[key]) {
-        schoolIdToStudents[key].push(student);
-      }
+    // *************** Create schoolMap object for dictionary
+    const schoolMap = {};
+    schools.forEach((school) => {
+      schoolMap[school._id.toString()] = school;
     });
 
-    // *************** Return an array containing student lists in the order of the requested schoolIds.
-    return schoolIds.map((id) => schoolIdToStudents[id]);
+    // *************** Return an array containing schools in the order of the requested schoolIds.
+    const createSchoolLoader = schoolIds.map((id) => schoolMap[id.toString()]);
+    return createSchoolLoader;
   });
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = SchoolStudentLoader;
+module.exports = CreateSchoolByIdLoader;

@@ -1,8 +1,14 @@
 // *************** IMPORT MODULE ***************
 const mongoose = require("mongoose");
 
-const StudentSchema = new mongoose.Schema(
+const studentSchema = new mongoose.Schema(
   {
+    // Civility of the student
+    civility: {
+      type: String,
+      enum: ["Mr", "Mrs"],
+      required: true,
+    },
     // First name of the student
     first_name: { type: String, required: true },
 
@@ -12,8 +18,17 @@ const StudentSchema = new mongoose.Schema(
     // Email of the student
     email: { type: String, required: true, unique: true },
 
+    // Telephone of the student
+    tele_phone: { type: String, required: true, unique: true },
+
     // Date of birth of the student
     date_of_birth: { type: Date },
+
+    // Place of birth of the student
+    place_of_birth: { type: String, required: true },
+
+    // Postal code of birth of the student
+    postal_code_of_birth: { type: String, required: true },
 
     // School ref
     school_id: {
@@ -33,4 +48,4 @@ const StudentSchema = new mongoose.Schema(
 );
 
 // *************** EXPORT MODULE ***************
-module.exports = mongoose.model("Student", StudentSchema);
+module.exports = mongoose.model("Student", studentSchema);
