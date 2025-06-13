@@ -212,8 +212,9 @@ async function CreateStudent(parent, { input }) {
  */
 async function UpdateStudent(parent, { input }) {
   try {
+    const allowedCivilities = ['Mr', 'Mrs'];
     const {
-      id,
+      _id,
       civility,
       first_name,
       last_name,
@@ -228,7 +229,7 @@ async function UpdateStudent(parent, { input }) {
     // *************** Validation input
 
     // ***************  ID
-    if (!id || typeof id !== 'string' || id.trim() === '') {
+    if (!_id || typeof _id !== 'string' || _id.trim() === '') {
       throw new Error('Student ID is required and must be a valid string.');
     }
 
@@ -312,7 +313,7 @@ async function UpdateStudent(parent, { input }) {
     // ***************  Update the student
 
     const updatedStudent = await Student.findOneAndUpdate(
-      { _id: id, status: 'is_active' },
+      { _id: _id, status: 'is_active' },
       {
         civility,
         first_name,

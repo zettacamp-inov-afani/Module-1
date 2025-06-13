@@ -41,6 +41,7 @@ const studentTypeDefs = gql`
     first_name: String!
     last_name: String!
     email: String
+    tele_phone: String!
     date_of_birth: Date
     place_of_birth: String
     postal_code_of_birth: String
