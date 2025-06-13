@@ -1,24 +1,24 @@
 // *************** IMPORT CORE ***************
-const { ApolloServer, gql } = require("apollo-server-express");
-const express = require("express");
-const mongoose = require("mongoose");
-const { mergeTypeDefs } = require("@graphql-tools/merge");
-const { mergeResolvers } = require("@graphql-tools/merge");
+const { ApolloServer, gql } = require('apollo-server-express');
+const express = require('express');
+const mongoose = require('mongoose');
+const { mergeTypeDefs } = require('@graphql-tools/merge');
+const { mergeResolvers } = require('@graphql-tools/merge');
 
 // *************** IMPORT DATALOADER ***************
-const createStudentsBySchoolIdLoader = require("./student/student.loader");
-const createSchoolByIdLoader = require("./school/school.loader");
+const createStudentsByIdLoader = require('./student/student.loader');
+const createSchoolByIdLoader = require('./school/school.loader');
 
 // *************** IMPORT MODULE ***************
-const userTypeDefs = require("./user/user.typedef");
-const userResolvers = require("./user/user.resolvers");
+const userTypeDefs = require('./user/user.typedef');
+const userResolvers = require('./user/user.resolvers');
 
-const studentTypeDefs = require("./student/student.typedef");
-const studentResolvers = require("./student/student.resolvers");
+const studentTypeDefs = require('./student/student.typedef');
+const studentResolvers = require('./student/student.resolvers');
 
-const schoolTypeDefs = require("./school/school.typedef");
-const schoolResolvers = require("./school/school.resolvers");
-const connectDB = require("./config/db");
+const schoolTypeDefs = require('./school/school.typedef');
+const schoolResolvers = require('./school/school.resolvers');
+const connectDB = require('./config/db');
 
 // *************** Merge typedefs and resolvers
 const typeDefs = mergeTypeDefs([userTypeDefs, studentTypeDefs, schoolTypeDefs]);
@@ -46,7 +46,7 @@ async function StartServer() {
     context: () => ({
       // *************** Initialize DataLoader instances for batching and caching
       loaders: {
-        studentsLoader: createStudentsBySchoolIdLoader(),
+        studentById: createStudentsByIdLoader(),
         schoolById: createSchoolByIdLoader(),
       },
     }),

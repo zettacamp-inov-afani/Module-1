@@ -1,5 +1,6 @@
 // *************** IMPORT MODULE ***************
-const Student = require("./student.model");
+const Student = require('./student.model');
+const School = require('../school/school.model');
 
 // *************** QUERY ***************
 
@@ -13,13 +14,13 @@ const Student = require("./student.model");
  * @param {string} args.id - The ID of the student to retrieve.
  * @returns {Promise<Object|null>} The student document if found, otherwise null.
  */
-async function GetStudent(_, { id }) {
+async function GetStudent(_, { _id }) {
   // *************** Validate the input ID
   if (!id) {
-    throw new Error("Student ID is required");
+    throw new Error('Student ID is required');
   }
   // *************** Find a student with matching ID and active status
-  const student = await Student.findOne({ _id: id, status: "is_active" });
+  const student = await Student.findOne({ _id: _id, status: 'is_active' });
 
   // *************** Return the found student
   return student;
@@ -36,7 +37,7 @@ async function GetAllStudents() {
   // *************** Retrieve all student documents with status "is_active"
   const students = await Student.find({
     // *************** Filter by status "is_active" only
-    status: "is_active",
+    status: 'is_active',
   });
 
   // *************** Return the list of active students
@@ -57,10 +58,10 @@ async function GetAllStudents() {
  * @param {DataLoader<string, Object>} context.loaders.schoolById - DataLoader for fetching schools by ID.
  * @returns {Promise<Object|null>} The associated school document, or null if not found.
  */
-async function SchoolLoaders(student, _, { loaders }) {
+async function SchoolLoaders(parent, args, { loaders }) {
   // *************** Use the DataLoader `schoolById` from context to fetch the related school.
   const schoolLoaders = await loaders.schoolById.load(
-    student.school_id.toString()
+    parent.school_id.toString()
   );
   return schoolLoaders;
 }
@@ -90,69 +91,126 @@ async function SchoolLoaders(student, _, { loaders }) {
  * @returns {Promise<Object>} The newly created student document.
  * @throws {Error} If any required field is missing.
  */
-async function CreateStudent(_, { input }) {
-  // *************** Destructing the assignment
-  const {
-    civility,
-    first_name,
-    last_name,
-    email,
-    tele_phone,
-    date_of_birth,
-    place_of_birth,
-    postal_code_of_birth,
-    school_id,
-  } = input;
+async function CreateStudent(parent, { input }) {
+  try {
+    const allowedCivilities = ['Mr', 'Mrs'];
+    const {
+      civility,
+      first_name,
+      last_name,
+      email,
+      tele_phone,
+      date_of_birth,
+      place_of_birth,
+      postal_code_of_birth,
+      school_id,
+    } = input;
 
-  // *************** Validate required fields
-  if (
-    !civility ||
-    !first_name ||
-    !last_name ||
-    !email ||
-    !tele_phone ||
-    !place_of_birth ||
-    !postal_code_of_birth ||
-    !school_id
-  ) {
-    throw new Error("Missing required fields");
+    // *************** Validation
+
+    // *************** Civility
+    if (
+      !civility ||
+      typeof civility !== 'string' ||
+      !allowedCivilities.includes(civility)
+    ) {
+      throw new Error("Civility is required and must be either 'Mr' or 'Mrs'.");
+    }
+
+    // *************** First name
+    if (
+      !first_name ||
+      typeof first_name !== 'string' ||
+      first_name.trim() === ''
+    ) {
+      throw new Error('First name is required and must be a non-empty string.');
+    }
+
+    // *************** Last name
+    if (
+      !last_name ||
+      typeof last_name !== 'string' ||
+      last_name.trim() === ''
+    ) {
+      throw new Error('Last name is required and must be a non-empty string.');
+    }
+
+    // *************** Email
+    if (!email || typeof email !== 'string' || email.trim() === '') {
+      throw new Error('Email is required and must be a non-empty string.');
+    }
+
+    // *************** Telephone
+    if (
+      !tele_phone ||
+      typeof tele_phone !== 'string' ||
+      tele_phone.trim() === ''
+    ) {
+      throw new Error('Telephone is required and must be a non-empty string.');
+    }
+
+    // *************** Date of Birth
+    if (!date_of_birth || isNaN(Date.parse(date_of_birth))) {
+      throw new Error('Date of birth is required and must be a valid date.');
+    }
+
+    // *************** Place of Birth
+    if (
+      !place_of_birth ||
+      typeof place_of_birth !== 'string' ||
+      place_of_birth.trim() === ''
+    ) {
+      throw new Error(
+        'Place of birth is required and must be a non-empty string.'
+      );
+    }
+
+    // *************** Postal Code of Birth
+    if (
+      !postal_code_of_birth ||
+      typeof postal_code_of_birth !== 'string' ||
+      postal_code_of_birth.trim() === ''
+    ) {
+      throw new Error(
+        'Postal code of birth is required and must be a non-empty string.'
+      );
+    }
+
+    // *************** School ID
+    if (
+      !school_id ||
+      typeof school_id !== 'string' ||
+      school_id.trim() === ''
+    ) {
+      throw new Error('School ID is required and must be a valid string.');
+    }
+
+    // *************** Create new student
+
+    const student = new Student({
+      civility,
+      first_name,
+      last_name,
+      email,
+      tele_phone,
+      date_of_birth,
+      place_of_birth,
+      postal_code_of_birth,
+      school_id,
+      status: 'is_active',
+    });
+
+    const createStudent = await student.save();
+
+    await School.findByIdAndUpdate(school_id, {
+      $push: { students: student._id },
+    });
+
+    return createStudent;
+  } catch (error) {
+    console.error('CreateStudent error:', error);
+    throw new Error(error.message || 'Failed to create student.');
   }
-  // *************** Create a new instance of the Student model using input data
-  const student = new Student({
-    // *************** Assign civility
-    civility,
-
-    // *************** Assign first name
-    first_name,
-
-    // *************** Assign last name
-    last_name,
-
-    // *************** Assign email
-    email,
-
-    // *************** Assign telephone
-    tele_phone,
-
-    // *************** Assign date of birth
-    date_of_birth,
-
-    // *************** Assign place of birth
-    place_of_birth,
-
-    // *************** Assign postal code of birth
-    postal_code_of_birth,
-
-    // *************** Assign school_id
-    school_id,
-
-    // *************** Set status
-    status: "is_active",
-  });
-
-  // *************** Save the new student to the database and return the result
-  const createStudent = await student.save();
-  return createStudent;
 }
 
 /**
@@ -174,66 +232,133 @@ async function CreateStudent(_, { input }) {
  * @param {string} args.input.school_id - Updated school ID.
  * @returns {Promise<Object|null>} The updated student document, or null if not found.
  */
-async function UpdateStudent(_, { input }) {
-  // *************** Destructure all the input fields
-  const {
-    id,
-    civility,
-    first_name,
-    last_name,
-    email,
-    tele_phone,
-    date_of_birth,
-    place_of_birth,
-    postal_code_of_birth,
-    school_id,
-  } = input;
-
-  // *************** Validate required input fields
-  if (!id) throw new Error("Student ID is required");
-
-  // *************** Validate optional input fields
-  if (!first_name || !last_name)
-    throw new Error("First name and last name must be assigned");
-
-  const updatedStudent = await Student.findOneAndUpdate(
-    // *************** Find student by ID and status
-    { _id: id, status: "is_active" },
-    {
-      // *************** Update civility
+async function UpdateStudent(parent, { input }) {
+  try {
+    const {
+      id,
       civility,
-
-      // *************** Update first name
       first_name,
-
-      // *************** Update last name
       last_name,
-
-      // *************** Update email
       email,
-
-      // *************** Update telephone
       tele_phone,
-
-      // *************** Update date of birth
       date_of_birth,
-
-      // *************** Update place of birth
       place_of_birth,
-
-      // *************** Update postal code of birth
       postal_code_of_birth,
-
-      // *************** Update school_id
       school_id,
-    },
+    } = input;
 
-    // *************** Get the newest result
-    { new: true }
-  );
+    // *************** Validation input
 
-  // *************** Return the updated student
-  return updatedStudent;
+    // ***************  ID
+    if (!id || typeof id !== 'string' || id.trim() === '') {
+      throw new Error('Student ID is required and must be a valid string.');
+    }
+
+    // ***************  Civility
+    if (
+      !civility ||
+      typeof civility !== 'string' ||
+      !allowedCivilities.includes(civility)
+    ) {
+      throw new Error("Civility is required and must be either 'Mr' or 'Mrs'.");
+    }
+
+    // ***************  First name
+    if (
+      !first_name ||
+      typeof first_name !== 'string' ||
+      first_name.trim() === ''
+    ) {
+      throw new Error('First name is required and must be a non-empty string.');
+    }
+
+    // ***************  Last name
+    if (
+      !last_name ||
+      typeof last_name !== 'string' ||
+      last_name.trim() === ''
+    ) {
+      throw new Error('Last name is required and must be a non-empty string.');
+    }
+
+    // ***************  Email
+    if (!email || typeof email !== 'string' || email.trim() === '') {
+      throw new Error('Email is required and must be a non-empty string.');
+    }
+
+    // ***************  Telephone
+    if (
+      !tele_phone ||
+      typeof tele_phone !== 'string' ||
+      tele_phone.trim() === ''
+    ) {
+      throw new Error('Telephone is required and must be a non-empty string.');
+    }
+
+    // ***************  Date of Birth
+    if (!date_of_birth || isNaN(Date.parse(date_of_birth))) {
+      throw new Error('Date of birth is required and must be a valid date.');
+    }
+
+    // ***************  Place of Birth
+    if (
+      !place_of_birth ||
+      typeof place_of_birth !== 'string' ||
+      place_of_birth.trim() === ''
+    ) {
+      throw new Error(
+        'Place of birth is required and must be a non-empty string.'
+      );
+    }
+
+    // ***************  Postal Code of Birth
+    if (
+      !postal_code_of_birth ||
+      typeof postal_code_of_birth !== 'string' ||
+      postal_code_of_birth.trim() === ''
+    ) {
+      throw new Error(
+        'Postal code of birth is required and must be a non-empty string.'
+      );
+    }
+
+    // ***************  School ID
+    if (
+      !school_id ||
+      typeof school_id !== 'string' ||
+      school_id.trim() === ''
+    ) {
+      throw new Error('School ID is required and must be a valid string.');
+    }
+
+    // ***************  Update the student
+
+    const updatedStudent = await Student.findOneAndUpdate(
+      { _id: id, status: 'is_active' },
+      {
+        civility,
+        first_name,
+        last_name,
+        email,
+        tele_phone,
+        date_of_birth,
+        place_of_birth,
+        postal_code_of_birth,
+        school_id,
+      },
+      { new: true }
+    );
+
+    if (!updatedStudent) {
+      throw new Error('Student not found or already deleted.');
+    }
+
+    // ***************  Return updated student
+    return updatedStudent;
+  } catch (error) {
+    console.error('UpdateStudent error:', error);
+    throw new Error(error.message || 'Failed to update student.');
+  }
 }
 
 /**
@@ -249,22 +374,31 @@ async function UpdateStudent(_, { input }) {
  * @param {string} args.id - The ID of the student to soft delete.
  * @returns {Promise<Object|null>} The soft-deleted student document, or null if not found.
  */
-async function SoftDeleteStudent(_, { id }) {
-  // *************** Validate required input fields
-  if (!id) throw new Error("Student ID is required");
+async function SoftDeleteStudent(parent, { _id }) {
+  try {
+    // *************** Validate required input field
+    if (!_id || typeof _id !== 'string' || _id.trim() === '') {
+      throw new Error('Student ID is required and must be a non-empty string.');
+    }
 
-  // *************** Find the student with the given ID and "is_active" status, then update it to "deleted"
-  const softDeletedStudent = await Student.findOneAndUpdate(
-    // *************** Filter by ID and active status
-    { _id: id, status: "is_active" },
+    // *************** Find the student with the given ID and "is_active" status, then update it to "deleted"
+    const softDeletedStudent = await Student.findOneAndUpdate(
+      { _id: _id, status: 'is_active' },
+      { status: 'deleted' },
+      { new: true }
+    );
 
-    // *************** Set status to "deleted" (soft delete)
-    { status: "deleted" },
-    { new: true }
-  );
+    // *************** Handle case if student not found or already deleted
+    if (!softDeletedStudent) {
+      throw new Error('Student not found or already deleted.');
+    }
 
-  // *************** Fetch and return the updated student (now with "deleted" status)
-  return softDeletedStudent;
+    // *************** Return the updated student (now with "deleted" status)
+    return softDeletedStudent;
+  } catch (error) {
+    console.error('SoftDeleteStudent error:', error);
+    throw new Error(error.message || 'Failed to delete student.');
+  }
 }
 
 // *************** EXPORT MODULE ***************

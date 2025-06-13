@@ -1,5 +1,5 @@
 // *************** IMPORT CORE ***************
-const School = require("./school.model");
+const School = require('./school.model');
 
 // *************** QUERY ***************
 
@@ -13,13 +13,13 @@ const School = require("./school.model");
  * @param {string} args.id - The ID of the school to retrieve.
  * @returns {Promise<Object|null>} The school document if found, otherwise null.
  */
-async function GetSchool(_, { id }) {
+async function GetSchool(parent, { _id }) {
   // *************** Validate the input ID
-  if (!id) {
+  if (!_id) {
     throw new Error("School ID's is required");
   }
   // *************** Find a school with matching ID and active status
-  const school = await School.findOne({ _id: id, status: "is_active" });
+  const school = await School.findOne({ _id: _id, status: 'is_active' });
 
   // *************** Return the found student
   return school;
@@ -36,7 +36,7 @@ async function GetAllSchools() {
   // *************** Retrieve all school documents with status "is_active"
   const schools = await School.find({
     // *************** Filter by status "is_active" only
-    status: "is_active",
+    status: 'is_active',
   });
 
   // *************** Return the list of active schools
@@ -56,16 +56,13 @@ async function GetAllSchools() {
  * @param {DataLoader} context.loaders.studentsLoader - DataLoader that batches student lookups by school ID.
  * @returns {Promise<Array<Object>>} A promise resolving to an array of student objects belonging to the school.
  */
-async function ResolveSchoolStudents(parent, _, context) {
-  // *************** Destructure the studentsLoader from the context
-  const { studentsLoader } = context.loaders;
+async function StudentLoaders(parent, args, context) {
+  const { loaders } = context;
+  const studentLoaders = loaders.studentById.loadMany(
+    parent.students.map((id) => id.toString())
+  );
 
-  // *************** If the parent (School) has no _id, return an empty array early
-  if (!parent._id) return [];
-
-  // *************** Use the studentsLoader to fetch students by the school's _id
-  const studentLoad = await studentsLoader.load(parent._id.toString());
-  return studentLoad;
+  return studentLoaders;
 }
 
 // *************** MUTATION ***************
@@ -82,25 +79,93 @@ async function ResolveSchoolStudents(parent, _, context) {
  * @param {Array} args.input.address - List of address objects.
  * @returns {Promise<Object>} The newly created school document.
  */
-async function CreateSchool(_, { input }) {
-  // *************** Create a new school instance with name and address from input
-  const school = new School({
-    // *************** Set long_name from nested input
-    long_name: input.name.long_name,
+async function CreateSchool(parent, { input }) {
+  try {
+    // *************** Validate input.name
+    if (!input.name) {
+      throw new Error('School name object is required.');
+    }
 
-    // *************** Set short_name from nested input
-    short_name: input.name.short_name,
+    // *************** Validate long_name
+    if (
+      !input.name.long_name ||
+      typeof input.name.long_name !== 'string' ||
+      input.name.long_name.trim() === ''
+    ) {
+      throw new Error('Long name is required and must be a non-empty string.');
+    }
 
-    // *************** Set address array
-    address: input.address,
+    // *************** Validate short_name
+    if (
+      !input.name.short_name ||
+      typeof input.name.short_name !== 'string' ||
+      input.name.short_name.trim() === ''
+    ) {
+      throw new Error('Short name is required and must be a non-empty string.');
+    }
 
-    // *************** Set default status as active
-    status: "is_active",
-  });
+    // *************** Validate address array
+    if (!Array.isArray(input.address) || input.address.length === 0) {
+      throw new Error('Address must be a non-empty array.');
+    }
 
-  // *************** Save and return the new school
-  const createSchool = await school.save();
-  return createSchool;
+    // *************** Validate each address object inside the array
+    input.address.forEach((addr, index) => {
+      if (
+        !addr.detail ||
+        typeof addr.detail !== 'string' ||
+        addr.detail.trim() === ''
+      ) {
+        throw new Error(`Address[${index}]: Detail is required.`);
+      }
+
+      if (
+        !addr.city ||
+        typeof addr.city !== 'string' ||
+        addr.city.trim() === ''
+      ) {
+        throw new Error(`Address[${index}]: City is required.`);
+      }
+
+      if (
+        !addr.country ||
+        typeof addr.country !== 'string' ||
+        addr.country.trim() === ''
+      ) {
+        throw new Error(`Address[${index}]: Country is required.`);
+      }
+
+      if (
+        addr.zipcode === undefined ||
+        typeof addr.zipcode !== 'number' ||
+        !Number.isInteger(addr.zipcode)
+      ) {
+        throw new Error(`Address[${index}]: Zipcode must be an integer.`);
+      }
+    });
+
+    // *************** Create a new school instance with name and address from input
+    const school = new School({
+      // *************** Set long_name from nested input
+      long_name: input.name.long_name,
+
+      // *************** Set short_name from nested input
+      short_name: input.name.short_name,
+
+      // *************** Set address array
+      address: input.address,
+
+      // *************** Set default status as active
+      status: 'is_active',
+    });
+
+    // *************** Save and return the new school
+    const createSchool = await school.save();
+    return createSchool;
+  } catch (error) {
+    console.error('CreateSchool error:', error);
+    throw new Error(error.message || 'Failed to create school.');
+  }
 }
 
 /**
@@ -115,60 +180,151 @@ async function CreateSchool(_, { input }) {
  * @param {Object} args.input - Input object with ID, name, and address.
  * @returns {Promise<Object|null>} The updated school document or null if not found.
  */
-async function UpdateSchool(_, { input }) {
-  const { id, name, address } = input;
+async function UpdateSchool(parent, { input }) {
+  try {
+    const { _id, name, address } = input;
 
-  // *************** Validate required input fields
-  if (!id) throw new Error("School ID is required");
+    // *************** Validate school ID
+    if (!_id || typeof _id !== 'string' || _id.trim() === '') {
+      throw new Error('School ID is required and must be a non-empty string.');
+    }
 
-  // *************** Update the school document if it's active
-  const updatedSchool = await School.findOneAndUpdate(
-    // *************** Filter by ID and status
-    { _id: id, status: "is_active" },
-    {
-      // *************** Update long_name
-      long_name: name.long_name,
+    // *************** Validate name object
+    if (!name || typeof name !== 'object') {
+      throw new Error('School name object is required.');
+    }
 
-      // *************** Update short_name
-      short_name: name.short_name,
+    // *************** Validate long_name
+    if (
+      !name.long_name ||
+      typeof name.long_name !== 'string' ||
+      name.long_name.trim() === ''
+    ) {
+      throw new Error('Long name is required and must be a non-empty string.');
+    }
 
-      // *************** Update address
-      address,
-    },
+    // *************** Validate short_name
+    if (
+      !name.short_name ||
+      typeof name.short_name !== 'string' ||
+      name.short_name.trim() === ''
+    ) {
+      throw new Error('Short name is required and must be a non-empty string.');
+    }
 
-    // *************** Get the newest result
-    { new: true }
-  );
+    // *************** Validate address array
+    if (!Array.isArray(address) || address.length === 0) {
+      throw new Error('Address must be a non-empty array.');
+    }
 
-  // *************** Manually fetch and return the updated document
-  return updatedSchool;
+    // *************** Validate each address object
+    address.forEach((addr, index) => {
+      if (
+        !addr.detail ||
+        typeof addr.detail !== 'string' ||
+        addr.detail.trim() === ''
+      ) {
+        throw new Error(`Address[${index}]: Detail is required.`);
+      }
+
+      if (
+        !addr.city ||
+        typeof addr.city !== 'string' ||
+        addr.city.trim() === ''
+      ) {
+        throw new Error(`Address[${index}]: City is required.`);
+      }
+
+      if (
+        !addr.country ||
+        typeof addr.country !== 'string' ||
+        addr.country.trim() === ''
+      ) {
+        throw new Error(`Address[${index}]: Country is required.`);
+      }
+
+      if (
+        addr.zipcode === undefined ||
+        typeof addr.zipcode !== 'number' ||
+        !Number.isInteger(addr.zipcode)
+      ) {
+        throw new Error(`Address[${index}]: Zipcode must be an integer.`);
+      }
+    });
+
+    // *************** Update the school document if it's active
+    const updatedSchool = await School.findOneAndUpdate(
+      // *************** Filter by ID and status
+      { _id: _id, status: 'is_active' },
+      {
+        // *************** Update long_name
+        long_name: name.long_name,
+
+        // *************** Update short_name
+        short_name: name.short_name,
+
+        // *************** Update address
+        address,
+      },
+      // *************** Get the newest result
+      { new: true }
+    );
+
+    // *************** Check if school was found
+    if (!updatedSchool) {
+      throw new Error('School not found or already deleted.');
+    }
+
+    // *************** Return the updated school
+    return updatedSchool;
+  } catch (error) {
+    console.error('UpdateSchool error:', error);
+    throw new Error(error.message || 'Failed to update school.');
+  }
 }
 
 /**
- * Performs a soft delete by setting the school's status to "deleted".
- *
- * Only works on schools with "is_active" status.
+ * Soft deletes a school by setting its status to "deleted",
+ * but only if the current status is "is_active".
  *
  * @async
- * @function
+ * @function SoftDeleteSchool
  * @param {Object} _ - Unused parent resolver argument.
- * @param {Object} args - Arguments passed to the mutation.
- * @param {string} args.id - ID of the school to soft delete.
- * @returns {Promise<Object|null>} The updated school document after soft deletion.
+ * @param {Object} args - The arguments passed to the mutation.
+ * @param {string} args._id - The ID of the school to soft delete.
+ * @returns {Promise<Object>} The updated school document.
+ * @throws {Error} If the school is not found or already deleted.
  */
-async function SoftDeleteSchool(_, { id }) {
-  // *************** Update school status to "deleted" only if it's currently active
-  await School.findOneAndUpdate(
-    // *************** Match only active schools
-    { _id: id, status: "is_active" },
+async function SoftDeleteSchool(parent, { _id }) {
+  try {
+    // *************** Validate school ID
+    if (!_id || typeof _id !== 'string' || _id.trim() === '') {
+      throw new Error('School ID is required and must be a non-empty string.');
+    }
 
-    // *************** Set status to "deleted"
-    { status: "deleted" }
-  );
+    // *************** Find the school with the given ID and "is_active" status, then update it to "deleted"
+    const softDeletedSchool = await School.findOneAndUpdate(
+      // *************** Filter by ID and active status
+      { _id: _id, status: 'is_active' },
 
-  // *************** Return the updated school document
-  const softDeletedSchool = await School.findById(id);
-  return softDeletedSchool;
+      // *************** Set status to "deleted" (soft delete)
+      { status: 'deleted' },
+
+      // *************** Return the updated document
+      { new: true }
+    );
+
+    // *************** Handle not found or already deleted
+    if (!softDeletedSchool) {
+      throw new Error('School not found or already deleted.');
+    }
+
+    // *************** Return the soft-deleted school
+    return softDeletedSchool;
+  } catch (error) {
+    console.error('SoftDeleteSchool error:', error);
+    throw new Error(error.message || 'Failed to soft delete school.');
+  }
 }
 
 // *************** EXPORT MODULE ***************
@@ -183,6 +339,6 @@ module.exports = {
     SoftDeleteSchool,
   },
   School: {
-    students: ResolveSchoolStudents,
+    students: StudentLoaders,
   },
 };

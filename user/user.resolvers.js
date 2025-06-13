@@ -1,10 +1,10 @@
 // *************** IMPORT MODULE ***************
-const User = require("./user.model");
+const User = require('./user.model');
 
 // Dummy user login
 const dummyUser = {
-  _id: "dummy_user_id",
-  role: "operator", // Change for access simulations
+  _id: 'dummy_user_id',
+  role: 'operator', // Change for access simulations
 };
 
 // *************** QUERY ***************
@@ -19,16 +19,16 @@ const dummyUser = {
  * @param {string} args.id - ID of the user to fetch.
  * @returns {Promise<Object|null>} The user document if found.
  */
-async function GetUser(_, { id }) {
+async function GetOneUser(parent, { _id }) {
   // *************** Validate input ID
-  if (!id) {
-    throw new Error("User ID is required");
+  if (!_id) {
+    throw new Error('User ID is required');
   }
 
   // *************** Find a user with matching ID and active status
   const user = await User.findOne({
-    _id: id,
-    status: "is_active",
+    _id: _id,
+    status: 'is_active',
   });
 
   // *************** Return the found user
@@ -44,7 +44,7 @@ async function GetUser(_, { id }) {
  */
 async function GetAllUsers() {
   // *************** Find all users with status "is_active"
-  const users = await User.find({ status: "is_active" });
+  const users = await User.find({ status: 'is_active' });
 
   // *************** Return the list of active users
   return users;
@@ -62,40 +62,72 @@ async function GetAllUsers() {
  * @param {Object} args.input - Input data for the new user.
  * @returns {Promise<Object>} The created user document.
  */
-async function CreateUser(_, { input }) {
-  const { civility, first_name, last_name, email, password, role } = input;
+async function CreateUser(parent, { input }) {
+  try {
+    const { civility, first_name, last_name, email, password, role } = input;
 
-  // *************** Validate required fields
-  if (!civility || !first_name || !last_name || !email || !password || !role) {
-    throw new Error("Missing required fields");
+    // *************** Validate civility
+    if (
+      !civility ||
+      typeof civility !== 'string' ||
+      !['Mr', 'Mrs'].includes(civility)
+    ) {
+      throw new Error("Civility is required and must be either 'Mr' or 'Mrs'.");
+    }
+
+    // *************** Validate first name
+    if (
+      !first_name ||
+      typeof first_name !== 'string' ||
+      first_name.trim() === ''
+    ) {
+      throw new Error('First name is required and must be a non-empty string.');
+    }
+
+    // *************** Validate last name
+    if (
+      !last_name ||
+      typeof last_name !== 'string' ||
+      last_name.trim() === ''
+    ) {
+      throw new Error('Last name is required and must be a non-empty string.');
+    }
+
+    // *************** Validate email
+    if (!email || typeof email !== 'string' || email.trim() === '') {
+      throw new Error('Email is required and must be a non-empty string.');
+    }
+
+    // *************** Validate password
+    if (!password || typeof password !== 'string' || password.length < 6) {
+      throw new Error(
+        'Password is required and must be at least 6 characters long.'
+      );
+    }
+
+    // *************** Validate role if provided
+    if (role && !['operator', 'acadir', 'student'].includes(role)) {
+      throw new Error("Role must be one of: 'operator', 'acadir', 'student'.");
+    }
+
+    // *************** Create a new User instance
+    const user = new User({
+      civility,
+      first_name,
+      last_name,
+      email,
+      password,
+      role: role || 'operator',
+      status: 'is_active',
+    });
+
+    // *************** Save the user and return the result
+    const createUser = await user.save();
+    return createUser;
+  } catch (error) {
+    console.error('CreateUser error:', error);
+    throw new Error(error.message || 'Failed to create user.');
   }
-  // *************** Create a new User instance with data from input
-  const user = new User({
-    // *************** Assign civility
-    civility,
-
-    // *************** Set user's first name
-    first_name,
-
-    // *************** Set user's last name
-    last_name,
-
-    // *************** Set user's email
-    email,
-
-    // *************** Set user's password
-    password,
-
-    // *************** Default to "operator" if no role is provided
-    role: input.role || "operator",
-
-    // *************** Set initial status
-    status: "is_active",
-  });
-
-  // *************** Save the user and return the result
-  const createUser = await user.save();
-  return createUser;
 }
 
 /**
@@ -109,40 +141,59 @@ async function CreateUser(_, { input }) {
  * @param {Object} args - Arguments containing updated user data.
  * @returns {Promise<Object|null>} Updated user document or null if not found.
  */
-async function UpdateUser(_, { input }) {
-  const { id, first_name, last_name, email, password, role } = input;
+async function UpdateUser(parent, { input }) {
+  const { _id, first_name, last_name, email, password, role } = input;
 
-  // *************** Validate required input fields
-  if (!id) throw new Error("User ID is required");
-  if (!first_name || !last_name)
-    throw new Error("First name and last name are required");
+  // *************** Validate ID
+  if (!_id || typeof _id !== 'string' || _id.trim() === '') {
+    throw new Error('User ID is required.');
+  }
+
+  // *************** Validate first name
+  if (
+    !first_name ||
+    typeof first_name !== 'string' ||
+    first_name.trim() === ''
+  ) {
+    throw new Error('First name is required and must be a non-empty string.');
+  }
+
+  // *************** Validate last name
+  if (!last_name || typeof last_name !== 'string' || last_name.trim() === '') {
+    throw new Error('Last name is required and must be a non-empty string.');
+  }
+
+  // *************** Validate email
+  if (!email || typeof email !== 'string' || email.trim() === '') {
+    throw new Error('Email is required and must be a non-empty string.');
+  }
+
+  // *************** Validate password
+  if (!password || typeof password !== 'string' || password.length < 6) {
+    throw new Error('Password is required and must be at least 6 characters.');
+  }
+
+  // *************** Validate role
+  const validRoles = ['operator', 'acadir', 'student'];
+  if (!role || typeof role !== 'string' || !validRoles.includes(role)) {
+    throw new Error(
+      `Role is required and must be one of: ${validRoles.join(', ')}`
+    );
+  }
 
   // *************** Update the user data if active
   const updatedUser = await User.findOneAndUpdate(
-    // *************** Match active user by ID
-    { _id: id, status: "is_active" },
+    { _id: _id, status: 'is_active' }, // Match active user by ID
     {
-      // *************** Update first name
       first_name,
-
-      // *************** Update last name
       last_name,
-
-      // *************** Update email
       email,
-
-      // *************** Update password
       password,
-
-      // *************** Update role
       role,
     },
-
-    // *************** Get the newest result
-    { new: true }
+    { new: true } // Return updated document
   );
 
-  // Return the updated document (manually retrieved)
   return updatedUser;
 }
 
@@ -158,21 +209,25 @@ async function UpdateUser(_, { input }) {
  * @returns {Promise<Object>} The updated (soft-deleted) user document.
  * @throws {Error} If unauthorized or user not found.
  */
-async function SoftDeleteUser(_, { id }) {
+async function SoftDeleteUser(parent, { _id }) {
+  // *************** Validate ID
+  if (!_id || typeof _id !== 'string' || _id.trim() === '') {
+    throw new Error('User ID is required.');
+  }
+
   // *************** Check if dummy user has permission
-  if (dummyUser.role !== "operator" && dummyUser.role !== "acadir") {
-    throw new Error("Unauthorized: Only operator or acadir can delete users.");
+  if (dummyUser.role !== 'operator' && dummyUser.role !== 'acadir') {
+    throw new Error('Unauthorized: Only operator or acadir can delete users.');
   }
 
   // *************** Check if user exists and is active
-  const user = await User.findOne({ _id: id, status: "is_active" });
-
+  const user = await User.findOne({ _id: _id, status: 'is_active' });
   if (!user) {
-    throw new Error("User not found or already deleted.");
+    throw new Error('User not found or already deleted.');
   }
 
   // *************** Perform soft delete by setting status to "deleted"
-  user.status = "deleted";
+  user.status = 'deleted';
 
   // *************** Save and return updated user
   await user.save();
@@ -182,7 +237,7 @@ async function SoftDeleteUser(_, { id }) {
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
-    GetUser,
+    GetOneUser,
     GetAllUsers,
   },
   Mutation: {

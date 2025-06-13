@@ -44,14 +44,14 @@ const schoolTypeDefs = gql`
   }
 
   type Query {
-    GetSchool(id: ID!): School
+    GetSchool(_id: ID!): School
     GetAllSchools: [School!]!
   }
 
   type Mutation {
     CreateSchool(input: CreateSchoolInput!): School!
     UpdateSchool(input: UpdateSchoolInput!): School!
-    SoftDeleteSchool(id: ID!): School!
+    SoftDeleteSchool(_id: ID!): School!
   }
 `;
 

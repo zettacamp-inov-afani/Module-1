@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
  * @function connectDB
  * @returns {Promise<void>}
  */
-async function connectDB() {
+async function ConnectDB() {
   try {
     await mongoose.connect("mongodb://localhost:27017/zettaschool", {
       useNewUrlParser: true,
@@ -20,8 +20,8 @@ async function connectDB() {
     console.log("✅ MongoDB connected");
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error);
-    process.exit(1); // keluar jika gagal connect
+    process.exit(1);
   }
 }
 
-module.exports = connectDB;
+module.exports = ConnectDB;

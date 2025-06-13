@@ -1,5 +1,5 @@
 // *************** IMPORT MODULE ***************
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const addressSchema = new mongoose.Schema({
   detail: { type: String, required: true },
@@ -19,15 +19,24 @@ const schoolSchema = new mongoose.Schema(
     // School addresses
     address: [addressSchema],
 
+    // Student connected
+    students: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Student',
+        required: true,
+      },
+    ],
+
     // Check stasuses
     status: {
       type: String,
-      enum: ["is_active", "deleted"],
-      default: "is_active",
+      enum: ['is_active', 'deleted'],
+      default: 'is_active',
     },
   },
   { timestamps: true }
 );
 
 // *************** EXPORT MODULE ***************
-module.exports = mongoose.model("School", schoolSchema);
+module.exports = mongoose.model('School', schoolSchema);

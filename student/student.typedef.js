@@ -36,7 +36,7 @@ const studentTypeDefs = gql`
   }
 
   input UpdateStudentInput {
-    id: ID!
+    _id: ID!
     civility: Civility!
     first_name: String!
     last_name: String!
@@ -48,14 +48,14 @@ const studentTypeDefs = gql`
   }
 
   type Query {
-    GetStudent(id: ID!): Student
+    GetStudent(_id: ID!): Student
     GetAllStudents: [Student]
   }
 
   type Mutation {
     CreateStudent(input: CreateStudentInput!): Student
     UpdateStudent(input: UpdateStudentInput!): Student
-    SoftDeleteStudent(id: ID!): Student
+    SoftDeleteStudent(_id: ID!): Student
   }
 `;
 

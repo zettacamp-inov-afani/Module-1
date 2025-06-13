@@ -1,12 +1,12 @@
 // *************** IMPORT MODULE ***************
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const studentSchema = new mongoose.Schema(
   {
     // Civility of the student
     civility: {
       type: String,
-      enum: ["Mr", "Mrs"],
+      enum: ['Mr', 'Mrs'],
       required: true,
     },
     // First name of the student
@@ -33,19 +33,19 @@ const studentSchema = new mongoose.Schema(
     // School ref
     school_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "School",
+      ref: 'School',
       required: true,
     },
 
     // Status check
     status: {
       type: String,
-      enum: ["is_active", "deleted"],
-      default: "is_active",
+      enum: ['is_active', 'deleted'],
+      default: 'is_active',
     },
   },
   { timestamps: true }
 );
 
 // *************** EXPORT MODULE ***************
-module.exports = mongoose.model("Student", studentSchema);
+module.exports = mongoose.model('Student', studentSchema);
