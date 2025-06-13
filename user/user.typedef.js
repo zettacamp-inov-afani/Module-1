@@ -1,5 +1,5 @@
 // *************** IMPORT CORE ***************
-const { gql } = require("apollo-server-express");
+const { gql } = require('apollo-server-express');
 
 // *************** QUERY ***************
 const userTypeDefs = gql`
@@ -47,7 +47,7 @@ const userTypeDefs = gql`
   type Mutation {
     CreateUser(input: CreateUserInput!): User
     UpdateUser(input: UpdateUserInput!): User
-    SoftDeleteUser(_id: ID!): User
+    DeleteUser(_id: ID!): User
   }
 `;
 

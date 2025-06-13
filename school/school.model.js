@@ -1,10 +1,17 @@
-// *************** IMPORT MODULE ***************
+// *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
 
 const addressSchema = new mongoose.Schema({
+  // detail of the address
   detail: { type: String, required: true },
+
+  // city of the address
   city: { type: String, required: true },
+
+  // country of the address
   country: { type: String, required: true },
+
+  // zipcode of the address
   zipcode: { type: Number, required: true },
 });
 

@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT MODULE ***************
 const School = require('./school.model');
 
 // *************** QUERY ***************
@@ -13,7 +13,7 @@ const School = require('./school.model');
  * @param {string} args.id - The ID of the school to retrieve.
  * @returns {Promise<Object|null>} The school document if found, otherwise null.
  */
-async function GetSchool(parent, { _id }) {
+async function GetOneSchool(parent, { _id }) {
   // *************** Validate the input ID
   if (!_id) {
     throw new Error("School ID's is required");
@@ -41,28 +41,6 @@ async function GetAllSchools() {
 
   // *************** Return the list of active schools
   return schools;
-}
-
-/**
- * Resolver for the `students` field on the `School` type.
- * Uses DataLoader to fetch a list of students belonging to the given school ID.
- *
- * @async
- * @function ResolveSchoolStudents
- * @param {Object} parent - The parent object, representing a single School.
- * @param {Object} _ - Unused GraphQL arguments placeholder.
- * @param {Object} context - GraphQL context, providing shared resources.
- * @param {Object} context.loaders - Object containing all configured DataLoaders.
- * @param {DataLoader} context.loaders.studentsLoader - DataLoader that batches student lookups by school ID.
- * @returns {Promise<Array<Object>>} A promise resolving to an array of student objects belonging to the school.
- */
-async function StudentLoaders(parent, args, context) {
-  const { loaders } = context;
-  const studentLoaders = loaders.studentById.loadMany(
-    parent.students.map((id) => id.toString())
-  );
-
-  return studentLoaders;
 }
 
 // *************** MUTATION ***************
@@ -105,42 +83,44 @@ async function CreateSchool(parent, { input }) {
     }
 
     // *************** Validate address array
-    if (!Array.isArray(input.address) || input.address.length === 0) {
+    if (!Array.isArray(input.address) || !input.address.length) {
       throw new Error('Address must be a non-empty array.');
     }
 
     // *************** Validate each address object inside the array
-    input.address.forEach((addr, index) => {
+    input.address.forEach((addresses, addressIndex) => {
       if (
-        !addr.detail ||
-        typeof addr.detail !== 'string' ||
-        addr.detail.trim() === ''
+        !addresses.detail ||
+        typeof addresses.detail !== 'string' ||
+        addresses.detail.trim() === ''
       ) {
-        throw new Error(`Address[${index}]: Detail is required.`);
+        throw new Error(`Address[${addressIndex}]: Detail is required.`);
       }
 
       if (
-        !addr.city ||
-        typeof addr.city !== 'string' ||
-        addr.city.trim() === ''
+        !addresses.city ||
+        typeof addresses.city !== 'string' ||
+        addresses.city.trim() === ''
       ) {
-        throw new Error(`Address[${index}]: City is required.`);
+        throw new Error(`Address[${addressIndex}]: City is required.`);
       }
 
       if (
-        !addr.country ||
-        typeof addr.country !== 'string' ||
-        addr.country.trim() === ''
+        !addresses.country ||
+        typeof addresses.country !== 'string' ||
+        addresses.country.trim() === ''
       ) {
-        throw new Error(`Address[${index}]: Country is required.`);
+        throw new Error(`Address[${addressIndex}]: Country is required.`);
       }
 
       if (
-        addr.zipcode === undefined ||
-        typeof addr.zipcode !== 'number' ||
-        !Number.isInteger(addr.zipcode)
+        addresses.zipcode === undefined ||
+        typeof addresses.zipcode !== 'number' ||
+        !Number.isInteger(addresses.zipcode)
       ) {
-        throw new Error(`Address[${index}]: Zipcode must be an integer.`);
+        throw new Error(
+          `Address[${addressIndex}]: Zipcode must be an integer.`
+        );
       }
     });
 
@@ -213,42 +193,44 @@ async function UpdateSchool(parent, { input }) {
     }
 
     // *************** Validate address array
-    if (!Array.isArray(address) || address.length === 0) {
+    if (!Array.isArray(address) || !address.length) {
       throw new Error('Address must be a non-empty array.');
     }
 
     // *************** Validate each address object
-    address.forEach((addr, index) => {
+    address.forEach((addresses, addressIndex) => {
       if (
-        !addr.detail ||
-        typeof addr.detail !== 'string' ||
-        addr.detail.trim() === ''
+        !addresses.detail ||
+        typeof addresses.detail !== 'string' ||
+        addresses.detail.trim() === ''
       ) {
-        throw new Error(`Address[${index}]: Detail is required.`);
+        throw new Error(`Address[${addressIndex}]: Detail is required.`);
       }
 
       if (
-        !addr.city ||
-        typeof addr.city !== 'string' ||
-        addr.city.trim() === ''
+        !addresses.city ||
+        typeof addresses.city !== 'string' ||
+        addresses.city.trim() === ''
       ) {
-        throw new Error(`Address[${index}]: City is required.`);
+        throw new Error(`Address[${addressIndex}]: City is required.`);
       }
 
       if (
-        !addr.country ||
-        typeof addr.country !== 'string' ||
-        addr.country.trim() === ''
+        !addresses.country ||
+        typeof addresses.country !== 'string' ||
+        addresses.country.trim() === ''
       ) {
-        throw new Error(`Address[${index}]: Country is required.`);
+        throw new Error(`Address[${addressIndex}]: Country is required.`);
       }
 
       if (
-        addr.zipcode === undefined ||
-        typeof addr.zipcode !== 'number' ||
-        !Number.isInteger(addr.zipcode)
+        addresses.zipcode === undefined ||
+        typeof addresses.zipcode !== 'number' ||
+        !Number.isInteger(addresses.zipcode)
       ) {
-        throw new Error(`Address[${index}]: Zipcode must be an integer.`);
+        throw new Error(
+          `Address[${addressIndex}]: Zipcode must be an integer.`
+        );
       }
     });
 
@@ -288,14 +270,14 @@ async function UpdateSchool(parent, { input }) {
  * but only if the current status is "is_active".
  *
  * @async
- * @function SoftDeleteSchool
+ * @function DeleteSchool
  * @param {Object} _ - Unused parent resolver argument.
  * @param {Object} args - The arguments passed to the mutation.
  * @param {string} args._id - The ID of the school to soft delete.
  * @returns {Promise<Object>} The updated school document.
  * @throws {Error} If the school is not found or already deleted.
  */
-async function SoftDeleteSchool(parent, { _id }) {
+async function DeleteSchool(parent, { _id }) {
   try {
     // *************** Validate school ID
     if (!_id || typeof _id !== 'string' || _id.trim() === '') {
@@ -322,21 +304,45 @@ async function SoftDeleteSchool(parent, { _id }) {
     // *************** Return the soft-deleted school
     return softDeletedSchool;
   } catch (error) {
-    console.error('SoftDeleteSchool error:', error);
-    throw new Error(error.message || 'Failed to soft delete school.');
+    console.error('DeleteSchool error:', error);
+    throw new Error(error.message || 'Failed to delete school.');
   }
+}
+
+// *************** LOADERS ***************
+
+/**
+ * Resolver for the `students` field on the `School` type.
+ * Uses DataLoader to fetch a list of students belonging to the given school ID.
+ *
+ * @async
+ * @function StudetnLoaders
+ * @param {Object} parent - The parent object, representing a single School.
+ * @param {Object} _ - Unused GraphQL arguments placeholder.
+ * @param {Object} context - GraphQL context, providing shared resources.
+ * @param {Object} context.loaders - Object containing all configured DataLoaders.
+ * @param {DataLoader} context.loaders.studentById - DataLoader that batches student lookups by school ID.
+ * @returns {Promise<Array<Object>>} A promise resolving to an array of student objects belonging to the school.
+ */
+async function StudentLoaders(parent, args, context) {
+  const { loaders } = context;
+  const studentLoaders = loaders.studentById.loadMany(
+    parent.students.map((id) => id.toString())
+  );
+
+  return studentLoaders;
 }
 
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
-    GetSchool,
+    GetOneSchool,
     GetAllSchools,
   },
   Mutation: {
     CreateSchool,
     UpdateSchool,
-    SoftDeleteSchool,
+    DeleteSchool,
   },
   School: {
     students: StudentLoaders,

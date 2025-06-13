@@ -14,9 +14,9 @@ const School = require('../school/school.model');
  * @param {string} args.id - The ID of the student to retrieve.
  * @returns {Promise<Object|null>} The student document if found, otherwise null.
  */
-async function GetStudent(_, { _id }) {
+async function GetOneStudent(_, { _id }) {
   // *************** Validate the input ID
-  if (!id) {
+  if (!_id) {
     throw new Error('Student ID is required');
   }
   // *************** Find a student with matching ID and active status
@@ -42,28 +42,6 @@ async function GetAllStudents() {
 
   // *************** Return the list of active students
   return students;
-}
-
-/**
- * Resolves the school associated with a student using DataLoader.
- *
- * This function prevents N+1 problems by batching school lookups.
- *
- * @async
- * @function
- * @param {Object} student - The student object containing the school_id.
- * @param {Object} _ - Unused GraphQL argument.
- * @param {Object} context - The GraphQL context object.
- * @param {Object} context.loaders - Contains all DataLoader instances.
- * @param {DataLoader<string, Object>} context.loaders.schoolById - DataLoader for fetching schools by ID.
- * @returns {Promise<Object|null>} The associated school document, or null if not found.
- */
-async function SchoolLoaders(parent, args, { loaders }) {
-  // *************** Use the DataLoader `schoolById` from context to fetch the related school.
-  const schoolLoaders = await loaders.schoolById.load(
-    parent.school_id.toString()
-  );
-  return schoolLoaders;
 }
 
 // *************** MUTATION ***************
@@ -374,7 +352,7 @@ async function UpdateStudent(parent, { input }) {
  * @param {string} args.id - The ID of the student to soft delete.
  * @returns {Promise<Object|null>} The soft-deleted student document, or null if not found.
  */
-async function SoftDeleteStudent(parent, { _id }) {
+async function DeleteStudent(parent, { _id }) {
   try {
     // *************** Validate required input field
     if (!_id || typeof _id !== 'string' || _id.trim() === '') {
@@ -396,21 +374,45 @@ async function SoftDeleteStudent(parent, { _id }) {
     // *************** Return the updated student (now with "deleted" status)
     return softDeletedStudent;
   } catch (error) {
-    console.error('SoftDeleteStudent error:', error);
+    console.error('DeleteStudent error:', error);
     throw new Error(error.message || 'Failed to delete student.');
   }
+}
+
+// *************** LOADERS ***************
+
+/**
+ * Resolves the school associated with a student using DataLoader.
+ *
+ * This function prevents N+1 problems by batching school lookups.
+ *
+ * @async
+ * @function SchoolLoaders
+ * @param {Object} student - The student object containing the school_id.
+ * @param {Object} _ - Unused GraphQL argument.
+ * @param {Object} context - The GraphQL context object.
+ * @param {Object} context.loaders - Contains all DataLoader instances.
+ * @param {DataLoader<string, Object>} context.loaders.schoolById - DataLoader for fetching schools by ID.
+ * @returns {Promise<Object|null>} The associated school document, or null if not found.
+ */
+async function SchoolLoaders(parent, args, { loaders }) {
+  // *************** Use the DataLoader `schoolById` from context to fetch the related school.
+  const schoolLoaders = await loaders.schoolById.load(
+    parent.school_id.toString()
+  );
+  return schoolLoaders;
 }
 
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
-    GetStudent,
+    GetOneStudent,
     GetAllStudents,
   },
   Mutation: {
     CreateStudent,
     UpdateStudent,
-    SoftDeleteStudent,
+    DeleteStudent,
   },
   Student: {
     school_id: SchoolLoaders,

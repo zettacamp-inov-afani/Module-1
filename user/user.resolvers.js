@@ -209,7 +209,7 @@ async function UpdateUser(parent, { input }) {
  * @returns {Promise<Object>} The updated (soft-deleted) user document.
  * @throws {Error} If unauthorized or user not found.
  */
-async function SoftDeleteUser(parent, { _id }) {
+async function DeleteUser(parent, { _id }) {
   // *************** Validate ID
   if (!_id || typeof _id !== 'string' || _id.trim() === '') {
     throw new Error('User ID is required.');
@@ -243,6 +243,6 @@ module.exports = {
   Mutation: {
     CreateUser,
     UpdateUser,
-    SoftDeleteUser,
+    DeleteUser,
   },
 };

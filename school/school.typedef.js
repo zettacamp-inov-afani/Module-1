@@ -1,5 +1,5 @@
 // *************** IMPORT CORE ***************
-const { gql } = require("apollo-server-express");
+const { gql } = require('apollo-server-express');
 
 const schoolTypeDefs = gql`
   type Address {
@@ -44,14 +44,14 @@ const schoolTypeDefs = gql`
   }
 
   type Query {
-    GetSchool(_id: ID!): School
+    GetOneSchool(_id: ID!): School
     GetAllSchools: [School!]!
   }
 
   type Mutation {
     CreateSchool(input: CreateSchoolInput!): School!
     UpdateSchool(input: UpdateSchoolInput!): School!
-    SoftDeleteSchool(_id: ID!): School!
+    DeleteSchool(_id: ID!): School!
   }
 `;
 

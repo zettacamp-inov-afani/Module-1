@@ -1,5 +1,5 @@
 // *************** IMPORT CORE ***************
-const { gql } = require("apollo-server-express");
+const { gql } = require('apollo-server-express');
 
 const studentTypeDefs = gql`
   enum Civility {
@@ -48,14 +48,14 @@ const studentTypeDefs = gql`
   }
 
   type Query {
-    GetStudent(_id: ID!): Student
+    GetOneStudent(_id: ID!): Student
     GetAllStudents: [Student]
   }
 
   type Mutation {
     CreateStudent(input: CreateStudentInput!): Student
     UpdateStudent(input: UpdateStudentInput!): Student
-    SoftDeleteStudent(_id: ID!): Student
+    DeleteStudent(_id: ID!): Student
   }
 `;
 

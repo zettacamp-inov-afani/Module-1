@@ -1,5 +1,5 @@
-// config/db.js
-const mongoose = require("mongoose");
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
 
 /**
  * Connects to the MongoDB database.
@@ -10,16 +10,16 @@ const mongoose = require("mongoose");
  */
 async function ConnectDB() {
   try {
-    await mongoose.connect("mongodb://localhost:27017/zettaschool", {
+    await mongoose.connect('mongodb://localhost:27017/zettaschool', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
 
-    mongoose.set("debug", true);
+    mongoose.set('debug', true);
 
-    console.log("✅ MongoDB connected");
+    console.log('✅ MongoDB connected');
   } catch (error) {
-    console.error("❌ MongoDB connection failed:", error);
+    console.error('❌ MongoDB connection failed:', error);
     process.exit(1);
   }
 }
