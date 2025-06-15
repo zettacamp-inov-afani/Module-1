@@ -54,7 +54,7 @@ async function GetAllSchools() {
  * @param {Object} args - Arguments passed to the mutation.
  * @param {Object} args.input - The input object containing school details.
  * @param {Object} args.input.name - Object with long_name and short_name of the school.
- * @param {Array} args.input.address - List of address objects.
+ * @param {Array} args.input.addresses - List of address objects.
  * @returns {Promise<Object>} The newly created school document.
  */
 async function CreateSchool(parent, { input }) {
@@ -83,40 +83,40 @@ async function CreateSchool(parent, { input }) {
     }
 
     // *************** Validate address array
-    if (!Array.isArray(input.address) || !input.address.length) {
+    if (!Array.isArray(input.addresses) || !input.addresses.length) {
       throw new Error('Address must be a non-empty array.');
     }
 
     // *************** Validate each address object inside the array
-    input.address.forEach((addresses, addressIndex) => {
+    input.addresses.forEach((address, addressIndex) => {
       if (
-        !addresses.detail ||
-        typeof addresses.detail !== 'string' ||
-        addresses.detail.trim() === ''
+        !address.detail ||
+        typeof address.detail !== 'string' ||
+        address.detail.trim() === ''
       ) {
         throw new Error(`Address[${addressIndex}]: Detail is required.`);
       }
 
       if (
-        !addresses.city ||
-        typeof addresses.city !== 'string' ||
-        addresses.city.trim() === ''
+        !address.city ||
+        typeof address.city !== 'string' ||
+        address.city.trim() === ''
       ) {
         throw new Error(`Address[${addressIndex}]: City is required.`);
       }
 
       if (
-        !addresses.country ||
-        typeof addresses.country !== 'string' ||
-        addresses.country.trim() === ''
+        !address.country ||
+        typeof address.country !== 'string' ||
+        address.country.trim() === ''
       ) {
         throw new Error(`Address[${addressIndex}]: Country is required.`);
       }
 
       if (
-        addresses.zipcode === undefined ||
-        typeof addresses.zipcode !== 'number' ||
-        !Number.isInteger(addresses.zipcode)
+        address.zipcode === undefined ||
+        typeof address.zipcode !== 'number' ||
+        !Number.isInteger(address.zipcode)
       ) {
         throw new Error(
           `Address[${addressIndex}]: Zipcode must be an integer.`
@@ -133,7 +133,7 @@ async function CreateSchool(parent, { input }) {
       short_name: input.name.short_name,
 
       // *************** Set address array
-      address: input.address,
+      addresses: input.addresses,
 
       // *************** Set default status as active
       status: 'is_active',
@@ -162,7 +162,7 @@ async function CreateSchool(parent, { input }) {
  */
 async function UpdateSchool(parent, { input }) {
   try {
-    const { _id, name, address } = input;
+    const { _id, name, addresses } = input;
 
     // *************** Validate school ID
     if (!_id || typeof _id !== 'string' || _id.trim() === '') {
@@ -193,40 +193,40 @@ async function UpdateSchool(parent, { input }) {
     }
 
     // *************** Validate address array
-    if (!Array.isArray(address) || !address.length) {
+    if (!Array.isArray(addresses) || !addresses.length) {
       throw new Error('Address must be a non-empty array.');
     }
 
     // *************** Validate each address object
-    address.forEach((addresses, addressIndex) => {
+    addresses.forEach((address, addressIndex) => {
       if (
-        !addresses.detail ||
-        typeof addresses.detail !== 'string' ||
-        addresses.detail.trim() === ''
+        !address.detail ||
+        typeof address.detail !== 'string' ||
+        address.detail.trim() === ''
       ) {
         throw new Error(`Address[${addressIndex}]: Detail is required.`);
       }
 
       if (
-        !addresses.city ||
-        typeof addresses.city !== 'string' ||
-        addresses.city.trim() === ''
+        !address.city ||
+        typeof address.city !== 'string' ||
+        address.city.trim() === ''
       ) {
         throw new Error(`Address[${addressIndex}]: City is required.`);
       }
 
       if (
-        !addresses.country ||
-        typeof addresses.country !== 'string' ||
-        addresses.country.trim() === ''
+        !address.country ||
+        typeof address.country !== 'string' ||
+        address.country.trim() === ''
       ) {
         throw new Error(`Address[${addressIndex}]: Country is required.`);
       }
 
       if (
-        addresses.zipcode === undefined ||
-        typeof addresses.zipcode !== 'number' ||
-        !Number.isInteger(addresses.zipcode)
+        address.zipcode === undefined ||
+        typeof address.zipcode !== 'number' ||
+        !Number.isInteger(address.zipcode)
       ) {
         throw new Error(
           `Address[${addressIndex}]: Zipcode must be an integer.`
@@ -246,7 +246,7 @@ async function UpdateSchool(parent, { input }) {
         short_name: name.short_name,
 
         // *************** Update address
-        address,
+        addresses,
       },
       // *************** Get the newest result
       { new: true }

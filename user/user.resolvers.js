@@ -1,12 +1,6 @@
 // *************** IMPORT MODULE ***************
 const User = require('./user.model');
 
-// Dummy user login
-const dummyUser = {
-  _id: 'dummy_user_id',
-  role: 'operator', // Change for access simulations
-};
-
 // *************** QUERY ***************
 
 /**
@@ -213,11 +207,6 @@ async function DeleteUser(parent, { _id }) {
   // *************** Validate ID
   if (!_id || typeof _id !== 'string' || _id.trim() === '') {
     throw new Error('User ID is required.');
-  }
-
-  // *************** Check if dummy user has permission
-  if (dummyUser.role !== 'operator' && dummyUser.role !== 'acadir') {
-    throw new Error('Unauthorized: Only operator or acadir can delete users.');
   }
 
   // *************** Check if user exists and is active

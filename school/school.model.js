@@ -24,7 +24,7 @@ const schoolSchema = new mongoose.Schema(
     short_name: { type: String, required: true },
 
     // School addresses
-    address: [addressSchema],
+    addresses: [addressSchema],
 
     // Student connected
     students: [

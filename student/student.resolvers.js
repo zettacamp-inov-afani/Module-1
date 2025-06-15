@@ -14,7 +14,7 @@ const School = require('../school/school.model');
  * @param {string} args.id - The ID of the student to retrieve.
  * @returns {Promise<Object|null>} The student document if found, otherwise null.
  */
-async function GetOneStudent(_, { _id }) {
+async function GetOneStudent(parent, { _id }) {
   // *************** Validate the input ID
   if (!_id) {
     throw new Error('Student ID is required');
