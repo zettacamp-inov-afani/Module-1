@@ -1,5 +1,5 @@
 // *************** IMPORT MODULE ***************
-const User = require('./user.model');
+const userModel = require('./user.model');
 
 // *************** QUERY ***************
 
@@ -20,7 +20,7 @@ async function GetOneUser(parent, { _id }) {
   }
 
   // *************** Find a user with matching ID and active status
-  const user = await User.findOne({
+  const user = await userModel.findOne({
     _id: _id,
     status: 'is_active',
   });
@@ -38,7 +38,7 @@ async function GetOneUser(parent, { _id }) {
  */
 async function GetAllUsers() {
   // *************** Find all users with status "is_active"
-  const users = await User.find({ status: 'is_active' });
+  const users = await userModel.find({ status: 'is_active' });
 
   // *************** Return the list of active users
   return users;
@@ -105,7 +105,7 @@ async function CreateUser(parent, { input }) {
     }
 
     // *************** Create a new User instance
-    const user = new User({
+    const user = new userModel({
       civility,
       first_name,
       last_name,
@@ -176,7 +176,7 @@ async function UpdateUser(parent, { input }) {
   }
 
   // *************** Update the user data if active
-  const updatedUser = await User.findOneAndUpdate(
+  const updatedUser = await userModel.findOneAndUpdate(
     { _id: _id, status: 'is_active' }, // Match active user by ID
     {
       first_name,
@@ -210,7 +210,7 @@ async function DeleteUser(parent, { _id }) {
   }
 
   // *************** Check if user exists and is active
-  const user = await User.findOne({ _id: _id, status: 'is_active' });
+  const user = await userModel.findOne({ _id: _id, status: 'is_active' });
   if (!user) {
     throw new Error('User not found or already deleted.');
   }

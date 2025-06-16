@@ -1,6 +1,6 @@
 // *************** IMPORT MODULE ***************
-const Student = require('./student.model');
-const School = require('../school/school.model');
+const studentModel = require('./student.model');
+const schoolModel = require('../school/school.model');
 
 // *************** QUERY ***************
 
@@ -20,7 +20,7 @@ async function GetOneStudent(parent, { _id }) {
     throw new Error('Student ID is required');
   }
   // *************** Find a student with matching ID and active status
-  const student = await Student.findOne({ _id: _id, status: 'is_active' });
+  const student = await studentModel.findOne({ _id: _id, status: 'is_active' });
 
   // *************** Return the found student
   return student;
@@ -35,7 +35,7 @@ async function GetOneStudent(parent, { _id }) {
  */
 async function GetAllStudents() {
   // *************** Retrieve all student documents with status "is_active"
-  const students = await Student.find({
+  const students = await studentModel.find({
     // *************** Filter by status "is_active" only
     status: 'is_active',
   });
@@ -165,7 +165,7 @@ async function CreateStudent(parent, { input }) {
 
     // *************** Create new student
 
-    const student = new Student({
+    const student = new studentModel({
       civility,
       first_name,
       last_name,
@@ -180,7 +180,7 @@ async function CreateStudent(parent, { input }) {
 
     const createStudent = await student.save();
 
-    await School.findByIdAndUpdate(school_id, {
+    await schoolModel.findByIdAndUpdate(school_id, {
       $push: { students: student._id },
     });
 
@@ -312,7 +312,7 @@ async function UpdateStudent(parent, { input }) {
 
     // ***************  Update the student
 
-    const updatedStudent = await Student.findOneAndUpdate(
+    const updatedStudent = await studentModel.findOneAndUpdate(
       { _id: _id, status: 'is_active' },
       {
         civility,
@@ -361,7 +361,7 @@ async function DeleteStudent(parent, { _id }) {
     }
 
     // *************** Find the student with the given ID and "is_active" status, then update it to "deleted"
-    const softDeletedStudent = await Student.findOneAndUpdate(
+    const softDeletedStudent = await studentModel.findOneAndUpdate(
       { _id: _id, status: 'is_active' },
       { status: 'deleted' },
       { new: true }
