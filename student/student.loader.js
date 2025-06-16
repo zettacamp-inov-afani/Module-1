@@ -2,7 +2,7 @@
 const DataLoader = require('dataloader');
 
 // *************** IMPORT MODULE ***************
-const Student = require('./student.model');
+const studentModel = require('./student.model');
 
 /**
  * Batch function to load multiple students by their IDs.
@@ -13,7 +13,7 @@ const Student = require('./student.model');
  */
 function BatchStudents(studentIds) {
   // *************** Query all students whose _id is in the list of requested studentIds
-  return Student.find({ _id: { $in: studentIds } }).then((students) => {
+  return studentModel.find({ _id: { $in: studentIds } }).then((students) => {
     // Create a Map for quick lookup by ID
     const studentMap = new Map();
     students.forEach((student) => {
