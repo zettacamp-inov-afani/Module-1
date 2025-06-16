@@ -6,26 +6,26 @@ const { mergeTypeDefs } = require('@graphql-tools/merge');
 const { mergeResolvers } = require('@graphql-tools/merge');
 
 // *************** IMPORT DATALOADER ***************
-const createStudentsByIdLoader = require('./student/student.loader');
-const createSchoolByIdLoader = require('./school/school.loader');
+const CreateStudentsByIdLoader = require('./student/student.loader');
+const CreateSchoolByIdLoader = require('./school/school.loader');
 
 // *************** IMPORT MODULE ***************
-const userTypeDefs = require('./user/user.typedef');
-const userResolvers = require('./user/user.resolvers');
+const UserTypeDefs = require('./user/user.typedef');
+const UserResolvers = require('./user/user.resolvers');
 
-const studentTypeDefs = require('./student/student.typedef');
-const studentResolvers = require('./student/student.resolvers');
+const StudentTypeDefs = require('./student/student.typedef');
+const StudentResolvers = require('./student/student.resolvers');
 
-const schoolTypeDefs = require('./school/school.typedef');
-const schoolResolvers = require('./school/school.resolvers');
-const connectDB = require('./config/db');
+const SchoolTypeDefs = require('./school/school.typedef');
+const SchoolResolvers = require('./school/school.resolvers');
+const ConnectDB = require('./config/db');
 
 // *************** Merge typedefs and resolvers
-const typeDefs = mergeTypeDefs([userTypeDefs, studentTypeDefs, schoolTypeDefs]);
+const typeDefs = mergeTypeDefs([UserTypeDefs, StudentTypeDefs, SchoolTypeDefs]);
 const resolvers = mergeResolvers([
-  userResolvers,
-  studentResolvers,
-  schoolResolvers,
+  UserResolvers,
+  StudentResolvers,
+  SchoolResolvers,
 ]);
 
 /**
@@ -46,8 +46,8 @@ async function StartServer() {
     context: () => ({
       // *************** Initialize DataLoader instances for batching and caching
       loaders: {
-        studentById: createStudentsByIdLoader(),
-        schoolById: createSchoolByIdLoader(),
+        studentById: CreateStudentsByIdLoader(),
+        schoolById: CreateSchoolByIdLoader(),
       },
     }),
   });
@@ -56,7 +56,7 @@ async function StartServer() {
   server.applyMiddleware({ app });
 
   // *************** Connect to MongoDB
-  await connectDB();
+  await ConnectDB();
 
   // *************** Start the Express server
   app.listen({ port: 4000 }, () =>

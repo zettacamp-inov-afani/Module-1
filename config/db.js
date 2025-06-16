@@ -1,5 +1,6 @@
 // *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
+require('dotenv').config();
 
 /**
  * Establishes a connection to the MongoDB database using Mongoose.
@@ -12,7 +13,8 @@ const mongoose = require('mongoose');
 async function ConnectDB() {
   try {
     // *************** Attempt to connect to MongoDB using mongoose.connect with options
-    await mongoose.connect('mongodb://localhost:27017/zettaschool', {
+    const uri = `mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`;
+    await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
