@@ -2,7 +2,7 @@
 const DataLoader = require('dataloader');
 
 // *************** IMPORT MODULE ***************
-const schoolModel = require('./school.model');
+const SchoolModel = require('./school.model');
 
 /**
  * Creates a DataLoader instance to batch and cache school lookups by ID.
@@ -22,7 +22,7 @@ function CreateSchoolByIdLoader() {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (schoolIds) => {
     // *************** Find all Schools whose id is in the schoolIds array
-    const schools = await schoolModel.find({ _id: { $in: schoolIds } });
+    const schools = await SchoolModel.find({ _id: { $in: schoolIds } });
 
     // *************** Create schoolMap object for dictionary
     const schoolMap = {};

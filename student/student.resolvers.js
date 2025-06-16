@@ -1,6 +1,9 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+
 // *************** IMPORT MODULE ***************
-const studentModel = require('./student.model');
-const schoolModel = require('../school/school.model');
+const StudentModel = require('./student.model');
+const SchoolModel = require('../school/school.model');
 
 // *************** QUERY ***************
 
@@ -20,7 +23,7 @@ async function GetOneStudent(parent, { _id }) {
     throw new Error('Student ID is required');
   }
   // *************** Find a student with matching ID and active status
-  const student = await studentModel.findOne({ _id: _id, status: 'is_active' });
+  const student = await StudentModel.findOne({ _id: _id, status: 'is_active' });
 
   // *************** Return the found student
   return student;
@@ -35,7 +38,7 @@ async function GetOneStudent(parent, { _id }) {
  */
 async function GetAllStudents() {
   // *************** Retrieve all student documents with status "is_active"
-  const students = await studentModel.find({
+  const students = await StudentModel.find({
     // *************** Filter by status "is_active" only
     status: 'is_active',
   });
@@ -165,7 +168,7 @@ async function CreateStudent(parent, { input }) {
 
     // *************** Create new student
 
-    const student = new studentModel({
+    const student = new StudentModel({
       civility,
       first_name,
       last_name,
@@ -180,7 +183,7 @@ async function CreateStudent(parent, { input }) {
 
     const createStudent = await student.save();
 
-    await schoolModel.findByIdAndUpdate(school_id, {
+    await SchoolModel.findByIdAndUpdate(school_id, {
       $push: { students: student._id },
     });
 
@@ -229,8 +232,8 @@ async function UpdateStudent(parent, { input }) {
     // *************** Validation input
 
     // ***************  ID
-    if (!_id || typeof _id !== 'string' || _id.trim() === '') {
-      throw new Error('Student ID is required and must be a valid string.');
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+      throw new Error('Student ID is required and must be a valid ObjectId.');
     }
 
     // ***************  Civility
@@ -312,7 +315,7 @@ async function UpdateStudent(parent, { input }) {
 
     // ***************  Update the student
 
-    const updatedStudent = await studentModel.findOneAndUpdate(
+    const updatedStudent = await StudentModel.findOneAndUpdate(
       { _id: _id, status: 'is_active' },
       {
         civility,
@@ -361,7 +364,7 @@ async function DeleteStudent(parent, { _id }) {
     }
 
     // *************** Find the student with the given ID and "is_active" status, then update it to "deleted"
-    const softDeletedStudent = await studentModel.findOneAndUpdate(
+    const softDeletedStudent = await StudentModel.findOneAndUpdate(
       { _id: _id, status: 'is_active' },
       { status: 'deleted' },
       { new: true }

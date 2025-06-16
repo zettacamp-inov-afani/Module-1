@@ -1,5 +1,5 @@
 // *************** IMPORT MODULE ***************
-const schoolModel = require('./school.model');
+const SchoolModel = require('./school.model');
 
 // *************** QUERY ***************
 
@@ -19,7 +19,7 @@ async function GetOneSchool(parent, { _id }) {
     throw new Error("School ID's is required");
   }
   // *************** Find a school with matching ID and active status
-  const school = await schoolModel.findOne({ _id: _id, status: 'is_active' });
+  const school = await SchoolModel.findOne({ _id: _id, status: 'is_active' });
 
   // *************** Return the found student
   return school;
@@ -34,7 +34,7 @@ async function GetOneSchool(parent, { _id }) {
  */
 async function GetAllSchools() {
   // *************** Retrieve all school documents with status "is_active"
-  const schools = await schoolModel.find({
+  const schools = await SchoolModel.find({
     // *************** Filter by status "is_active" only
     status: 'is_active',
   });
@@ -125,7 +125,7 @@ async function CreateSchool(parent, { input }) {
     });
 
     // *************** Create a new school instance with name and address from input
-    const school = new schoolModel({
+    const school = new SchoolModel({
       // *************** Set long_name from nested input
       long_name: input.name.long_name,
 
@@ -235,7 +235,7 @@ async function UpdateSchool(parent, { input }) {
     });
 
     // *************** Update the school document if it's active
-    const updatedSchool = await schoolModel.findOneAndUpdate(
+    const updatedSchool = await SchoolModel.findOneAndUpdate(
       // *************** Filter by ID and status
       { _id: _id, status: 'is_active' },
       {
@@ -285,7 +285,7 @@ async function DeleteSchool(parent, { _id }) {
     }
 
     // *************** Find the school with the given ID and "is_active" status, then update it to "deleted"
-    const softDeletedSchool = await schoolModel.findOneAndUpdate(
+    const softDeletedSchool = await SchoolModel.findOneAndUpdate(
       // *************** Filter by ID and active status
       { _id: _id, status: 'is_active' },
 
