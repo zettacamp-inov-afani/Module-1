@@ -1,3 +1,6 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+
 // *************** IMPORT MODULE ***************
 const SchoolModel = require('./school.model');
 
@@ -165,8 +168,8 @@ async function UpdateSchool(parent, { input }) {
     const { _id, name, addresses } = input;
 
     // *************** Validate school ID
-    if (!_id || typeof _id !== 'string' || _id.trim() === '') {
-      throw new Error('School ID is required and must be a non-empty string.');
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+      throw new Error('Student ID is required and must be a valid ObjectId.');
     }
 
     // *************** Validate name object
@@ -280,10 +283,9 @@ async function UpdateSchool(parent, { input }) {
 async function DeleteSchool(parent, { _id }) {
   try {
     // *************** Validate school ID
-    if (!_id || typeof _id !== 'string' || _id.trim() === '') {
-      throw new Error('School ID is required and must be a non-empty string.');
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+      throw new Error('Student ID is required and must be a valid ObjectId.');
     }
-
     // *************** Find the school with the given ID and "is_active" status, then update it to "deleted"
     const softDeletedSchool = await SchoolModel.findOneAndUpdate(
       // *************** Filter by ID and active status

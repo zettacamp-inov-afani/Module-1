@@ -1,5 +1,6 @@
 // *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 // *************** IMPORT MODULE ***************
 const StudentModel = require('./student.model');
@@ -117,8 +118,8 @@ async function CreateStudent(parent, { input }) {
     }
 
     // *************** Email
-    if (!email || typeof email !== 'string' || email.trim() === '') {
-      throw new Error('Email is required and must be a non-empty string.');
+    if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
+      throw new Error('Email is required and must be a valid format.');
     }
 
     // *************** Telephone
@@ -264,8 +265,8 @@ async function UpdateStudent(parent, { input }) {
     }
 
     // ***************  Email
-    if (!email || typeof email !== 'string' || email.trim() === '') {
-      throw new Error('Email is required and must be a non-empty string.');
+    if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
+      throw new Error('Email is required and must be a valid format.');
     }
 
     // ***************  Telephone
@@ -359,8 +360,8 @@ async function UpdateStudent(parent, { input }) {
 async function DeleteStudent(parent, { _id }) {
   try {
     // *************** Validate required input field
-    if (!_id || typeof _id !== 'string' || _id.trim() === '') {
-      throw new Error('Student ID is required and must be a non-empty string.');
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+      throw new Error('Student ID is required and must be a valid ObjectId.');
     }
 
     // *************** Find the student with the given ID and "is_active" status, then update it to "deleted"

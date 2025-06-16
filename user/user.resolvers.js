@@ -1,3 +1,7 @@
+// *************** IMPORT CORE ***************
+const mongoose = require('mongoose');
+const validator = require('validator');
+
 // *************** IMPORT MODULE ***************
 const UserModel = require('./user.model');
 
@@ -88,8 +92,8 @@ async function CreateUser(parent, { input }) {
     }
 
     // *************** Validate email
-    if (!email || typeof email !== 'string' || email.trim() === '') {
-      throw new Error('Email is required and must be a non-empty string.');
+    if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
+      throw new Error('Email is required and must be a valid format.');
     }
 
     // *************** Validate password
@@ -139,8 +143,8 @@ async function UpdateUser(parent, { input }) {
   const { _id, first_name, last_name, email, password, role } = input;
 
   // *************** Validate ID
-  if (!_id || typeof _id !== 'string' || _id.trim() === '') {
-    throw new Error('User ID is required.');
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    throw new Error('Student ID is required and must be a valid ObjectId.');
   }
 
   // *************** Validate first name
@@ -158,8 +162,8 @@ async function UpdateUser(parent, { input }) {
   }
 
   // *************** Validate email
-  if (!email || typeof email !== 'string' || email.trim() === '') {
-    throw new Error('Email is required and must be a non-empty string.');
+  if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
+    throw new Error('Email is required and must be a valid format.');
   }
 
   // *************** Validate password
@@ -205,8 +209,8 @@ async function UpdateUser(parent, { input }) {
  */
 async function DeleteUser(parent, { _id }) {
   // *************** Validate ID
-  if (!_id || typeof _id !== 'string' || _id.trim() === '') {
-    throw new Error('User ID is required.');
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    throw new Error('Student ID is required and must be a valid ObjectId.');
   }
 
   // *************** Check if user exists and is active
