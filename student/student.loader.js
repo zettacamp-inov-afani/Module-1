@@ -16,6 +16,7 @@ const { ValidateMongoObjectIds } = require('./student.validator');
  * @throws {Error} If any of the provided IDs are invalid MongoDB ObjectIds.
  */
 function StudentLoaders(studentIds) {
+  // *************** Create new instance of DataLoader
   return new DataLoader(async (studentIds) => {
     // ***************  Validate the incoming schoolIds
     ValidateMongoObjectIds(studentIds);
