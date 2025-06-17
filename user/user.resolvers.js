@@ -18,54 +18,44 @@ const {
 // *************** QUERY ***************
 
 /**
- * Retrieves a user by ID if the status is "active".
+ * Retrieve a single active user by their MongoDB ObjectId.
  *
- * @async
- * @function
- * @param {Object} _ - Unused parent resolver.
+ * @param {Object} parent - Parent resolver (unused).
  * @param {Object} args - Arguments object.
- * @param {string} args.id - ID of the user to fetch.
- * @returns {Promise<Object|null>} The user document if found.
+ * @param {string} args._id - User ID to look for.
+ * @returns {Promise<Object|null>} The found user or null if not found.
  */
 async function GetOneUser(parent, { _id }) {
-  // *************** Validate input ID
   ValidateObjectId(_id, 'User ID');
-  // *************** Find a user with matching ID and active status
+
   const user = await UserModel.findOne({
     _id: _id,
     status: 'active',
   });
-
-  // *************** Return the found user
   return user;
 }
 
 /**
- * Retrieves all users with "active" status.
+ * Retrieve all users with status "active".
  *
- * @async
- * @function
- * @returns {Promise<Array>} A list of active user documents.
+ * @returns {Promise<Array>} Array of active users.
  */
 async function GetAllUsers() {
-  // *************** Find all users with status "active"
   const users = await UserModel.find({ status: 'active' });
 
-  // *************** Return the list of active users
   return users;
 }
 
 // *************** MUTATION ***************
 
 /**
- * Creates a new user with default status "active" and role "operator" if not provided.
+ * Create a new user after validating the input.
  *
- * @async
- * @function
- * @param {Object} _ - Unused parent resolver.
- * @param {Object} args - Arguments object.
- * @param {Object} args.input - Input data for the new user.
+ * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} args - Arguments containing user input.
+ * @param {Object} args.input - User creation input data.
  * @returns {Promise<Object>} The created user document.
+ * @throws {Error} If validation fails or saving fails.
  */
 async function CreateUser(parent, { input }) {
   try {
@@ -100,15 +90,13 @@ async function CreateUser(parent, { input }) {
 }
 
 /**
- * Updates an existing user if status is "active".
+ * Update an existing active user with new data.
  *
- * This method avoids using `{ new: true }` by refetching after update.
- *
- * @async
- * @function
- * @param {Object} _ - Unused parent resolver.
- * @param {Object} args - Arguments containing updated user data.
- * @returns {Promise<Object|null>} Updated user document or null if not found.
+ * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} args - Arguments containing user input.
+ * @param {Object} args.input - User update input data.
+ * @returns {Promise<Object|null>} The updated user document, or null if not found.
+ * @throws {Error} If validation fails or update fails.
  */
 async function UpdateUser(parent, { input }) {
   const { _id, first_name, last_name, civility, email, password, role } = input;
@@ -140,16 +128,13 @@ async function UpdateUser(parent, { input }) {
 }
 
 /**
- * Soft deletes a user by changing status to "deleted".
+ * Soft delete a user by updating their status to "deleted" and setting a deleted_at timestamp.
  *
- * Only users with role "operator" or "acadir" can perform this action.
- *
- * @async
- * @function
- * @param {Object} _ - Unused parent resolver.
- * @param {Object} args - Arguments containing the ID of user to delete.
- * @returns {Promise<Object>} The updated (soft-deleted) user document.
- * @throws {Error} If unauthorized or user not found.
+ * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} args - Arguments containing the user ID.
+ * @param {string} args._id - The ID of the user to delete.
+ * @returns {Promise<Object>} The soft-deleted user document.
+ * @throws {Error} If user is not found or already deleted.
  */
 async function DeleteUser(parent, { _id }) {
   try {

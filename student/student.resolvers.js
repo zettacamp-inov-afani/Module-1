@@ -30,10 +30,7 @@ const {
 async function GetOneStudent(parent, { _id }) {
   // *************** Validate the input ID
   ValidateObjectId(_id, 'Student ID');
-  // *************** Find a student with matching ID and active status
   const student = await StudentModel.findOne({ _id: _id, status: 'active' });
-
-  // *************** Return the found student
   return student;
 }
 
@@ -47,11 +44,8 @@ async function GetOneStudent(parent, { _id }) {
 async function GetAllStudents() {
   // *************** Retrieve all student documents with status "active"
   const students = await StudentModel.find({
-    // *************** Filter by status "active" only
     status: 'active',
   });
-
-  // *************** Return the list of active students
   return students;
 }
 
@@ -96,7 +90,6 @@ async function CreateStudent(parent, { input }) {
     } = input;
 
     // *************** Validation
-
     ValidateCivility(civility);
     ValidateNonEmptyString(first_name, 'First name');
     ValidateNonEmptyString(last_name, 'Last name');
@@ -108,7 +101,6 @@ async function CreateStudent(parent, { input }) {
     ValidateObjectId(school_id, 'School ID');
 
     // *************** Create new student
-
     const student = new StudentModel({
       civility,
       first_name,
@@ -198,12 +190,9 @@ async function UpdateStudent(parent, { input }) {
       },
       { new: true }
     );
-
     if (!updatedStudent) {
       throw new Error('Student not found or already deleted.');
     }
-
-    // ***************  Return updated student
     return updatedStudent;
   } catch (error) {
     console.error('UpdateStudent error:', error);
@@ -228,20 +217,14 @@ async function DeleteStudent(parent, { _id }) {
   try {
     // *************** Validate required input field
     ValidateObjectId(_id, 'Student ID');
-
-    // *************** Find the student with the given ID and "active" status, then update it to "deleted"
     const deletedStudent = await StudentModel.findByIdAndUpdate(
       { _id: _id, status: 'active' },
       { $set: { status: 'deleted', deleted_at: new Date() } },
       { new: true }
     );
-
-    // *************** Handle case if student not found or already deleted
     if (!deletedStudent) {
       throw new Error('Student not found or already deleted.');
     }
-
-    // *************** Return the updated student (now with "deleted" status)
     return deletedStudent;
   } catch (error) {
     console.error('DeleteStudent error:', error);

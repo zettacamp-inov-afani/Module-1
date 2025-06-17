@@ -14,32 +14,26 @@ const {
 // *************** QUERY ***************
 
 /**
- * Retrieves a single school document by ID, only if its status is "active".
+ * Get one school by ID, only if its status is active.
  *
- * @async
- * @function
- * @param {Object} _ - Unused parent resolver argument.
- * @param {Object} args - Arguments passed to the query.
- * @param {string} args.id - The ID of the school to retrieve.
- * @returns {Promise<Object|null>} The school document if found, otherwise null.
+ * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} args - Arguments object containing school ID.
+ * @param {string} args._id - The ID of the school to retrieve.
+ * @returns {Promise<Object|null>} The found school or null if not found.
  */
 async function GetOneSchool(parent, { _id }) {
-  // *************** Validate the input ID
   ValidateObjectId(_id, 'School ID');
-  // *************** Find a school with matching ID and active status
+
   const school = await SchoolModel.findOne({ _id: _id, status: 'active' });
   return school;
 }
 
 /**
- * Retrieves all schools whose status is "active".
+ * Get all schools with status "active".
  *
- * @async
- * @function
- * @returns {Promise<Array>} A list of all active schools.
+ * @returns {Promise<Array>} Array of all active schools.
  */
 async function GetAllSchools() {
-  // *************** Retrieve all school documents with status "active"
   const schools = await SchoolModel.find({
     status: 'active',
   });
@@ -50,24 +44,19 @@ async function GetAllSchools() {
 // *************** MUTATION ***************
 
 /**
- * Creates a new school document in the database with an "active" status.
+ * Create a new school with validated name and addresses.
  *
- * @async
- * @function
- * @param {Object} _ - Unused parent resolver argument.
- * @param {Object} args - Arguments passed to the mutation.
- * @param {Object} args.input - The input object containing school details.
- * @param {Object} args.input.name - Object with long_name and short_name of the school.
- * @param {Array} args.input.addresses - List of address objects.
- * @returns {Promise<Object>} The newly created school document.
+ * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} args - Arguments object.
+ * @param {Object} args.input - Input data for the new school.
+ * @returns {Promise<Object>} The created school document.
+ * @throws {Error} If validation fails or saving fails.
  */
 async function CreateSchool(parent, { input }) {
   try {
-    // *************** Validate all the input fields
     ValidateSchoolName(input.name);
     ValidateSchoolAddresses(input.addresses);
 
-    // *************** Create a new school instance with name and address from input
     const school = new SchoolModel({
       long_name: input.name.long_name,
       short_name: input.name.short_name,
@@ -84,27 +73,22 @@ async function CreateSchool(parent, { input }) {
 }
 
 /**
- * Updates a school's name and address if it has "active" status.
+ * Update an existing school by ID with new name and addresses.
  *
- * Does not use `{ new: true }` and instead fetches updated document manually.
- *
- * @async
- * @function
- * @param {Object} _ - Unused parent resolver argument.
- * @param {Object} args - Arguments passed to the mutation.
- * @param {Object} args.input - Input object with ID, name, and address.
- * @returns {Promise<Object|null>} The updated school document or null if not found.
+ * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} args - Arguments object.
+ * @param {Object} args.input - Input data for updating school.
+ * @returns {Promise<Object>} The updated school document.
+ * @throws {Error} If validation fails or update fails.
  */
 async function UpdateSchool(parent, { input }) {
   try {
     const { _id, name, addresses } = input;
 
-    // *************** Validate all the input fields
     ValidateObjectId(_id, 'School ID');
     ValidateSchoolName(name);
     ValidateSchoolAddresses(addresses);
 
-    // *************** Update the school document if it's active
     const updatedSchool = await SchoolModel.findOneAndUpdate(
       { _id: _id, status: 'active' },
       {
@@ -119,7 +103,6 @@ async function UpdateSchool(parent, { input }) {
     if (!updatedSchool) {
       throw new Error('School not found or already deleted.');
     }
-
     return updatedSchool;
   } catch (error) {
     console.error('UpdateSchool error:', error);
@@ -128,23 +111,17 @@ async function UpdateSchool(parent, { input }) {
 }
 
 /**
- * Soft deletes a school by setting its status to "deleted",
- * but only if the current status is "active".
+ * Soft deletes a school by marking its status as "deleted" and setting deleted_at timestamp.
  *
- * @async
- * @function DeleteSchool
- * @param {Object} _ - Unused parent resolver argument.
- * @param {Object} args - The arguments passed to the mutation.
- * @param {string} args._id - The ID of the school to soft delete.
- * @returns {Promise<Object>} The updated school document.
- * @throws {Error} If the school is not found or already deleted.
+ * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} args - Arguments object containing the school ID.
+ * @returns {Promise<Object>} The soft-deleted school document.
+ * @throws {Error} If validation fails or deletion fails.
  */
 async function DeleteSchool(parent, { _id }) {
   try {
-    // *************** Validate school ID
     ValidateObjectId(_id, 'School ID');
 
-    // *************** Find the school with the given ID and "active" status, then update it to "deleted"
     const deletedSchool = await SchoolModel.findByIdAndUpdate(
       { _id: _id, status: 'active' },
       { $set: { status: 'deleted', deleted_at: new Date() } },
@@ -153,8 +130,6 @@ async function DeleteSchool(parent, { _id }) {
     if (!deletedSchool) {
       throw new Error('School not found or already deleted.');
     }
-
-    // *************** Return the soft-deleted school
     return deletedSchool;
   } catch (error) {
     console.error('DeleteSchool error:', error);
@@ -165,17 +140,12 @@ async function DeleteSchool(parent, { _id }) {
 // *************** LOADERS ***************
 
 /**
- * Resolver for the `students` field on the `School` type.
- * Uses DataLoader to fetch a list of students belonging to the given school ID.
+ * DataLoader resolver for loading student documents related to the school.
  *
- * @async
- * @function StudetnLoaders
- * @param {Object} parent - The parent object, representing a single School.
- * @param {Object} _ - Unused GraphQL arguments placeholder.
- * @param {Object} context - GraphQL context, providing shared resources.
- * @param {Object} context.loaders - Object containing all configured DataLoaders.
- * @param {DataLoader} context.loaders.studentById - DataLoader that batches student lookups by school ID.
- * @returns {Promise<Array<Object>>} A promise resolving to an array of student objects belonging to the school.
+ * @param {Object} parent - The School parent object that contains `students` field (array of IDs).
+ * @param {Object} args - GraphQL arguments (unused).
+ * @param {Object} context - GraphQL context containing loaders.
+ * @returns {Promise<Array>} Array of loaded student documents.
  */
 async function StudentLoaders(parent, args, context) {
   const { loaders } = context;

@@ -16,9 +16,7 @@ const { ValidateMongoObjectIds } = require('./school.validator');
  * @function
  * @returns {DataLoader<string, Object>} A DataLoader that loads School documents by their ID.
  *
- * @example
- * const schoolLoader = createSchoolByIdLoader();
- * const school = await schoolLoader.load("6647a8b2c1d3a1234567890f");
+ *
  */
 function SchoolLoaders() {
   // *************** Create new instance of DataLoader

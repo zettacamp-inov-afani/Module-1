@@ -8,11 +8,12 @@ const studentModel = require('./student.model');
 const { ValidateMongoObjectIds } = require('./student.validator');
 
 /**
- * Batch function to load multiple students by their IDs.
+ * Creates a DataLoader instance for batching and caching student lookups by ID.
  *
- * @param {Array<string>} studentIds - An array of student IDs to fetch.
- * @returns {Promise<Array<Object|null>>} - A promise that resolves to an array of students
- *                                          ordered to match the original input IDs.
+ * @param {Array<string>} studentIds - Array of student MongoDB ObjectIds.
+ * @returns {DataLoader<string, Object|null>} A DataLoader instance to load students by ID.
+ *
+ * @throws {Error} If any of the provided IDs are invalid MongoDB ObjectIds.
  */
 function StudentLoaders(studentIds) {
   return new DataLoader(async (studentIds) => {
