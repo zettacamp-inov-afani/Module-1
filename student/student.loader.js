@@ -2,7 +2,10 @@
 const DataLoader = require('dataloader');
 
 // *************** IMPORT MODULE ***************
-const StudentModel = require('./student.model');
+const studentModel = require('./student.model');
+
+// *************** IMPORT VALIDATOR ***************
+const { ValidateMongoObjectIds } = require('./student.validator');
 
 /**
  * Batch function to load multiple students by their IDs.
@@ -11,27 +14,22 @@ const StudentModel = require('./student.model');
  * @returns {Promise<Array<Object|null>>} - A promise that resolves to an array of students
  *                                          ordered to match the original input IDs.
  */
-function BatchStudents(studentIds) {
-  // *************** Query all students whose _id is in the list of requested studentIds
-  return StudentModel.find({ _id: { $in: studentIds } }).then((students) => {
-    // Create a Map for quick lookup by ID
-    const studentMap = new Map();
+function StudentLoaders(studentIds) {
+  return new DataLoader(async (studentIds) => {
+    // ***************  Validate the incoming schoolIds
+    ValidateMongoObjectIds(studentIds);
+    const students = await studentModel.find({ _id: { $in: studentIds } });
+
+    const studentMap = {};
     students.forEach((student) => {
-      // Map the student ID to the student document
-      studentMap.set(student._id.toString(), student);
+      studentMap[student._id.toString()] = student;
     });
 
-    // Return the students in the same order as the input IDs
-    const batchStudent = studentIds.map(
-      (id) => studentMap.get(id.toString()) || null
+    const createStudentLoader = studentIds.map(
+      (_id) => studentMap[_id.toString()]
     );
-    return batchStudent;
+    return createStudentLoader;
   });
 }
-
-function CreateStudentsByIdLoader() {
-  return new DataLoader(BatchStudents);
-}
-
 // *************** EXPORT MODULE ***************
-module.exports = CreateStudentsByIdLoader;
+module.exports = StudentLoaders;

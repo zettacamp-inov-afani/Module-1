@@ -32,9 +32,12 @@ const userSchema = new mongoose.Schema(
     // User's statuses
     status: {
       type: String,
-      enum: ['is_active', 'deleted'],
-      default: 'is_active',
+      enum: ['active', 'deleted'],
+      default: 'active',
     },
+
+    // User's delete_at detail
+    deleted_at: { type: Date, default: null },
   },
   { timestamps: true }
 );

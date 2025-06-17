@@ -38,9 +38,12 @@ const schoolSchema = new mongoose.Schema(
     // Check stasuses
     status: {
       type: String,
-      enum: ['is_active', 'deleted'],
-      default: 'is_active',
+      enum: ['active', 'deleted'],
+      default: 'active',
     },
+
+    // School's delete_at detail
+    deleted_at: { type: Date, default: null },
   },
   { timestamps: true }
 );

@@ -19,6 +19,7 @@ const userTypeDefs = gql`
     password: String!
     role: String!
     status: String!
+    deleted_at: Date
   }
 
   input CreateUserInput {

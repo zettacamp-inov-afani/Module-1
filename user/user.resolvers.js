@@ -5,10 +5,20 @@ const validator = require('validator');
 // *************** IMPORT MODULE ***************
 const UserModel = require('./user.model');
 
+// *************** IMPORT VALIDATORS ***************
+const {
+  ValidateObjectId,
+  ValidateCivility,
+  ValidateNonEmptyString,
+  ValidateEmail,
+  ValidatePassword,
+  ValidateRole,
+} = require('./user.validator');
+
 // *************** QUERY ***************
 
 /**
- * Retrieves a user by ID if the status is "is_active".
+ * Retrieves a user by ID if the status is "active".
  *
  * @async
  * @function
@@ -19,14 +29,11 @@ const UserModel = require('./user.model');
  */
 async function GetOneUser(parent, { _id }) {
   // *************** Validate input ID
-  if (!_id) {
-    throw new Error('User ID is required');
-  }
-
+  ValidateObjectId(_id, 'User ID');
   // *************** Find a user with matching ID and active status
   const user = await UserModel.findOne({
     _id: _id,
-    status: 'is_active',
+    status: 'active',
   });
 
   // *************** Return the found user
@@ -34,15 +41,15 @@ async function GetOneUser(parent, { _id }) {
 }
 
 /**
- * Retrieves all users with "is_active" status.
+ * Retrieves all users with "active" status.
  *
  * @async
  * @function
  * @returns {Promise<Array>} A list of active user documents.
  */
 async function GetAllUsers() {
-  // *************** Find all users with status "is_active"
-  const users = await UserModel.find({ status: 'is_active' });
+  // *************** Find all users with status "active"
+  const users = await UserModel.find({ status: 'active' });
 
   // *************** Return the list of active users
   return users;
@@ -51,7 +58,7 @@ async function GetAllUsers() {
 // *************** MUTATION ***************
 
 /**
- * Creates a new user with default status "is_active" and role "operator" if not provided.
+ * Creates a new user with default status "active" and role "operator" if not provided.
  *
  * @async
  * @function
@@ -64,49 +71,13 @@ async function CreateUser(parent, { input }) {
   try {
     const { civility, first_name, last_name, email, password, role } = input;
 
-    // *************** Validate civility
-    if (
-      !civility ||
-      typeof civility !== 'string' ||
-      !['Mr', 'Mrs'].includes(civility)
-    ) {
-      throw new Error("Civility is required and must be either 'Mr' or 'Mrs'.");
-    }
-
-    // *************** Validate first name
-    if (
-      !first_name ||
-      typeof first_name !== 'string' ||
-      first_name.trim() === ''
-    ) {
-      throw new Error('First name is required and must be a non-empty string.');
-    }
-
-    // *************** Validate last name
-    if (
-      !last_name ||
-      typeof last_name !== 'string' ||
-      last_name.trim() === ''
-    ) {
-      throw new Error('Last name is required and must be a non-empty string.');
-    }
-
-    // *************** Validate email
-    if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
-      throw new Error('Email is required and must be a valid format.');
-    }
-
-    // *************** Validate password
-    if (!password || typeof password !== 'string' || password.length < 6) {
-      throw new Error(
-        'Password is required and must be at least 6 characters long.'
-      );
-    }
-
-    // *************** Validate role if provided
-    if (role && !['operator', 'acadir', 'student'].includes(role)) {
-      throw new Error("Role must be one of: 'operator', 'acadir', 'student'.");
-    }
+    // *************** Validate required input
+    ValidateCivility(civility);
+    ValidateNonEmptyString(first_name, 'First name');
+    ValidateNonEmptyString(last_name, 'Last name');
+    ValidateEmail(email);
+    ValidatePassword(password);
+    ValidateRole(role);
 
     // *************** Create a new User instance
     const user = new UserModel({
@@ -116,7 +87,7 @@ async function CreateUser(parent, { input }) {
       email,
       password,
       role: role || 'operator',
-      status: 'is_active',
+      status: 'active',
     });
 
     // *************** Save the user and return the result
@@ -129,7 +100,7 @@ async function CreateUser(parent, { input }) {
 }
 
 /**
- * Updates an existing user if status is "is_active".
+ * Updates an existing user if status is "active".
  *
  * This method avoids using `{ new: true }` by refetching after update.
  *
@@ -140,51 +111,24 @@ async function CreateUser(parent, { input }) {
  * @returns {Promise<Object|null>} Updated user document or null if not found.
  */
 async function UpdateUser(parent, { input }) {
-  const { _id, first_name, last_name, email, password, role } = input;
+  const { _id, first_name, last_name, civility, email, password, role } = input;
 
-  // *************** Validate ID
-  if (!mongoose.Types.ObjectId.isValid(_id)) {
-    throw new Error('Student ID is required and must be a valid ObjectId.');
-  }
-
-  // *************** Validate first name
-  if (
-    !first_name ||
-    typeof first_name !== 'string' ||
-    first_name.trim() === ''
-  ) {
-    throw new Error('First name is required and must be a non-empty string.');
-  }
-
-  // *************** Validate last name
-  if (!last_name || typeof last_name !== 'string' || last_name.trim() === '') {
-    throw new Error('Last name is required and must be a non-empty string.');
-  }
-
-  // *************** Validate email
-  if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
-    throw new Error('Email is required and must be a valid format.');
-  }
-
-  // *************** Validate password
-  if (!password || typeof password !== 'string' || password.length < 6) {
-    throw new Error('Password is required and must be at least 6 characters.');
-  }
-
-  // *************** Validate role
-  const validRoles = ['operator', 'acadir', 'student'];
-  if (!role || typeof role !== 'string' || !validRoles.includes(role)) {
-    throw new Error(
-      `Role is required and must be one of: ${validRoles.join(', ')}`
-    );
-  }
+  // *************** Validate required input
+  ValidateObjectId(_id, 'User ID');
+  ValidateCivility(civility);
+  ValidateNonEmptyString(first_name, 'First name');
+  ValidateNonEmptyString(last_name, 'Last name');
+  ValidateEmail(email);
+  ValidatePassword(password);
+  ValidateRole(role);
 
   // *************** Update the user data if active
   const updatedUser = await UserModel.findOneAndUpdate(
-    { _id: _id, status: 'is_active' }, // Match active user by ID
+    { _id: _id, status: 'active' }, // Match active user by ID
     {
       first_name,
       last_name,
+      civility,
       email,
       password,
       role,
@@ -208,23 +152,28 @@ async function UpdateUser(parent, { input }) {
  * @throws {Error} If unauthorized or user not found.
  */
 async function DeleteUser(parent, { _id }) {
-  // *************** Validate ID
-  if (!mongoose.Types.ObjectId.isValid(_id)) {
-    throw new Error('Student ID is required and must be a valid ObjectId.');
+  try {
+    // *************** Validate required input field
+    ValidateObjectId(_id, 'User ID');
+
+    // *************** Find the User with the given ID and "active" status, then update it to "deleted"
+    const deletedUser = await UserModel.findByIdAndUpdate(
+      { _id: _id, status: 'active' },
+      { $set: { status: 'deleted', deleted_at: new Date() } },
+      { new: true }
+    );
+
+    // *************** Handle case if User not found or already deleted
+    if (!deletedUser) {
+      throw new Error('User not found or already deleted.');
+    }
+
+    // *************** Return the updated User (now with "deleted" status)
+    return deletedUser;
+  } catch (error) {
+    console.error('DeleteUser error:', error);
+    throw new Error(error.message || 'Failed to delete User.');
   }
-
-  // *************** Check if user exists and is active
-  const user = await UserModel.findOne({ _id: _id, status: 'is_active' });
-  if (!user) {
-    throw new Error('User not found or already deleted.');
-  }
-
-  // *************** Perform soft delete by setting status to "deleted"
-  user.status = 'deleted';
-
-  // *************** Save and return updated user
-  await user.save();
-  return user;
 }
 
 // *************** EXPORT MODULE ***************

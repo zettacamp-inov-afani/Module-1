@@ -18,6 +18,7 @@ const schoolTypeDefs = gql`
     status: String!
     createdAt: String!
     updatedAt: String!
+    deleted_at: Date
   }
 
   input AddressInput {

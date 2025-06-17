@@ -6,10 +6,19 @@ const validator = require('validator');
 const StudentModel = require('./student.model');
 const SchoolModel = require('../school/school.model');
 
+// *************** IMPORT VALIDATORS ***************
+const {
+  ValidateObjectId,
+  ValidateCivility,
+  ValidateNonEmptyString,
+  ValidateEmail,
+  ValidateDate,
+} = require('./student.validator');
+
 // *************** QUERY ***************
 
 /**
- * Retrieves a single student by ID if their status is "is_active".
+ * Retrieves a single student by ID if their status is "active".
  *
  * @async
  * @function
@@ -20,28 +29,26 @@ const SchoolModel = require('../school/school.model');
  */
 async function GetOneStudent(parent, { _id }) {
   // *************** Validate the input ID
-  if (!_id) {
-    throw new Error('Student ID is required');
-  }
+  ValidateObjectId(_id, 'Student ID');
   // *************** Find a student with matching ID and active status
-  const student = await StudentModel.findOne({ _id: _id, status: 'is_active' });
+  const student = await StudentModel.findOne({ _id: _id, status: 'active' });
 
   // *************** Return the found student
   return student;
 }
 
 /**
- * Retrieves all students with status "is_active".
+ * Retrieves all students with status "active".
  *
  * @async
  * @function
  * @returns {Promise<Array<Object>>} A list of active student documents.
  */
 async function GetAllStudents() {
-  // *************** Retrieve all student documents with status "is_active"
+  // *************** Retrieve all student documents with status "active"
   const students = await StudentModel.find({
-    // *************** Filter by status "is_active" only
-    status: 'is_active',
+    // *************** Filter by status "active" only
+    status: 'active',
   });
 
   // *************** Return the list of active students
@@ -54,7 +61,7 @@ async function GetAllStudents() {
  * Creates a new student document in the database.
  *
  * This function receives the student input from GraphQL arguments, validates the required fields,
- * creates a new Student instance, and stores it in the database with a default status of "is_active".
+ * creates a new Student instance, and stores it in the database with a default status of "active".
  *
  * @async
  * @function CreateStudent
@@ -90,82 +97,15 @@ async function CreateStudent(parent, { input }) {
 
     // *************** Validation
 
-    // *************** Civility
-    if (
-      !civility ||
-      typeof civility !== 'string' ||
-      !allowedCivilities.includes(civility)
-    ) {
-      throw new Error("Civility is required and must be either 'Mr' or 'Mrs'.");
-    }
-
-    // *************** First name
-    if (
-      !first_name ||
-      typeof first_name !== 'string' ||
-      first_name.trim() === ''
-    ) {
-      throw new Error('First name is required and must be a non-empty string.');
-    }
-
-    // *************** Last name
-    if (
-      !last_name ||
-      typeof last_name !== 'string' ||
-      last_name.trim() === ''
-    ) {
-      throw new Error('Last name is required and must be a non-empty string.');
-    }
-
-    // *************** Email
-    if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
-      throw new Error('Email is required and must be a valid format.');
-    }
-
-    // *************** Telephone
-    if (
-      !tele_phone ||
-      typeof tele_phone !== 'string' ||
-      tele_phone.trim() === ''
-    ) {
-      throw new Error('Telephone is required and must be a non-empty string.');
-    }
-
-    // *************** Date of Birth
-    if (!date_of_birth || isNaN(Date.parse(date_of_birth))) {
-      throw new Error('Date of birth is required and must be a valid date.');
-    }
-
-    // *************** Place of Birth
-    if (
-      !place_of_birth ||
-      typeof place_of_birth !== 'string' ||
-      place_of_birth.trim() === ''
-    ) {
-      throw new Error(
-        'Place of birth is required and must be a non-empty string.'
-      );
-    }
-
-    // *************** Postal Code of Birth
-    if (
-      !postal_code_of_birth ||
-      typeof postal_code_of_birth !== 'string' ||
-      postal_code_of_birth.trim() === ''
-    ) {
-      throw new Error(
-        'Postal code of birth is required and must be a non-empty string.'
-      );
-    }
-
-    // *************** School ID
-    if (
-      !school_id ||
-      typeof school_id !== 'string' ||
-      school_id.trim() === ''
-    ) {
-      throw new Error('School ID is required and must be a valid string.');
-    }
+    ValidateCivility(civility);
+    ValidateNonEmptyString(first_name, 'First name');
+    ValidateNonEmptyString(last_name, 'Last name');
+    ValidateEmail(email);
+    ValidateNonEmptyString(tele_phone, 'Telephone');
+    ValidateDate(date_of_birth, 'Date of birth');
+    ValidateNonEmptyString(place_of_birth, 'Place of birth');
+    ValidateNonEmptyString(postal_code_of_birth, 'Postal code of birth');
+    ValidateObjectId(school_id, 'School ID');
 
     // *************** Create new student
 
@@ -179,7 +119,7 @@ async function CreateStudent(parent, { input }) {
       place_of_birth,
       postal_code_of_birth,
       school_id,
-      status: 'is_active',
+      status: 'active',
     });
 
     const createStudent = await student.save();
@@ -231,93 +171,20 @@ async function UpdateStudent(parent, { input }) {
     } = input;
 
     // *************** Validation input
-
-    // ***************  ID
-    if (!mongoose.Types.ObjectId.isValid(_id)) {
-      throw new Error('Student ID is required and must be a valid ObjectId.');
-    }
-
-    // ***************  Civility
-    if (
-      !civility ||
-      typeof civility !== 'string' ||
-      !allowedCivilities.includes(civility)
-    ) {
-      throw new Error("Civility is required and must be either 'Mr' or 'Mrs'.");
-    }
-
-    // ***************  First name
-    if (
-      !first_name ||
-      typeof first_name !== 'string' ||
-      first_name.trim() === ''
-    ) {
-      throw new Error('First name is required and must be a non-empty string.');
-    }
-
-    // ***************  Last name
-    if (
-      !last_name ||
-      typeof last_name !== 'string' ||
-      last_name.trim() === ''
-    ) {
-      throw new Error('Last name is required and must be a non-empty string.');
-    }
-
-    // ***************  Email
-    if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
-      throw new Error('Email is required and must be a valid format.');
-    }
-
-    // ***************  Telephone
-    if (
-      !tele_phone ||
-      typeof tele_phone !== 'string' ||
-      tele_phone.trim() === ''
-    ) {
-      throw new Error('Telephone is required and must be a non-empty string.');
-    }
-
-    // ***************  Date of Birth
-    if (!date_of_birth || isNaN(Date.parse(date_of_birth))) {
-      throw new Error('Date of birth is required and must be a valid date.');
-    }
-
-    // ***************  Place of Birth
-    if (
-      !place_of_birth ||
-      typeof place_of_birth !== 'string' ||
-      place_of_birth.trim() === ''
-    ) {
-      throw new Error(
-        'Place of birth is required and must be a non-empty string.'
-      );
-    }
-
-    // ***************  Postal Code of Birth
-    if (
-      !postal_code_of_birth ||
-      typeof postal_code_of_birth !== 'string' ||
-      postal_code_of_birth.trim() === ''
-    ) {
-      throw new Error(
-        'Postal code of birth is required and must be a non-empty string.'
-      );
-    }
-
-    // ***************  School ID
-    if (
-      !school_id ||
-      typeof school_id !== 'string' ||
-      school_id.trim() === ''
-    ) {
-      throw new Error('School ID is required and must be a valid string.');
-    }
+    ValidateObjectId(_id, 'Student ID');
+    ValidateCivility(civility);
+    ValidateNonEmptyString(first_name, 'First name');
+    ValidateNonEmptyString(last_name, 'Last name');
+    ValidateEmail(email);
+    ValidateNonEmptyString(tele_phone, 'Telephone');
+    ValidateDate(date_of_birth, 'Date of birth');
+    ValidateNonEmptyString(place_of_birth, 'Place of birth');
+    ValidateNonEmptyString(postal_code_of_birth, 'Postal code of birth');
+    ValidateObjectId(school_id, 'School ID');
 
     // ***************  Update the student
-
     const updatedStudent = await StudentModel.findOneAndUpdate(
-      { _id: _id, status: 'is_active' },
+      { _id: _id, status: 'active' },
       {
         civility,
         first_name,
@@ -347,7 +214,7 @@ async function UpdateStudent(parent, { input }) {
 /**
  * Soft deletes a student by setting their status to "deleted".
  *
- * Only affects students whose status is currently "is_active".
+ * Only affects students whose status is currently "active".
  * After update, fetches and returns the updated student.
  *
  * @async
@@ -360,24 +227,22 @@ async function UpdateStudent(parent, { input }) {
 async function DeleteStudent(parent, { _id }) {
   try {
     // *************** Validate required input field
-    if (!mongoose.Types.ObjectId.isValid(_id)) {
-      throw new Error('Student ID is required and must be a valid ObjectId.');
-    }
+    ValidateObjectId(_id, 'Student ID');
 
-    // *************** Find the student with the given ID and "is_active" status, then update it to "deleted"
-    const softDeletedStudent = await StudentModel.findOneAndUpdate(
-      { _id: _id, status: 'is_active' },
-      { status: 'deleted' },
+    // *************** Find the student with the given ID and "active" status, then update it to "deleted"
+    const deletedStudent = await StudentModel.findByIdAndUpdate(
+      { _id: _id, status: 'active' },
+      { $set: { status: 'deleted', deleted_at: new Date() } },
       { new: true }
     );
 
     // *************** Handle case if student not found or already deleted
-    if (!softDeletedStudent) {
+    if (!deletedStudent) {
       throw new Error('Student not found or already deleted.');
     }
 
     // *************** Return the updated student (now with "deleted" status)
-    return softDeletedStudent;
+    return deletedStudent;
   } catch (error) {
     console.error('DeleteStudent error:', error);
     throw new Error(error.message || 'Failed to delete student.');

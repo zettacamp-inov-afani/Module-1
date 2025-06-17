@@ -4,6 +4,8 @@ const DataLoader = require('dataloader');
 // *************** IMPORT MODULE ***************
 const SchoolModel = require('./school.model');
 
+// *************** IMPORT VALIDATOR ***************
+const { ValidateMongoObjectIds } = require('./school.validator');
 /**
  * Creates a DataLoader instance to batch and cache school lookups by ID.
  *
@@ -18,9 +20,11 @@ const SchoolModel = require('./school.model');
  * const schoolLoader = createSchoolByIdLoader();
  * const school = await schoolLoader.load("6647a8b2c1d3a1234567890f");
  */
-function CreateSchoolByIdLoader() {
+function SchoolLoaders() {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (schoolIds) => {
+    // ***************  Validate the incoming schoolIds
+    ValidateMongoObjectIds(schoolIds);
     // *************** Find all Schools whose id is in the schoolIds array
     const schools = await SchoolModel.find({ _id: { $in: schoolIds } });
 
@@ -37,4 +41,4 @@ function CreateSchoolByIdLoader() {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = CreateSchoolByIdLoader;
+module.exports = SchoolLoaders;
