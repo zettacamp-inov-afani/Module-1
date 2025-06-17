@@ -19,9 +19,6 @@ async function ConnectDB() {
       useUnifiedTopology: true,
     });
 
-    // *************** Enable Mongoose debug mode to log all MongoDB operations in the terminal
-    mongoose.set('debug', true);
-
     // *************** Log a success message if connection is successful
     console.log('✅ MongoDB connected');
   } catch (error) {

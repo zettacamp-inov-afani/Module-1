@@ -1,8 +1,6 @@
 // *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
 
-// *************** VALIDATION FUNCTIONS ***************
-
 /**
  * Validates that the provided value is an array of valid MongoDB ObjectIds.
  *
@@ -10,10 +8,12 @@ const mongoose = require('mongoose');
  * @throws {Error} If the input is not an array or contains invalid ObjectIds.
  */
 function ValidateMongoObjectIds(ids) {
+  // *************** Check if the input is an array
   if (!Array.isArray(ids)) {
     throw new Error('IDs must be an array.');
   }
 
+  // *************** Loop through each ID to validate individually
   ids.forEach((id, index) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error(`ID at index ${index} is not a valid MongoDB ObjectId.`);
@@ -29,6 +29,7 @@ function ValidateMongoObjectIds(ids) {
  * @throws {Error} If the _id is not a valid ObjectId.
  */
 function ValidateObjectId(_id, fieldName = 'ID') {
+  // *************** Check if _id is a valid MongoDB ObjectId
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     throw new Error(`${fieldName} is required and must be a valid ObjectId.`);
   }
@@ -41,10 +42,12 @@ function ValidateObjectId(_id, fieldName = 'ID') {
  * @throws {Error} If the object is missing or contains invalid/empty values.
  */
 function ValidateSchoolName(name) {
+  // *************** Check if name is an object
   if (!name || typeof name !== 'object') {
     throw new Error('School name object is required.');
   }
 
+  // *************** Validate long_name
   if (
     !name.long_name ||
     typeof name.long_name !== 'string' ||
@@ -53,6 +56,7 @@ function ValidateSchoolName(name) {
     throw new Error('Long name is required and must be a non-empty string.');
   }
 
+  // *************** Validate short_name
   if (
     !name.short_name ||
     typeof name.short_name !== 'string' ||
@@ -74,8 +78,10 @@ function ValidateSchoolAddresses(addresses) {
     throw new Error('Address must be a non-empty array.');
   }
 
+  // *************** Loop through each address object
   addresses.forEach((address, index) => {
     if (
+      // *************** Validate detail
       !address.detail ||
       typeof address.detail !== 'string' ||
       address.detail.trim() === ''
@@ -83,6 +89,7 @@ function ValidateSchoolAddresses(addresses) {
       throw new Error(`Address[${index}]: Detail is required.`);
     }
 
+    // *************** Validate city
     if (
       !address.city ||
       typeof address.city !== 'string' ||
@@ -91,6 +98,7 @@ function ValidateSchoolAddresses(addresses) {
       throw new Error(`Address[${index}]: City is required.`);
     }
 
+    // *************** Validate country
     if (
       !address.country ||
       typeof address.country !== 'string' ||
@@ -99,6 +107,7 @@ function ValidateSchoolAddresses(addresses) {
       throw new Error(`Address[${index}]: Country is required.`);
     }
 
+    // *************** Validate zipcode
     if (
       address.zipcode === undefined ||
       typeof address.zipcode !== 'number' ||

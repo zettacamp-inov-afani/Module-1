@@ -29,11 +29,11 @@ function SchoolLoaders() {
     // *************** Create schoolMap object for dictionary
     const schoolMap = {};
     schools.forEach((school) => {
-      schoolMap[school._id.toString()] = school;
+      schoolMap[String(school._id)] = school;
     });
 
     // *************** Return an array containing schools in the order of the requested schoolIds.
-    const createSchoolLoader = schoolIds.map((id) => schoolMap[id.toString()]);
+    const createSchoolLoader = schoolIds.map((id) => schoolMap[String(id)]);
     return createSchoolLoader;
   });
 }

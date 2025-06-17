@@ -59,8 +59,10 @@ async function StartServer() {
   await ConnectDB();
 
   // *************** Start the Express server
-  app.listen({ port: 4000 }, () =>
-    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+  app.listen({ port: `${process.env.PORT}` }, () =>
+    console.log(
+      `🚀 Server ready at http://localhost:${process.env.PORT}${server.graphqlPath}`
+    )
   );
 }
 

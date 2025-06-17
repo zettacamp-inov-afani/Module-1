@@ -2,8 +2,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-// *************** VALIDATION FUNCTIONS ***************
-
 /**
  * Validates the civility value.
  *
@@ -11,6 +9,7 @@ const validator = require('validator');
  * @throws {Error} If civility is missing or not one of the allowed values.
  */
 function ValidateCivility(civility) {
+  // *************** Check if civility is falsy or not a string
   if (
     !civility ||
     typeof civility !== 'string' ||
@@ -28,6 +27,7 @@ function ValidateCivility(civility) {
  * @throws {Error} If the value is empty, not a string, or only whitespace.
  */
 function ValidateNonEmptyString(value, fieldName) {
+  // *************** Check if value is falsy or not a string
   if (!value || typeof value !== 'string' || value.trim() === '') {
     throw new Error(`${fieldName} is required and must be a non-empty string.`);
   }
@@ -40,6 +40,7 @@ function ValidateNonEmptyString(value, fieldName) {
  * @throws {Error} If the email is missing or not a valid format.
  */
 function ValidateEmail(email) {
+  // *************** Check if email is missing, not a string, or invalid format
   if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
     throw new Error('Email is required and must be a valid format.');
   }
@@ -52,6 +53,7 @@ function ValidateEmail(email) {
  * @throws {Error} If the password is missing or shorter than 6 characters.
  */
 function ValidatePassword(password) {
+  // *************** Check if password is missing, not a string, or too short
   if (!password || typeof password !== 'string' || password.length < 6) {
     throw new Error(
       'Password is required and must be at least 6 characters long.'
@@ -67,10 +69,13 @@ function ValidatePassword(password) {
  * @throws {Error} If role is missing (when required) or invalid.
  */
 function ValidateRole(role, required = false) {
+  // *************** Define allowed roles
   const validRoles = ['operator', 'acadir', 'student'];
+  // *************** If role is required and missing
   if (required && !role) {
     throw new Error('Role is required.');
   }
+  // *************** If role is provided but not in allowed list or not a string
   if (role && (!validRoles.includes(role) || typeof role !== 'string')) {
     throw new Error(`Role must be one of: ${validRoles.join(', ')}.`);
   }
@@ -84,6 +89,7 @@ function ValidateRole(role, required = false) {
  * @throws {Error} If the id is not a valid ObjectId.
  */
 function ValidateObjectId(id, fieldName) {
+  // *************** Check if the id is not a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error(`${fieldName} is required and must be a valid ObjectId.`);
   }

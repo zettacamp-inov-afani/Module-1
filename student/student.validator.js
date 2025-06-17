@@ -2,10 +2,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-// *************** CONSTANT
 const allowedCivilities = ['Mr', 'Mrs'];
-
-// *************** VALIDATION FUNCTIONS
 
 /**
  * Validates whether the provided value is a valid MongoDB ObjectId.
@@ -15,6 +12,7 @@ const allowedCivilities = ['Mr', 'Mrs'];
  * @throws {Error} If the ID is not a valid MongoDB ObjectId.
  */
 function ValidateObjectId(_id, fieldName = 'ID') {
+  // *************** Check if the ID is not valid using Mongoose's built-in method
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     throw new Error(`${fieldName} is required and must be a valid ObjectId.`);
   }
@@ -27,6 +25,7 @@ function ValidateObjectId(_id, fieldName = 'ID') {
  * @throws {Error} If the civility is missing or invalid.
  */
 function ValidateCivility(civility) {
+  // *************** Check if civility is missing (null/undefined/empty)
   if (
     !civility ||
     typeof civility !== 'string' ||
@@ -44,6 +43,7 @@ function ValidateCivility(civility) {
  * @throws {Error} If the value is not a non-empty string.
  */
 function ValidateNonEmptyString(value, fieldName) {
+  // *************** Check if value is missing (null/undefined/empty)
   if (!value || typeof value !== 'string' || value.trim() === '') {
     throw new Error(`${fieldName} is required and must be a non-empty string.`);
   }
@@ -56,6 +56,7 @@ function ValidateNonEmptyString(value, fieldName) {
  * @throws {Error} If the email is missing or not in a valid format.
  */
 function ValidateEmail(email) {
+  // *************** Check if email is missing and not match the format
   if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
     throw new Error('Email is required and must be a valid format.');
   }
@@ -69,6 +70,7 @@ function ValidateEmail(email) {
  * @throws {Error} If the date is invalid or missing.
  */
 function ValidateDate(date, fieldName = 'Date') {
+  // *************** Check if date is missing OR cannot be parsed as a valid date
   if (!date || isNaN(Date.parse(date))) {
     throw new Error(`${fieldName} is required and must be a valid date.`);
   }
@@ -81,11 +83,14 @@ function ValidateDate(date, fieldName = 'Date') {
  * @throws {Error} If the input is not an array or any ID is invalid.
  */
 function ValidateMongoObjectIds(ids) {
+  // *************** Check if the provided input is not an array
   if (!Array.isArray(ids)) {
     throw new Error('IDs must be an array.');
   }
 
+  // *************** Loop through each ID in the array
   ids.forEach((id, index) => {
+    // *************** Check if the current ID is not a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error(`ID at index ${index} is not a valid MongoDB ObjectId.`);
     }

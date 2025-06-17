@@ -30,7 +30,11 @@ const {
 async function GetOneStudent(parent, { _id }) {
   // *************** Validate the input ID
   ValidateObjectId(_id, 'Student ID');
+
+  // *************** Find student by ID and check if status is active
   const student = await StudentModel.findOne({ _id: _id, status: 'active' });
+
+  // *************** Return student document or null if not found
   return student;
 }
 
@@ -46,6 +50,8 @@ async function GetAllStudents() {
   const students = await StudentModel.find({
     status: 'active',
   });
+
+  // *************** Return list of students
   return students;
 }
 
@@ -77,6 +83,8 @@ async function GetAllStudents() {
 async function CreateStudent(parent, { input }) {
   try {
     const allowedCivilities = ['Mr', 'Mrs'];
+
+    // *************** Destructure input fields
     const {
       civility,
       first_name,
@@ -89,7 +97,7 @@ async function CreateStudent(parent, { input }) {
       school_id,
     } = input;
 
-    // *************** Validation
+    // *************** Validation input
     ValidateCivility(civility);
     ValidateNonEmptyString(first_name, 'First name');
     ValidateNonEmptyString(last_name, 'Last name');
@@ -100,7 +108,7 @@ async function CreateStudent(parent, { input }) {
     ValidateNonEmptyString(postal_code_of_birth, 'Postal code of birth');
     ValidateObjectId(school_id, 'School ID');
 
-    // *************** Create new student
+    // *************** Create and save student to DB
     const student = new StudentModel({
       civility,
       first_name,
@@ -113,16 +121,18 @@ async function CreateStudent(parent, { input }) {
       school_id,
       status: 'active',
     });
-
     const createStudent = await student.save();
 
-    await SchoolModel.findByIdAndUpdate(school_id, {
-      $push: { students: student._id },
-    });
+    // *************** Add student ID to associated school
+    await SchoolModel.updateOne(
+      { _id: school_id },
+      { $push: { students: student._id } }
+    );
 
+    // *************** Return newly created student
     return createStudent;
   } catch (error) {
-    console.error('CreateStudent error:', error);
+    // *************** Throw error if something went wrong
     throw new Error(error.message || 'Failed to create student.');
   }
 }
@@ -149,6 +159,8 @@ async function CreateStudent(parent, { input }) {
 async function UpdateStudent(parent, { input }) {
   try {
     const allowedCivilities = ['Mr', 'Mrs'];
+
+    // *************** Destructure input fields
     const {
       _id,
       civility,
@@ -162,7 +174,7 @@ async function UpdateStudent(parent, { input }) {
       school_id,
     } = input;
 
-    // *************** Validation input
+    // *************** Validate all input
     ValidateObjectId(_id, 'Student ID');
     ValidateCivility(civility);
     ValidateNonEmptyString(first_name, 'First name');
@@ -174,7 +186,19 @@ async function UpdateStudent(parent, { input }) {
     ValidateNonEmptyString(postal_code_of_birth, 'Postal code of birth');
     ValidateObjectId(school_id, 'School ID');
 
-    // ***************  Update the student
+    // *************** Find student before update (get from old school_id)
+    const existingStudent = await StudentModel.findOne({
+      _id,
+      status: 'active',
+    });
+    if (!existingStudent) {
+      throw new Error('Student not found or already deleted.');
+    }
+
+    // *************** Prepare the existing old school_id
+    const oldSchoolId = String(existingStudent.school_id);
+
+    // *************** Find and update active student
     const updatedStudent = await StudentModel.findOneAndUpdate(
       { _id: _id, status: 'active' },
       {
@@ -190,12 +214,32 @@ async function UpdateStudent(parent, { input }) {
       },
       { new: true }
     );
+
+    // *************** Handle case when student not found
     if (!updatedStudent) {
       throw new Error('Student not found or already deleted.');
     }
+
+    // *************** Update school's relation if school_id changed
+    const newSchoolId = school_id.toString();
+    if (oldSchoolId !== newSchoolId) {
+      // *************** Delete from old school
+      await SchoolModel.updateOne(
+        { _id: oldSchoolId },
+        { $pull: { students: _id } }
+      );
+
+      // *************** Add the new school
+      await SchoolModel.updateOne(
+        { _id: newSchoolId },
+        { $addToSet: { students: _id } }
+      );
+    }
+
+    // *************** Return updated student
     return updatedStudent;
   } catch (error) {
-    console.error('UpdateStudent error:', error);
+    // *************** Throw update error
     throw new Error(error.message || 'Failed to update student.');
   }
 }
@@ -217,17 +261,22 @@ async function DeleteStudent(parent, { _id }) {
   try {
     // *************** Validate required input field
     ValidateObjectId(_id, 'Student ID');
+
+    // *************** Find and update student status to deleted
     const deletedStudent = await StudentModel.findByIdAndUpdate(
       { _id: _id, status: 'active' },
       { $set: { status: 'deleted', deleted_at: new Date() } },
       { new: true }
     );
+
+    // *************** Handle if student not found
     if (!deletedStudent) {
       throw new Error('Student not found or already deleted.');
     }
+
+    // *************** Return soft-deleted student
     return deletedStudent;
   } catch (error) {
-    console.error('DeleteStudent error:', error);
     throw new Error(error.message || 'Failed to delete student.');
   }
 }
@@ -250,9 +299,9 @@ async function DeleteStudent(parent, { _id }) {
  */
 async function SchoolLoaders(parent, args, { loaders }) {
   // *************** Use the DataLoader `schoolById` from context to fetch the related school.
-  const schoolLoaders = await loaders.schoolById.load(
-    parent.school_id.toString()
-  );
+  const schoolLoaders = await loaders.schoolById.load(String(parent.school_id));
+
+  // *************** Return associated school
   return schoolLoaders;
 }
 

@@ -22,8 +22,10 @@ const {
  * @returns {Promise<Object|null>} The found school or null if not found.
  */
 async function GetOneSchool(parent, { _id }) {
+  // *************** Validate School ID
   ValidateObjectId(_id, 'School ID');
 
+  // *************** Retrieve school with status 'active'
   const school = await SchoolModel.findOne({ _id: _id, status: 'active' });
   return school;
 }
@@ -34,6 +36,7 @@ async function GetOneSchool(parent, { _id }) {
  * @returns {Promise<Array>} Array of all active schools.
  */
 async function GetAllSchools() {
+  // *************** Retrieve all schools with status 'active'
   const schools = await SchoolModel.find({
     status: 'active',
   });
@@ -54,9 +57,11 @@ async function GetAllSchools() {
  */
 async function CreateSchool(parent, { input }) {
   try {
+    // *************** Validate required input
     ValidateSchoolName(input.name);
     ValidateSchoolAddresses(input.addresses);
 
+    // *************** Create a new School instance
     const school = new SchoolModel({
       long_name: input.name.long_name,
       short_name: input.name.short_name,
@@ -64,10 +69,10 @@ async function CreateSchool(parent, { input }) {
       status: 'active',
     });
 
+    // *************** Save the school and return the result
     const createSchool = await school.save();
     return createSchool;
   } catch (error) {
-    console.error('CreateSchool error:', error);
     throw new Error(error.message || 'Failed to create school.');
   }
 }
@@ -85,10 +90,12 @@ async function UpdateSchool(parent, { input }) {
   try {
     const { _id, name, addresses } = input;
 
+    // *************** Validate required input
     ValidateObjectId(_id, 'School ID');
     ValidateSchoolName(name);
     ValidateSchoolAddresses(addresses);
 
+    // *************** Update the school data if active
     const updatedSchool = await SchoolModel.findOneAndUpdate(
       { _id: _id, status: 'active' },
       {
@@ -100,12 +107,12 @@ async function UpdateSchool(parent, { input }) {
       { new: true }
     );
 
+    // *************** Handle case if School not found or already deleted
     if (!updatedSchool) {
       throw new Error('School not found or already deleted.');
     }
     return updatedSchool;
   } catch (error) {
-    console.error('UpdateSchool error:', error);
     throw new Error(error.message || 'Failed to update school.');
   }
 }
@@ -120,19 +127,24 @@ async function UpdateSchool(parent, { input }) {
  */
 async function DeleteSchool(parent, { _id }) {
   try {
+    // *************** Validate required input field
     ValidateObjectId(_id, 'School ID');
 
+    // *************** Find the School with the given ID and "active" status, then update it to "deleted"
     const deletedSchool = await SchoolModel.findByIdAndUpdate(
       { _id: _id, status: 'active' },
       { $set: { status: 'deleted', deleted_at: new Date() } },
       { new: true }
     );
+
+    // *************** Handle case if School not found or already deleted
     if (!deletedSchool) {
       throw new Error('School not found or already deleted.');
     }
+
+    // *************** Return the updated School (now with "deleted" status)
     return deletedSchool;
   } catch (error) {
-    console.error('DeleteSchool error:', error);
     throw new Error(error.message || 'Failed to delete school.');
   }
 }
@@ -150,7 +162,7 @@ async function DeleteSchool(parent, { _id }) {
 async function StudentLoaders(parent, args, context) {
   const { loaders } = context;
   const studentLoaders = loaders.studentById.loadMany(
-    parent.students.map((id) => id.toString())
+    parent.students.map((id) => String(id))
   );
 
   return studentLoaders;

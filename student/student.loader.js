@@ -19,15 +19,19 @@ function StudentLoaders(studentIds) {
   return new DataLoader(async (studentIds) => {
     // ***************  Validate the incoming schoolIds
     ValidateMongoObjectIds(studentIds);
+
+    // *************** Find all Schools whose id is in the schoolIds array
     const students = await studentModel.find({ _id: { $in: studentIds } });
 
+    // *************** Create schoolMap object for dictionary
     const studentMap = {};
     students.forEach((student) => {
-      studentMap[student._id.toString()] = student;
+      studentMap[String(student._id)] = student;
     });
 
+    // *************** Return an array containing schools in the order of the requested schoolIds.
     const createStudentLoader = studentIds.map(
-      (_id) => studentMap[_id.toString()]
+      (_id) => studentMap[String(_id)]
     );
     return createStudentLoader;
   });

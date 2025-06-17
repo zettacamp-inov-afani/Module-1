@@ -26,8 +26,10 @@ const {
  * @returns {Promise<Object|null>} The found user or null if not found.
  */
 async function GetOneUser(parent, { _id }) {
+  // *************** Validate user ID
   ValidateObjectId(_id, 'User ID');
 
+  // *************** Retrieve user with status 'active'
   const user = await UserModel.findOne({
     _id: _id,
     status: 'active',
@@ -41,6 +43,7 @@ async function GetOneUser(parent, { _id }) {
  * @returns {Promise<Array>} Array of active users.
  */
 async function GetAllUsers() {
+  // *************** Retrieve all users with status 'active'
   const users = await UserModel.find({ status: 'active' });
 
   return users;
@@ -84,7 +87,6 @@ async function CreateUser(parent, { input }) {
     const createUser = await user.save();
     return createUser;
   } catch (error) {
-    console.error('CreateUser error:', error);
     throw new Error(error.message || 'Failed to create user.');
   }
 }
@@ -112,7 +114,7 @@ async function UpdateUser(parent, { input }) {
 
   // *************** Update the user data if active
   const updatedUser = await UserModel.findOneAndUpdate(
-    { _id: _id, status: 'active' }, // Match active user by ID
+    { _id: _id, status: 'active' },
     {
       first_name,
       last_name,
@@ -121,7 +123,7 @@ async function UpdateUser(parent, { input }) {
       password,
       role,
     },
-    { new: true } // Return updated document
+    { new: true }
   );
 
   return updatedUser;
@@ -156,7 +158,6 @@ async function DeleteUser(parent, { _id }) {
     // *************** Return the updated User (now with "deleted" status)
     return deletedUser;
   } catch (error) {
-    console.error('DeleteUser error:', error);
     throw new Error(error.message || 'Failed to delete User.');
   }
 }
