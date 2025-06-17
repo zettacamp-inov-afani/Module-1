@@ -221,7 +221,7 @@ async function UpdateStudent(parent, { input }) {
     }
 
     // *************** Update school's relation if school_id changed
-    const newSchoolId = school_id.toString();
+    const newSchoolId = String(school_id);
     if (oldSchoolId !== newSchoolId) {
       // *************** Delete from old school
       await SchoolModel.updateOne(
