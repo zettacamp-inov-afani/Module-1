@@ -3,8 +3,7 @@ const { ApolloServer, gql, ApolloError } = require('apollo-server-express');
 const express = require('express');
 
 // *************** IMPORT DATALOADER ***************
-const CreateStudentsByIdLoader = require('./student/student.loader');
-const CreateSchoolByIdLoader = require('./school/school.loader');
+const initializeLoaders = require('./core/loader');
 
 // *************** IMPORT MODULE ***************
 const typeDefs = require('./core/typedef');
@@ -28,11 +27,8 @@ async function StartServer() {
       typeDefs,
       resolvers,
       context: () => ({
-        // *************** Initialize DataLoader instances for batching and caching
-        loaders: {
-          studentById: CreateStudentsByIdLoader(),
-          schoolById: CreateSchoolByIdLoader(),
-        },
+        // *************** Initialize DataLoader from core
+        loaders: initializeLoaders(),
       }),
     });
 
