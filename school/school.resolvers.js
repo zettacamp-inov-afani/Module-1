@@ -94,32 +94,63 @@ async function CreateSchool(parent, { input }) {
 }
 
 /**
- * Update an existing school by ID with new name and addresses.
+ * Updates a school's data (name and/or addresses) if it is still active.
  *
- * @param {Object} parent - Parent resolver (unused).
- * @param {Object} args - Arguments object.
- * @param {Object} args.input - Input data for updating school.
+ * @async
+ * @function UpdateSchool
+ * @param {Object} parent - Not used, part of GraphQL resolver signature.
+ * @param {Object} args.input - The input object for updating school data.
+ * @param {string} args.input._id - The ID of the school to update.
+ * @param {Object} [args.input.name] - Optional. The new name values.
+ * @param {string} [args.input.name.long_name] - Optional. The new long name.
+ * @param {string} [args.input.name.short_name] - Optional. The new short name.
+ * @param {Array<Object>} [args.input.addresses] - Optional. New address objects to replace old ones.
  * @returns {Promise<Object>} The updated school document.
- * @throws {Error} If validation fails or update fails.
+ * @throws {ApolloError} Throws if validation fails or school is not found or update fails.
  */
 async function UpdateSchool(parent, { input }) {
   try {
     const { _id, name, addresses } = input;
 
-    // *************** Validate required input
+    // *************** Validate school ID (must be valid MongoDB ObjectId)
     CommonValidator.ValidateObjectId(_id, 'School ID');
-    SchoolValidator.ValidateSchoolName(name);
-    SchoolValidator.ValidateSchoolAddresses(addresses);
+
+    // *************** Initialize fields to be updated
+    const updateFields = {};
+
+    // *************** Handle update for name (if provided)
+    if (name) {
+      // Validate name fields (if any)
+      SchoolValidator.ValidateSchoolNameUpdate(name);
+
+      // *************** Set new long_name if present
+      if (name.long_name !== undefined) {
+        updateFields.long_name = name.long_name.trim();
+      }
+
+      // *************** Set new short_name if present
+      if (name.short_name !== undefined) {
+        updateFields.short_name = name.short_name.trim();
+      }
+    }
+
+    // *************** Handle update for addresses (if provided)
+    if (addresses !== undefined) {
+      // *************** Validate the new address array (may be dynamics)
+      SchoolValidator.ValidateSchoolAddressesUpdate(addresses);
+      // *************** Set new addresses to overwrite old ones
+      updateFields.addresses = addresses;
+    }
+
+    // *************** Prevent empty update if no valid fields provided
+    if (Object.keys(updateFields).length === 0) {
+      throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
+    }
 
     // *************** Update the school data if active
     const updatedSchool = await SchoolModel.findOneAndUpdate(
       { _id: _id, status: 'active' },
-      {
-        long_name: name.long_name,
-        short_name: name.short_name,
-        addresses,
-      },
-
+      { $set: updateFields },
       { new: true }
     );
 

@@ -157,31 +157,58 @@ function ValidateSchoolNameUpdate(name) {
  * @throws {ApolloError} If the array is empty or any field in an address is invalid.
  */
 function ValidateSchoolAddressesUpdate(addresses) {
-  if (!Array.isArray(addresses) || addresses.length === 0) {
+  if (!Array.isArray(addresses)) {
     throw new ApolloError(
-      'Address must be a non-empty array.',
+      'Addresses must be an array.',
       'INVALID_ADDRESS_ARRAY'
     );
   }
 
   addresses.forEach((address, index) => {
+    if (typeof address !== 'object' || address === null) {
+      throw new ApolloError(
+        `Address[${index}] must be an object.`,
+        'INVALID_ADDRESS_OBJECT'
+      );
+    }
+
     if (
-      !address.detail ||
-      typeof address.detail !== 'string' ||
-      address.detail.trim() === '' ||
-      !address.city ||
-      typeof address.city !== 'string' ||
-      address.city.trim() === '' ||
-      !address.country ||
-      typeof address.country !== 'string' ||
-      address.country.trim() === '' ||
-      !address.zipcode ||
-      typeof address.zipcode !== 'string' ||
-      address.zipcode.trim() === ''
+      'detail' in address &&
+      (typeof address.detail !== 'string' || address.detail.trim() === '')
     ) {
       throw new ApolloError(
-        `Address[${index}] is invalid. All fields must be non-empty strings.`,
-        'INVALID_ADDRESS'
+        `Address[${index}].detail must be a non-empty string if provided.`,
+        'INVALID_ADDRESS_DETAIL'
+      );
+    }
+
+    if (
+      'city' in address &&
+      (typeof address.city !== 'string' || address.city.trim() === '')
+    ) {
+      throw new ApolloError(
+        `Address[${index}].city must be a non-empty string if provided.`,
+        'INVALID_ADDRESS_CITY'
+      );
+    }
+
+    if (
+      'country' in address &&
+      (typeof address.country !== 'string' || address.country.trim() === '')
+    ) {
+      throw new ApolloError(
+        `Address[${index}].country must be a non-empty string if provided.`,
+        'INVALID_ADDRESS_COUNTRY'
+      );
+    }
+
+    if (
+      'zipcode' in address &&
+      (typeof address.zipcode !== 'string' || address.zipcode.trim() === '')
+    ) {
+      throw new ApolloError(
+        `Address[${index}].zipcode must be a non-empty string if provided.`,
+        'INVALID_ADDRESS_ZIPCODE'
       );
     }
   });
