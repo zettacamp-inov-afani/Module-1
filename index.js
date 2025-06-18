@@ -1,31 +1,15 @@
 // *************** IMPORT CORE ***************
 const { ApolloServer, gql, ApolloError } = require('apollo-server-express');
 const express = require('express');
-const { mergeTypeDefs } = require('@graphql-tools/merge');
-const { mergeResolvers } = require('@graphql-tools/merge');
 
 // *************** IMPORT DATALOADER ***************
 const CreateStudentsByIdLoader = require('./student/student.loader');
 const CreateSchoolByIdLoader = require('./school/school.loader');
 
 // *************** IMPORT MODULE ***************
-const UserTypeDefs = require('./user/user.typedef');
-const UserResolvers = require('./user/user.resolvers');
-
-const StudentTypeDefs = require('./student/student.typedef');
-const StudentResolvers = require('./student/student.resolvers');
-
-const SchoolTypeDefs = require('./school/school.typedef');
-const SchoolResolvers = require('./school/school.resolvers');
+const typeDefs = require('./core/typedef');
+const resolvers = require('./core/resolver');
 const ConnectDB = require('./config/db');
-
-// *************** Merge typedefs and resolvers
-const typeDefs = mergeTypeDefs([UserTypeDefs, StudentTypeDefs, SchoolTypeDefs]);
-const resolvers = mergeResolvers([
-  UserResolvers,
-  StudentResolvers,
-  SchoolResolvers,
-]);
 
 /**
  * Initializes and starts the Apollo GraphQL server with Express and MongoDB.
