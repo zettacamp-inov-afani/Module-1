@@ -12,7 +12,7 @@ const addressSchema = new mongoose.Schema({
   country: { type: String, required: true },
 
   // zipcode of the address
-  zipcode: { type: Number, required: true },
+  zipcode: { type: String, required: true },
 });
 
 const schoolSchema = new mongoose.Schema(
@@ -30,7 +30,7 @@ const schoolSchema = new mongoose.Schema(
     students: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student',
+        ref: 'students',
         required: true,
       },
     ],
@@ -45,8 +45,15 @@ const schoolSchema = new mongoose.Schema(
     // School's delete_at detail
     deleted_at: { type: Date, default: null },
   },
-  { timestamps: true }
+  {
+    timestamps: {
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+    },
+  }
 );
 
+const SchoolModel = mongoose.model('schools', schoolSchema);
+
 // *************** EXPORT MODULE ***************
-module.exports = mongoose.model('School', schoolSchema);
+module.exports = SchoolModel;

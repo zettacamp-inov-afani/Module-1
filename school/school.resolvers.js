@@ -1,15 +1,13 @@
 // *************** IMPORT CORE ***************
-const mongoose = require('mongoose');
+const { ApolloError } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
 const SchoolModel = require('./school.model');
 
 // *************** IMPORT VALIDATORS ***************
-const {
-  ValidateObjectId,
-  ValidateSchoolName,
-  ValidateSchoolAddresses,
-} = require('./school.validator');
+
+const SchoolValidator = require('./school.validator');
+const CommonValidator = require('../utilities/validator');
 
 // *************** QUERY ***************
 
@@ -22,12 +20,22 @@ const {
  * @returns {Promise<Object|null>} The found school or null if not found.
  */
 async function GetOneSchool(parent, { _id }) {
-  // *************** Validate School ID
-  ValidateObjectId(_id, 'School ID');
+  try {
+    // *************** Validate School ID
+    CommonValidator.ValidateObjectId(_id, 'School ID');
 
-  // *************** Retrieve school with status 'active'
-  const school = await SchoolModel.findOne({ _id: _id, status: 'active' });
-  return school;
+    // *************** Retrieve school with status 'active'
+    const school = await SchoolModel.findOne({
+      _id: _id,
+      status: 'active',
+    }).lean();
+    return school;
+  } catch (error) {
+    throw new ApolloError(
+      error.message || 'Failed to retrieve school',
+      'GET_ONE_SCHOOL_ERROR'
+    );
+  }
 }
 
 /**
@@ -36,12 +44,19 @@ async function GetOneSchool(parent, { _id }) {
  * @returns {Promise<Array>} Array of all active schools.
  */
 async function GetAllSchools() {
-  // *************** Retrieve all schools with status 'active'
-  const schools = await SchoolModel.find({
-    status: 'active',
-  });
+  try {
+    // *************** Retrieve all schools with status 'active'
+    const schools = await SchoolModel.find({
+      status: 'active',
+    }).lean();
 
-  return schools;
+    return schools;
+  } catch (error) {
+    throw new ApolloError(
+      error.message || 'Failed to retrieve schools',
+      'GET_ALL_SCHOOLS_ERROR'
+    );
+  }
 }
 
 // *************** MUTATION ***************
@@ -58,11 +73,11 @@ async function GetAllSchools() {
 async function CreateSchool(parent, { input }) {
   try {
     // *************** Validate required input
-    ValidateSchoolName(input.name);
-    ValidateSchoolAddresses(input.addresses);
+    SchoolValidator.ValidateSchoolName(input.name);
+    SchoolValidator.ValidateSchoolAddresses(input.addresses);
 
     // *************** Create a new School instance
-    const school = new SchoolModel({
+    const createSchool = SchoolModel.create({
       long_name: input.name.long_name,
       short_name: input.name.short_name,
       addresses: input.addresses,
@@ -70,10 +85,12 @@ async function CreateSchool(parent, { input }) {
     });
 
     // *************** Save the school and return the result
-    const createSchool = await school.save();
     return createSchool;
   } catch (error) {
-    throw new Error(error.message || 'Failed to create school.');
+    throw new ApolloError(
+      error.message || 'Failed to create school',
+      'CREATE_SCHOOL_ERROR'
+    );
   }
 }
 
@@ -91,9 +108,9 @@ async function UpdateSchool(parent, { input }) {
     const { _id, name, addresses } = input;
 
     // *************** Validate required input
-    ValidateObjectId(_id, 'School ID');
-    ValidateSchoolName(name);
-    ValidateSchoolAddresses(addresses);
+    CommonValidator.ValidateObjectId(_id, 'School ID');
+    SchoolValidator.ValidateSchoolName(name);
+    SchoolValidator.ValidateSchoolAddresses(addresses);
 
     // *************** Update the school data if active
     const updatedSchool = await SchoolModel.findOneAndUpdate(
@@ -109,11 +126,17 @@ async function UpdateSchool(parent, { input }) {
 
     // *************** Handle case if School not found or already deleted
     if (!updatedSchool) {
-      throw new Error('School not found or already deleted.');
+      throw new ApolloError(
+        'School not found or already deleted.',
+        'SCHOOL_NOT_FOUND'
+      );
     }
     return updatedSchool;
   } catch (error) {
-    throw new Error(error.message || 'Failed to update school.');
+    throw new ApolloError(
+      error.message || 'Failed to update school',
+      'UPDATE_SCHOOL_ERROR'
+    );
   }
 }
 
@@ -128,7 +151,7 @@ async function UpdateSchool(parent, { input }) {
 async function DeleteSchool(parent, { _id }) {
   try {
     // *************** Validate required input field
-    ValidateObjectId(_id, 'School ID');
+    CommonValidator.ValidateObjectId(_id, 'School ID');
 
     // *************** Find the School with the given ID and "active" status, then update it to "deleted"
     const deletedSchool = await SchoolModel.findByIdAndUpdate(
@@ -139,13 +162,19 @@ async function DeleteSchool(parent, { _id }) {
 
     // *************** Handle case if School not found or already deleted
     if (!deletedSchool) {
-      throw new Error('School not found or already deleted.');
+      throw new ApolloError(
+        'School not found or already deleted.',
+        'SCHOOL_NOT_FOUND'
+      );
     }
 
     // *************** Return the updated School (now with "deleted" status)
     return deletedSchool;
   } catch (error) {
-    throw new Error(error.message || 'Failed to delete school.');
+    throw new ApolloError(
+      error.message || 'Failed to delete school',
+      'DELETE_SCHOOL_ERROR'
+    );
   }
 }
 
@@ -159,13 +188,18 @@ async function DeleteSchool(parent, { _id }) {
  * @param {Object} context - GraphQL context containing loaders.
  * @returns {Promise<Array>} Array of loaded student documents.
  */
-async function StudentLoaders(parent, args, context) {
-  const { loaders } = context;
-  const studentLoaders = loaders.studentById.loadMany(
+async function students(parent, args, { loaders }) {
+  // *************** sanity check to ensure parent.students is an array with elements before attempting to use DataLoader. If not, return an empty array.
+  if (!Array.isArray(parent.students)) {
+    return [];
+  }
+
+  // *************** Load students via DataLoader
+  const loadedStudents = loaders.studentById.loadMany(
     parent.students.map((id) => String(id))
   );
 
-  return studentLoaders;
+  return loadedStudents;
 }
 
 // *************** EXPORT MODULE ***************
@@ -180,6 +214,6 @@ module.exports = {
     DeleteSchool,
   },
   School: {
-    students: StudentLoaders,
+    students: students,
   },
 };

@@ -39,8 +39,15 @@ const userSchema = new mongoose.Schema(
     // User's delete_at detail
     deleted_at: { type: Date, default: null },
   },
-  { timestamps: true }
+  {
+    timestamps: {
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+    },
+  }
 );
 
+const UserModel = mongoose.model('users', userSchema);
+
 // *************** EXPORT MODULE ***************
-module.exports = mongoose.model('User', userSchema);
+module.exports = UserModel;

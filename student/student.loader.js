@@ -5,7 +5,7 @@ const DataLoader = require('dataloader');
 const studentModel = require('./student.model');
 
 // *************** IMPORT VALIDATOR ***************
-const { ValidateMongoObjectIds } = require('./student.validator');
+const CommonValidator = require('../utilities/validator');
 
 /**
  * Creates a DataLoader instance for batching and caching student lookups by ID.
@@ -19,7 +19,7 @@ function StudentLoaders(studentIds) {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (studentIds) => {
     // ***************  Validate the incoming schoolIds
-    ValidateMongoObjectIds(studentIds);
+    CommonValidator.ValidateMongoObjectIds(studentIds);
 
     // *************** Find all Schools whose id is in the schoolIds array
     const students = await studentModel.find({ _id: { $in: studentIds } });
@@ -31,10 +31,8 @@ function StudentLoaders(studentIds) {
     });
 
     // *************** Return an array containing schools in the order of the requested schoolIds.
-    const createStudentLoader = studentIds.map(
-      (_id) => studentMap[String(_id)]
-    );
-    return createStudentLoader;
+    const orderedStudents = studentIds.map((_id) => studentMap[String(_id)]);
+    return orderedStudents;
   });
 }
 // *************** EXPORT MODULE ***************

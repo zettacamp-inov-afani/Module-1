@@ -20,10 +20,10 @@ async function ConnectDB() {
     });
 
     // *************** Log a success message if connection is successful
-    console.log('✅ MongoDB connected');
+    console.log('MongoDB connected');
   } catch (error) {
     // *************** Log the error message if the connection fails
-    console.error('❌ MongoDB connection failed:', error);
+    console.error('MongoDB connection failed:', error);
 
     // *************** Exit the process with an error code
     process.exit(1);

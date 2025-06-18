@@ -1,6 +1,7 @@
 // *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
 const validator = require('validator');
+const { ApolloError } = require('apollo-server-express');
 
 /**
  * Validates the civility value.
@@ -15,7 +16,10 @@ function ValidateCivility(civility) {
     typeof civility !== 'string' ||
     !['Mr', 'Mrs'].includes(civility)
   ) {
-    throw new Error("Civility is required and must be either 'Mr' or 'Mrs'.");
+    throw new ApolloError(
+      "Civility is required and must be either 'Mr' or 'Mrs'.",
+      'INVALID_CIVILITY'
+    );
   }
 }
 
@@ -29,7 +33,10 @@ function ValidateCivility(civility) {
 function ValidateNonEmptyString(value, fieldName) {
   // *************** Check if value is falsy or not a string
   if (!value || typeof value !== 'string' || value.trim() === '') {
-    throw new Error(`${fieldName} is required and must be a non-empty string.`);
+    throw new ApolloError(
+      `${fieldName} is required and must be a non-empty string.`,
+      'INVALID_STRING'
+    );
   }
 }
 
@@ -42,7 +49,10 @@ function ValidateNonEmptyString(value, fieldName) {
 function ValidateEmail(email) {
   // *************** Check if email is missing, not a string, or invalid format
   if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
-    throw new Error('Email is required and must be a valid format.');
+    throw new ApolloError(
+      'Email is required and must be a valid format.',
+      'INVALID_EMAIL'
+    );
   }
 }
 
@@ -55,8 +65,9 @@ function ValidateEmail(email) {
 function ValidatePassword(password) {
   // *************** Check if password is missing, not a string, or too short
   if (!password || typeof password !== 'string' || password.length < 6) {
-    throw new Error(
-      'Password is required and must be at least 6 characters long.'
+    throw new ApolloError(
+      'Password is required and must be at least 6 characters long.',
+      'INVALID_PASSWORD'
     );
   }
 }
@@ -73,11 +84,14 @@ function ValidateRole(role, required = false) {
   const validRoles = ['operator', 'acadir', 'student'];
   // *************** If role is required and missing
   if (required && !role) {
-    throw new Error('Role is required.');
+    throw new ApolloError('Role is required.', 'ROLE_REQUIRED');
   }
   // *************** If role is provided but not in allowed list or not a string
   if (role && (!validRoles.includes(role) || typeof role !== 'string')) {
-    throw new Error(`Role must be one of: ${validRoles.join(', ')}.`);
+    throw new ApolloError(
+      `Role must be one of: ${validRoles.join(', ')}.`,
+      'INVALID_ROLE'
+    );
   }
 }
 
@@ -88,11 +102,16 @@ function ValidateRole(role, required = false) {
  * @param {string} fieldName - The name of the field (for error message context).
  * @throws {Error} If the id is not a valid ObjectId.
  */
-function ValidateObjectId(id, fieldName) {
-  // *************** Check if the id is not a valid ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new Error(`${fieldName} is required and must be a valid ObjectId.`);
-  }
+
+function ValidateUserInput(input) {
+  const { civility, first_name, last_name, email, password, role } = input;
+
+  ValidateCivility(civility);
+  ValidateNonEmptyString(first_name, 'First name');
+  ValidateNonEmptyString(last_name, 'Last name');
+  ValidateEmail(email);
+  ValidatePassword(password);
+  ValidateRole(role);
 }
 
 // *************** EXPORT MODULE ***************
@@ -102,5 +121,5 @@ module.exports = {
   ValidateEmail,
   ValidatePassword,
   ValidateRole,
-  ValidateObjectId,
+  ValidateUserInput,
 };

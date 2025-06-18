@@ -1,22 +1,10 @@
 // *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
 const validator = require('validator');
+const { ApolloError } = require('apollo-server-express');
 
+// *************** GLOBAL VARIABLE ***************
 const allowedCivilities = ['Mr', 'Mrs'];
-
-/**
- * Validates whether the provided value is a valid MongoDB ObjectId.
- *
- * @param {string} _id - The ID to validate.
- * @param {string} [fieldName='ID'] - Optional field name for error messages.
- * @throws {Error} If the ID is not a valid MongoDB ObjectId.
- */
-function ValidateObjectId(_id, fieldName = 'ID') {
-  // *************** Check if the ID is not valid using Mongoose's built-in method
-  if (!mongoose.Types.ObjectId.isValid(_id)) {
-    throw new Error(`${fieldName} is required and must be a valid ObjectId.`);
-  }
-}
 
 /**
  * Validates civility value to ensure it is one of the allowed options.
@@ -31,7 +19,10 @@ function ValidateCivility(civility) {
     typeof civility !== 'string' ||
     !allowedCivilities.includes(civility)
   ) {
-    throw new Error("Civility is required and must be either 'Mr' or 'Mrs'.");
+    throw new ApolloError(
+      "Civility is required and must be either 'Mr' or 'Mrs'.",
+      'INVALID_CIVILITY'
+    );
   }
 }
 
@@ -45,7 +36,10 @@ function ValidateCivility(civility) {
 function ValidateNonEmptyString(value, fieldName) {
   // *************** Check if value is missing (null/undefined/empty)
   if (!value || typeof value !== 'string' || value.trim() === '') {
-    throw new Error(`${fieldName} is required and must be a non-empty string.`);
+    throw new ApolloError(
+      `${fieldName} is required and must be a non-empty string.`,
+      'INVALID_STRING'
+    );
   }
 }
 
@@ -58,7 +52,10 @@ function ValidateNonEmptyString(value, fieldName) {
 function ValidateEmail(email) {
   // *************** Check if email is missing and not match the format
   if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
-    throw new Error('Email is required and must be a valid format.');
+    throw new ApolloError(
+      'Email is required and must be a valid format.',
+      'INVALID_EMAIL'
+    );
   }
 }
 
@@ -72,7 +69,10 @@ function ValidateEmail(email) {
 function ValidateDate(date, fieldName = 'Date') {
   // *************** Check if date is missing OR cannot be parsed as a valid date
   if (!date || isNaN(Date.parse(date))) {
-    throw new Error(`${fieldName} is required and must be a valid date.`);
+    throw new ApolloError(
+      `${fieldName} is required and must be a valid date.`,
+      'INVALID_DATE'
+    );
   }
 }
 
@@ -85,14 +85,17 @@ function ValidateDate(date, fieldName = 'Date') {
 function ValidateMongoObjectIds(ids) {
   // *************** Check if the provided input is not an array
   if (!Array.isArray(ids)) {
-    throw new Error('IDs must be an array.');
+    throw new ApolloError('IDs must be an array.', 'INVALID_ID_ARRAY');
   }
 
   // *************** Loop through each ID in the array
   ids.forEach((id, index) => {
     // *************** Check if the current ID is not a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error(`ID at index ${index} is not a valid MongoDB ObjectId.`);
+      throw new ApolloError(
+        `ID at index ${index} is not a valid MongoDB ObjectId.`,
+        'INVALID_OBJECT_ID'
+      );
     }
   });
 }
@@ -100,7 +103,6 @@ function ValidateMongoObjectIds(ids) {
 // *************** EXPORT MODULE ***************
 module.exports = {
   ValidateMongoObjectIds,
-  ValidateObjectId,
   ValidateCivility,
   ValidateNonEmptyString,
   ValidateEmail,

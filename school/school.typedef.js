@@ -6,7 +6,7 @@ const schoolTypeDefs = gql`
     detail: String!
     city: String!
     country: String!
-    zipcode: Int!
+    zipcode: String!
   }
 
   type School {
@@ -16,8 +16,8 @@ const schoolTypeDefs = gql`
     addresses: [Address!]!
     students: [Student!]!
     status: String!
-    createdAt: String!
-    updatedAt: String!
+    created_at: String!
+    updated_at: String!
     deleted_at: Date
   }
 
@@ -25,12 +25,12 @@ const schoolTypeDefs = gql`
     detail: String!
     city: String!
     country: String!
-    zipcode: Int!
+    zipcode: String!
   }
 
   input SchoolNameInput {
-    long_name: String!
-    short_name: String!
+    long_name: String
+    short_name: String
   }
 
   input CreateSchoolInput {
@@ -40,8 +40,8 @@ const schoolTypeDefs = gql`
 
   input UpdateSchoolInput {
     _id: ID!
-    name: SchoolNameInput!
-    addresses: [AddressInput!]!
+    name: SchoolNameInput
+    addresses: [AddressInput!]
   }
 
   type Query {

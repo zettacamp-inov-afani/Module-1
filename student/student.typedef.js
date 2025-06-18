@@ -19,8 +19,8 @@ const studentTypeDefs = gql`
     postal_code_of_birth: String!
     school_id: School!
     status: String!
-    createdAt: String
-    updatedAt: String
+    created_at: String
+    updated_at: String
     deleted_at: Date
   }
 
@@ -38,20 +38,20 @@ const studentTypeDefs = gql`
 
   input UpdateStudentInput {
     _id: ID!
-    civility: Civility!
-    first_name: String!
-    last_name: String!
+    civility: Civility
+    first_name: String
+    last_name: String
     email: String
-    tele_phone: String!
+    tele_phone: String
     date_of_birth: Date
     place_of_birth: String
     postal_code_of_birth: String
-    school_id: ID!
+    school_id: ID
   }
 
   type Query {
     GetOneStudent(_id: ID!): Student
-    GetAllStudents: [Student]
+    GetAllStudents: [Student!]!
   }
 
   type Mutation {

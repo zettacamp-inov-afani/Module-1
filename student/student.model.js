@@ -33,7 +33,7 @@ const studentSchema = new mongoose.Schema(
     // School ref
     school_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'School',
+      ref: 'schools',
       required: true,
     },
 
@@ -47,8 +47,15 @@ const studentSchema = new mongoose.Schema(
     // Student's delete_at detail
     deleted_at: { type: Date, default: null },
   },
-  { timestamps: true }
+  {
+    timestamps: {
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+    },
+  }
 );
 
+const StudentModel = mongoose.model('students', studentSchema);
+
 // *************** EXPORT MODULE ***************
-module.exports = mongoose.model('Student', studentSchema);
+module.exports = StudentModel;

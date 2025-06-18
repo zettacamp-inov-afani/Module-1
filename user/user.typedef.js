@@ -37,12 +37,12 @@ const userTypeDefs = gql`
     first_name: String
     last_name: String
     email: String
-    password: String!
+    password: String
     role: String
   }
 
   type Query {
-    GetAllUsers: [User]
+    GetAllUsers: [User!]!
     GetOneUser(_id: ID!): User
   }
 

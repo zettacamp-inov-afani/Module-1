@@ -1,19 +1,12 @@
 // *************** IMPORT CORE ***************
-const mongoose = require('mongoose');
-const validator = require('validator');
+const { ApolloError } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
 const UserModel = require('./user.model');
 
 // *************** IMPORT VALIDATORS ***************
-const {
-  ValidateObjectId,
-  ValidateCivility,
-  ValidateNonEmptyString,
-  ValidateEmail,
-  ValidatePassword,
-  ValidateRole,
-} = require('./user.validator');
+const UserValidator = require('./user.validator');
+const CommonValidator = require('../utilities/validator');
 
 // *************** QUERY ***************
 
@@ -26,15 +19,22 @@ const {
  * @returns {Promise<Object|null>} The found user or null if not found.
  */
 async function GetOneUser(parent, { _id }) {
-  // *************** Validate user ID
-  ValidateObjectId(_id, 'User ID');
+  try {
+    // *************** Validate user ID
+    CommonValidator.ValidateObjectId(_id, 'User ID');
 
-  // *************** Retrieve user with status 'active'
-  const user = await UserModel.findOne({
-    _id: _id,
-    status: 'active',
-  });
-  return user;
+    // *************** Retrieve user with status 'active'
+    const user = await UserModel.findOne({
+      _id: _id,
+      status: 'active',
+    }).lean();
+    return user;
+  } catch (error) {
+    throw new ApolloError(
+      error.message || 'Failed to retrieve user.',
+      'GET_ONE_USER_ERROR'
+    );
+  }
 }
 
 /**
@@ -43,10 +43,17 @@ async function GetOneUser(parent, { _id }) {
  * @returns {Promise<Array>} Array of active users.
  */
 async function GetAllUsers() {
-  // *************** Retrieve all users with status 'active'
-  const users = await UserModel.find({ status: 'active' });
+  try {
+    // *************** Retrieve all users with status 'active'
+    const users = await UserModel.find({ status: 'active' }).lean();
 
-  return users;
+    return users;
+  } catch (error) {
+    throw new ApolloError(
+      error.message || 'Failed to retrieve users.',
+      'GET_ALL_USERS_ERROR'
+    );
+  }
 }
 
 // *************** MUTATION ***************
@@ -65,15 +72,17 @@ async function CreateUser(parent, { input }) {
     const { civility, first_name, last_name, email, password, role } = input;
 
     // *************** Validate required input
-    ValidateCivility(civility);
-    ValidateNonEmptyString(first_name, 'First name');
-    ValidateNonEmptyString(last_name, 'Last name');
-    ValidateEmail(email);
-    ValidatePassword(password);
-    ValidateRole(role);
+    UserValidator.ValidateUserInput({
+      first_name,
+      last_name,
+      civility,
+      email,
+      password,
+      role,
+    });
 
     // *************** Create a new User instance
-    const user = new UserModel({
+    const createUser = UserModel.create({
       civility,
       first_name,
       last_name,
@@ -84,10 +93,12 @@ async function CreateUser(parent, { input }) {
     });
 
     // *************** Save the user and return the result
-    const createUser = await user.save();
     return createUser;
   } catch (error) {
-    throw new Error(error.message || 'Failed to create user.');
+    throw new ApolloError(
+      error.message || 'Failed to create user.',
+      'CREATE_USER_ERROR'
+    );
   }
 }
 
@@ -101,32 +112,40 @@ async function CreateUser(parent, { input }) {
  * @throws {Error} If validation fails or update fails.
  */
 async function UpdateUser(parent, { input }) {
-  const { _id, first_name, last_name, civility, email, password, role } = input;
+  try {
+    const { _id, first_name, last_name, civility, email, password, role } =
+      input;
 
-  // *************** Validate required input
-  ValidateObjectId(_id, 'User ID');
-  ValidateCivility(civility);
-  ValidateNonEmptyString(first_name, 'First name');
-  ValidateNonEmptyString(last_name, 'Last name');
-  ValidateEmail(email);
-  ValidatePassword(password);
-  ValidateRole(role);
+    // *************** Validate required input
+    CommonValidator.ValidateObjectId(_id, 'User ID');
+    UserValidator.ValidateCivility(civility);
+    UserValidator.ValidateNonEmptyString(first_name, 'First name');
+    UserValidator.ValidateNonEmptyString(last_name, 'Last name');
+    UserValidator.ValidateEmail(email);
+    UserValidator.ValidatePassword(password);
+    UserValidator.ValidateRole(role);
 
-  // *************** Update the user data if active
-  const updatedUser = await UserModel.findOneAndUpdate(
-    { _id: _id, status: 'active' },
-    {
-      first_name,
-      last_name,
-      civility,
-      email,
-      password,
-      role,
-    },
-    { new: true }
-  );
+    // *************** Update the user data if active
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { _id: _id, status: 'active' },
+      {
+        first_name,
+        last_name,
+        civility,
+        email,
+        password,
+        role,
+      },
+      { new: true }
+    );
 
-  return updatedUser;
+    return updatedUser;
+  } catch (error) {
+    throw new ApolloError(
+      error.message || 'Failed to update user.',
+      'UPDATE_USER_ERROR'
+    );
+  }
 }
 
 /**
@@ -141,7 +160,7 @@ async function UpdateUser(parent, { input }) {
 async function DeleteUser(parent, { _id }) {
   try {
     // *************** Validate required input field
-    ValidateObjectId(_id, 'User ID');
+    CommonValidator.ValidateObjectId(_id, 'User ID');
 
     // *************** Find the User with the given ID and "active" status, then update it to "deleted"
     const deletedUser = await UserModel.findByIdAndUpdate(
@@ -152,13 +171,19 @@ async function DeleteUser(parent, { _id }) {
 
     // *************** Handle case if User not found or already deleted
     if (!deletedUser) {
-      throw new Error('User not found or already deleted.');
+      throw new ApolloError(
+        'User not found or already deleted.',
+        'USER_NOT_FOUND'
+      );
     }
 
     // *************** Return the updated User (now with "deleted" status)
     return deletedUser;
   } catch (error) {
-    throw new Error(error.message || 'Failed to delete User.');
+    throw new ApolloError(
+      error.message || 'Failed to delete user.',
+      'DELETE_USER_ERROR'
+    );
   }
 }
 

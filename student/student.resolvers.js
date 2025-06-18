@@ -1,19 +1,13 @@
 // *************** IMPORT CORE ***************
-const mongoose = require('mongoose');
-const validator = require('validator');
+const { ApolloError } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
 const StudentModel = require('./student.model');
 const SchoolModel = require('../school/school.model');
 
 // *************** IMPORT VALIDATORS ***************
-const {
-  ValidateObjectId,
-  ValidateCivility,
-  ValidateNonEmptyString,
-  ValidateEmail,
-  ValidateDate,
-} = require('./student.validator');
+const StudentValidator = require('./student.validator');
+const CommonValidator = require('../utilities/validator');
 
 // *************** QUERY ***************
 
@@ -28,14 +22,24 @@ const {
  * @returns {Promise<Object|null>} The student document if found, otherwise null.
  */
 async function GetOneStudent(parent, { _id }) {
-  // *************** Validate the input ID
-  ValidateObjectId(_id, 'Student ID');
+  try {
+    // *************** Validate the input ID
+    CommonValidator.ValidateObjectId(_id, 'Student ID');
 
-  // *************** Find student by ID and check if status is active
-  const student = await StudentModel.findOne({ _id: _id, status: 'active' });
+    // *************** Find student by ID and check if status is active
+    const student = await StudentModel.findOne({
+      _id: _id,
+      status: 'active',
+    }).lean();
 
-  // *************** Return student document or null if not found
-  return student;
+    // *************** Return student document or null if not found
+    return student;
+  } catch (error) {
+    throw new ApolloError(
+      error.message || 'Failed to get student.',
+      'GET_ONE_STUDENT_ERROR'
+    );
+  }
 }
 
 /**
@@ -46,13 +50,20 @@ async function GetOneStudent(parent, { _id }) {
  * @returns {Promise<Array<Object>>} A list of active student documents.
  */
 async function GetAllStudents() {
-  // *************** Retrieve all student documents with status "active"
-  const students = await StudentModel.find({
-    status: 'active',
-  });
+  try {
+    // *************** Retrieve all student documents with status "active"
+    const students = await StudentModel.find({
+      status: 'active',
+    }).lean();
 
-  // *************** Return list of students
-  return students;
+    // *************** Return list of students
+    return students;
+  } catch (error) {
+    throw new ApolloError(
+      error.message || 'Failed to get all students.',
+      'GET_ALL_STUDENTS_ERROR'
+    );
+  }
 }
 
 // *************** MUTATION ***************
@@ -98,18 +109,21 @@ async function CreateStudent(parent, { input }) {
     } = input;
 
     // *************** Validation input
-    ValidateCivility(civility);
-    ValidateNonEmptyString(first_name, 'First name');
-    ValidateNonEmptyString(last_name, 'Last name');
-    ValidateEmail(email);
-    ValidateNonEmptyString(tele_phone, 'Telephone');
-    ValidateDate(date_of_birth, 'Date of birth');
-    ValidateNonEmptyString(place_of_birth, 'Place of birth');
-    ValidateNonEmptyString(postal_code_of_birth, 'Postal code of birth');
-    ValidateObjectId(school_id, 'School ID');
+    StudentValidator.ValidateCivility(civility);
+    StudentValidator.ValidateNonEmptyString(first_name, 'First name');
+    StudentValidator.ValidateNonEmptyString(last_name, 'Last name');
+    StudentValidator.ValidateEmail(email);
+    StudentValidator.ValidateNonEmptyString(tele_phone, 'Telephone');
+    StudentValidator.ValidateDate(date_of_birth, 'Date of birth');
+    StudentValidator.ValidateNonEmptyString(place_of_birth, 'Place of birth');
+    StudentValidator.ValidateNonEmptyString(
+      postal_code_of_birth,
+      'Postal code of birth'
+    );
+    CommonValidator.ValidateObjectId(school_id, 'School ID');
 
     // *************** Create and save student to DB
-    const student = new StudentModel({
+    const createStudent = await StudentModel.create({
       civility,
       first_name,
       last_name,
@@ -121,19 +135,21 @@ async function CreateStudent(parent, { input }) {
       school_id,
       status: 'active',
     });
-    const createStudent = await student.save();
 
     // *************** Add student ID to associated school
     await SchoolModel.updateOne(
       { _id: school_id },
-      { $push: { students: student._id } }
+      { $push: { students: createStudent._id } }
     );
 
     // *************** Return newly created student
     return createStudent;
   } catch (error) {
     // *************** Throw error if something went wrong
-    throw new Error(error.message || 'Failed to create student.');
+    throw new ApolloError(
+      error.message || 'Failed to create student.',
+      'CREATE_STUDENT_ERROR'
+    );
   }
 }
 
@@ -175,16 +191,19 @@ async function UpdateStudent(parent, { input }) {
     } = input;
 
     // *************** Validate all input
-    ValidateObjectId(_id, 'Student ID');
-    ValidateCivility(civility);
-    ValidateNonEmptyString(first_name, 'First name');
-    ValidateNonEmptyString(last_name, 'Last name');
-    ValidateEmail(email);
-    ValidateNonEmptyString(tele_phone, 'Telephone');
-    ValidateDate(date_of_birth, 'Date of birth');
-    ValidateNonEmptyString(place_of_birth, 'Place of birth');
-    ValidateNonEmptyString(postal_code_of_birth, 'Postal code of birth');
-    ValidateObjectId(school_id, 'School ID');
+    CommonValidator.ValidateObjectId(_id, 'Student ID');
+    StudentValidator.ValidateCivility(civility);
+    StudentValidator.ValidateNonEmptyString(first_name, 'First name');
+    StudentValidator.ValidateNonEmptyString(last_name, 'Last name');
+    StudentValidator.ValidateEmail(email);
+    StudentValidator.ValidateNonEmptyString(tele_phone, 'Telephone');
+    StudentValidator.ValidateDate(date_of_birth, 'Date of birth');
+    StudentValidator.ValidateNonEmptyString(place_of_birth, 'Place of birth');
+    StudentValidator.ValidateNonEmptyString(
+      postal_code_of_birth,
+      'Postal code of birth'
+    );
+    CommonValidator.ValidateObjectId(school_id, 'School ID');
 
     // *************** Find student before update (get from old school_id)
     const existingStudent = await StudentModel.findOne({
@@ -192,7 +211,10 @@ async function UpdateStudent(parent, { input }) {
       status: 'active',
     });
     if (!existingStudent) {
-      throw new Error('Student not found or already deleted.');
+      throw new ApolloError(
+        'Student not found or already deleted.',
+        'STUDENT_NOT_FOUND'
+      );
     }
 
     // *************** Prepare the existing old school_id
@@ -217,7 +239,10 @@ async function UpdateStudent(parent, { input }) {
 
     // *************** Handle case when student not found
     if (!updatedStudent) {
-      throw new Error('Student not found or already deleted.');
+      throw new ApolloError(
+        'Student not found or already deleted.',
+        'STUDENT_NOT_FOUND'
+      );
     }
 
     // *************** Update school's relation if school_id changed
@@ -240,7 +265,10 @@ async function UpdateStudent(parent, { input }) {
     return updatedStudent;
   } catch (error) {
     // *************** Throw update error
-    throw new Error(error.message || 'Failed to update student.');
+    throw new ApolloError(
+      error.message || 'Failed to update student.',
+      'UPDATE_STUDENT_ERROR'
+    );
   }
 }
 
@@ -260,7 +288,7 @@ async function UpdateStudent(parent, { input }) {
 async function DeleteStudent(parent, { _id }) {
   try {
     // *************** Validate required input field
-    ValidateObjectId(_id, 'Student ID');
+    CommonValidator.ValidateObjectId(_id, 'Student ID');
 
     // *************** Find and update student status to deleted
     const deletedStudent = await StudentModel.findByIdAndUpdate(
@@ -271,7 +299,10 @@ async function DeleteStudent(parent, { _id }) {
 
     // *************** Handle if student not found
     if (!deletedStudent) {
-      throw new Error('Student not found or already deleted.');
+      throw new ApolloError(
+        error.message || 'Failed to delete student.',
+        'DELETE_STUDENT_ERROR'
+      );
     }
 
     // *************** Return soft-deleted student
@@ -299,10 +330,10 @@ async function DeleteStudent(parent, { _id }) {
  */
 async function SchoolLoaders(parent, args, { loaders }) {
   // *************** Use the DataLoader `schoolById` from context to fetch the related school.
-  const schoolLoaders = await loaders.schoolById.load(String(parent.school_id));
+  const loadedSchools = await loaders.schoolById.load(String(parent.school_id));
 
   // *************** Return associated school
-  return schoolLoaders;
+  return loadedSchools;
 }
 
 // *************** EXPORT MODULE ***************
