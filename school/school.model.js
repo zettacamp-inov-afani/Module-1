@@ -30,7 +30,7 @@ const schoolSchema = new mongoose.Schema(
     students: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'students',
+        ref: 'student',
         required: true,
       },
     ],
@@ -53,7 +53,7 @@ const schoolSchema = new mongoose.Schema(
   }
 );
 
-const SchoolModel = mongoose.model('schools', schoolSchema);
+const SchoolModel = mongoose.model('school', schoolSchema);
 
 // *************** EXPORT MODULE ***************
 module.exports = SchoolModel;

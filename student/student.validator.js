@@ -76,35 +76,33 @@ function ValidateDate(date, fieldName = 'Date') {
   }
 }
 
-/**
- * Validates an array of MongoDB ObjectIds.
- *
- * @param {string[]} ids - The array of ObjectIds to validate.
- * @throws {Error} If the input is not an array or any ID is invalid.
- */
-function ValidateMongoObjectIds(ids) {
-  // *************** Check if the provided input is not an array
-  if (!Array.isArray(ids)) {
-    throw new ApolloError('IDs must be an array.', 'INVALID_ID_ARRAY');
-  }
+function ValidateStudentInput(input) {
+  const {
+    civility,
+    first_name,
+    last_name,
+    email,
+    place_of_birth,
+    postal_code_of_birth,
+    date_of_birth,
+    tele_phone,
+  } = input;
 
-  // *************** Loop through each ID in the array
-  ids.forEach((id, index) => {
-    // *************** Check if the current ID is not a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new ApolloError(
-        `ID at index ${index} is not a valid MongoDB ObjectId.`,
-        'INVALID_OBJECT_ID'
-      );
-    }
-  });
+  ValidateCivility(civility);
+  ValidateNonEmptyString(first_name, 'First name');
+  ValidateNonEmptyString(last_name, 'Last name');
+  ValidateEmail(email);
+  ValidateDate(date_of_birth, 'Date of Birth');
+  ValidateNonEmptyString(place_of_birth, 'Place of birth');
+  ValidateNonEmptyString(postal_code_of_birth, 'Postal code of birth');
+  ValidateNonEmptyString(tele_phone, 'telephone');
 }
 
 // *************** EXPORT MODULE ***************
 module.exports = {
-  ValidateMongoObjectIds,
   ValidateCivility,
   ValidateNonEmptyString,
   ValidateEmail,
   ValidateDate,
+  ValidateStudentInput,
 };

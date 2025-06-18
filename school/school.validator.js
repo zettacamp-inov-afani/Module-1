@@ -187,10 +187,18 @@ function ValidateSchoolAddressesUpdate(addresses) {
   });
 }
 
+function ValidateSchoolInput(input) {
+  const { name, addresses } = input;
+
+  ValidateSchoolName(name);
+  ValidateSchoolAddresses(addresses);
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   ValidateSchoolName,
   ValidateSchoolAddresses,
   ValidateSchoolNameUpdate,
   ValidateSchoolAddressesUpdate,
+  ValidateSchoolInput,
 };

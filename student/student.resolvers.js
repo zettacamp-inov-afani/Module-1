@@ -109,17 +109,16 @@ async function CreateStudent(parent, { input }) {
     } = input;
 
     // *************** Validation input
-    StudentValidator.ValidateCivility(civility);
-    StudentValidator.ValidateNonEmptyString(first_name, 'First name');
-    StudentValidator.ValidateNonEmptyString(last_name, 'Last name');
-    StudentValidator.ValidateEmail(email);
-    StudentValidator.ValidateNonEmptyString(tele_phone, 'Telephone');
-    StudentValidator.ValidateDate(date_of_birth, 'Date of birth');
-    StudentValidator.ValidateNonEmptyString(place_of_birth, 'Place of birth');
-    StudentValidator.ValidateNonEmptyString(
+    StudentValidator.ValidateStudentInput({
+      civility,
+      first_name,
+      last_name,
+      email,
+      tele_phone,
+      date_of_birth,
+      place_of_birth,
       postal_code_of_birth,
-      'Postal code of birth'
-    );
+    });
     CommonValidator.ValidateObjectId(school_id, 'School ID');
 
     // *************** Create and save student to DB

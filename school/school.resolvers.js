@@ -73,8 +73,7 @@ async function GetAllSchools() {
 async function CreateSchool(parent, { input }) {
   try {
     // *************** Validate required input
-    SchoolValidator.ValidateSchoolName(input.name);
-    SchoolValidator.ValidateSchoolAddresses(input.addresses);
+    SchoolValidator.ValidateSchoolInput(input);
 
     // *************** Create a new School instance
     const createSchool = SchoolModel.create({

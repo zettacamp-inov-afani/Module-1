@@ -15,14 +15,16 @@ const CommonValidator = require('../utilities/validator');
  *
  * @throws {Error} If any of the provided IDs are invalid MongoDB ObjectIds.
  */
-function StudentLoaders(studentIds) {
+function students(studentIds) {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (studentIds) => {
     // ***************  Validate the incoming schoolIds
     CommonValidator.ValidateMongoObjectIds(studentIds);
 
     // *************** Find all Schools whose id is in the schoolIds array
-    const students = await studentModel.find({ _id: { $in: studentIds } });
+    const students = await studentModel
+      .find({ _id: { $in: studentIds } })
+      .lean();
 
     // *************** Create schoolMap object for dictionary
     const studentMap = {};
@@ -36,4 +38,4 @@ function StudentLoaders(studentIds) {
   });
 }
 // *************** EXPORT MODULE ***************
-module.exports = StudentLoaders;
+module.exports = students;

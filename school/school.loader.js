@@ -18,13 +18,13 @@ const CommonValidator = require('../utilities/validator');
  *
  *
  */
-function SchoolLoaders() {
+function school_id() {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (schoolIds) => {
     // ***************  Validate the incoming schoolIds
     CommonValidator.ValidateMongoObjectIds(schoolIds);
     // *************** Find all Schools whose id is in the schoolIds array
-    const schools = await SchoolModel.find({ _id: { $in: schoolIds } });
+    const schools = await SchoolModel.find({ _id: { $in: schoolIds } }).lean();
 
     // *************** Create schoolMap object for dictionary
     const schoolMap = {};
@@ -39,4 +39,4 @@ function SchoolLoaders() {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = SchoolLoaders;
+module.exports = school_id;
