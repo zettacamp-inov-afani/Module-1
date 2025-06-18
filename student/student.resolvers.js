@@ -307,7 +307,10 @@ async function DeleteStudent(parent, { _id }) {
     // *************** Return soft-deleted student
     return deletedStudent;
   } catch (error) {
-    throw new Error(error.message || 'Failed to delete student.');
+    throw new ApolloError(
+      error.message || 'Failed to delete student.',
+      'DELETE_STUDENT_ERROR'
+    );
   }
 }
 
@@ -327,7 +330,11 @@ async function DeleteStudent(parent, { _id }) {
  * @param {DataLoader<string, Object>} context.loaders.schoolById - DataLoader for fetching schools by ID.
  * @returns {Promise<Object|null>} The associated school document, or null if not found.
  */
-async function SchoolLoaders(parent, args, { loaders }) {
+async function school_id(parent, args, { loaders }) {
+  // *************** sanity check to ensure parent.students is an array with elements before attempting to use DataLoader. If not, return an empty array.
+  if (CommonValidator.ValidateObjectId(parent.school_id)) {
+    return null;
+  }
   // *************** Use the DataLoader `schoolById` from context to fetch the related school.
   const loadedSchools = await loaders.schoolById.load(String(parent.school_id));
 
@@ -347,6 +354,6 @@ module.exports = {
     DeleteStudent,
   },
   Student: {
-    school_id: SchoolLoaders,
+    school_id: school_id,
   },
 };
