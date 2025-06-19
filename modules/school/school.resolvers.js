@@ -7,7 +7,7 @@ const SchoolModel = require('./school.model');
 // *************** IMPORT VALIDATORS ***************
 
 const SchoolValidator = require('./school.validator');
-const CommonValidator = require('../utilities/validator');
+const CommonValidator = require('../../utilities/validator');
 
 // *************** QUERY ***************
 

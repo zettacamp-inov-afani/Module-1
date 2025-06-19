@@ -1,6 +1,6 @@
 // *************** IMPORT MODULE ***************
-const CreateStudentsByIdLoader = require('../student/student.loader');
-const CreateSchoolByIdLoader = require('../school/school.loader');
+const CreateStudentsByIdLoader = require('../modules/student/student.loader');
+const CreateSchoolByIdLoader = require('../modules/school/school.loader');
 
 /**
  * Initializes all DataLoader instances for batching and caching.

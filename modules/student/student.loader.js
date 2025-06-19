@@ -5,7 +5,7 @@ const DataLoader = require('dataloader');
 const studentModel = require('./student.model');
 
 // *************** IMPORT VALIDATOR ***************
-const CommonValidator = require('../utilities/validator');
+const CommonValidator = require('../../utilities/validator');
 
 /**
  * Creates a DataLoader instance for batching and caching student lookups by ID.

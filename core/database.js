@@ -1,5 +1,7 @@
 // *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
+
+// *************** IMPORT MODULE ***************
 const { DB_HOST, DB_NAME } = require('./config');
 
 /**

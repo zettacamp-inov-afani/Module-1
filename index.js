@@ -2,7 +2,7 @@
 const GetApolloServer = require('./core/apollo');
 const ExpressApp = require('./core/express');
 const ConnectDB = require('./core/database');
-const { PORT } = require('./core/config');
+const { PORT, DB_HOST } = require('./core/config');
 
 /**
  * Initializes and starts the Apollo GraphQL server with Express and MongoDB.
@@ -28,7 +28,7 @@ async function StartServer() {
     // *************** Start Express server
     app.listen({ port: PORT }, () =>
       console.log(
-        `Server ready at http://localhost:${PORT}${server.graphqlPath}`
+        `Server ready at http://${DB_HOST}${PORT}${server.graphqlPath}`
       )
     );
   } catch (error) {

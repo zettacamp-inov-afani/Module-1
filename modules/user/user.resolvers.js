@@ -6,7 +6,7 @@ const UserModel = require('./user.model');
 
 // *************** IMPORT VALIDATORS ***************
 const UserValidator = require('./user.validator');
-const CommonValidator = require('../utilities/validator');
+const CommonValidator = require('../../utilities/validator');
 
 // *************** QUERY ***************
 
