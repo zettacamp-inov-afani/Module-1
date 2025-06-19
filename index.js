@@ -1,56 +1,41 @@
 // *************** IMPORT CORE ***************
-const { ApolloServer, gql, ApolloError } = require('apollo-server-express');
-const express = require('express');
-
-// *************** IMPORT DATALOADER ***************
-const InitializeLoaders = require('./core/loader');
-
-// *************** IMPORT MODULE ***************
-const typeDefs = require('./core/typedef');
-const resolvers = require('./core/resolver');
+const GetApolloServer = require('./core/apollo');
+const ExpressApp = require('./core/express');
 const ConnectDB = require('./core/database');
+const { PORT } = require('./core/config');
 
 /**
  * Initializes and starts the Apollo GraphQL server with Express and MongoDB.
  *
  * @async
- * @function
+ * @function StartServer
  * @returns {Promise<void>}
  */
 async function StartServer() {
   try {
-    // *************** Initialize Express app
-    const app = express();
+    // *************** Connect to MongoDB
+    await ConnectDB();
 
-    // *************** Initialize Apollo Server with schema and context
-    const server = new ApolloServer({
-      typeDefs,
-      resolvers,
-      context: () => ({
-        // *************** Initialize DataLoader instances for batching and caching
-        loaders: InitializeLoaders(),
-      }),
-    });
+    // *************** Initialize Express app
+    const app = ExpressApp();
+
+    // *************** Initialize Apollo Server
+    const server = await GetApolloServer();
 
     // *************** Apply Apollo middleware to Express app
     server.applyMiddleware({ app });
 
-    // *************** Connect to MongoDB
-    await ConnectDB();
-
-    // *************** Start the Express server
-    app.listen({ port: `${process.env.PORT}` }, () =>
+    // *************** Start Express server
+    app.listen({ port: PORT }, () =>
       console.log(
-        `Server ready at http://localhost:${process.env.PORT}${server.graphqlPath}`
+        `Server ready at http://localhost:${PORT}${server.graphqlPath}`
       )
     );
   } catch (error) {
-    throw new ApolloError(
-      'School not found or already deleted.',
-      'SCHOOL_NOT_FOUND'
-    );
+    console.error('Server failed to start:', error.message);
+    process.exit(1);
   }
 }
 
-// *************** START SERVER ***************
+// *************** START SERVER
 StartServer();

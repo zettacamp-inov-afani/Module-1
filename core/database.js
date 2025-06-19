@@ -1,6 +1,6 @@
 // *************** IMPORT CORE ***************
 const mongoose = require('mongoose');
-require('dotenv').config();
+const { DB_HOST, DB_NAME } = require('./config');
 
 /**
  * Establishes a connection to the MongoDB database using Mongoose.
@@ -13,7 +13,7 @@ require('dotenv').config();
 async function ConnectDB() {
   try {
     // *************** Attempt to connect to MongoDB using mongoose.connect with options
-    const uri = `mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`;
+    const uri = `mongodb://${DB_HOST}/${DB_NAME}`;
     await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
