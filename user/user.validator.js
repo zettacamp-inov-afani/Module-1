@@ -103,7 +103,6 @@ function ValidateRole(role, required = false) {
  * @param {string} fieldName - The name of the field (for error message context).
  * @throws {Error} If the id is not a valid ObjectId.
  */
-
 function ValidateUserInput(input) {
   const { civility, first_name, last_name, email, password, role } = input;
 
@@ -126,7 +125,7 @@ function ValidateCivilityUpdate(civility) {
   }
 }
 
-function ValidateNonEmptyStringupdate(value, fieldName) {
+function ValidateNonEmptyStringUpdate(value, fieldName) {
   // *************** Check if value is falsy or not a string
   if (typeof value !== 'string' || value.trim() === '') {
     throw new ApolloError(
@@ -159,12 +158,8 @@ function ValidatePasswordUpdate(password) {
 function ValidateRoleUpdate(role, required = false) {
   // *************** Define allowed roles
   const validRoles = ['operator', 'acadir', 'student'];
-  // *************** If role is required and missing
-  if (required && !role) {
-    throw new ApolloError('Role is required.', 'ROLE_REQUIRED');
-  }
   // *************** If role is provided but not in allowed list or not a string
-  if (role && (!validRoles.includes(role) || typeof role !== 'string')) {
+  if (role && typeof role !== 'string') {
     throw new ApolloError(
       `Role must be one of: ${validRoles.join(', ')}.`,
       'INVALID_ROLE'
@@ -172,6 +167,33 @@ function ValidateRoleUpdate(role, required = false) {
   }
 }
 
+function ValidateUserInputUpdate(input) {
+  const { civility, first_name, last_name, email, password, role } = input;
+
+  if (civility !== undefined) {
+    ValidateCivilityUpdate(civility);
+  }
+
+  if (first_name !== undefined) {
+    ValidateNonEmptyStringUpdate(first_name, 'First name');
+  }
+
+  if (last_name !== undefined) {
+    ValidateNonEmptyStringUpdate(last_name, 'Last name');
+  }
+
+  if (email !== undefined) {
+    ValidateEmailUpdate(email);
+  }
+
+  if (password !== undefined) {
+    ValidatePasswordUpdate(password);
+  }
+
+  if (role !== undefined) {
+    ValidateRoleUpdate(role);
+  }
+}
 // *************** EXPORT MODULE ***************
 module.exports = {
   ValidateCivility,
@@ -180,4 +202,10 @@ module.exports = {
   ValidatePassword,
   ValidateRole,
   ValidateUserInput,
+  ValidateCivilityUpdate,
+  ValidateNonEmptyStringUpdate,
+  ValidateEmailUpdate,
+  ValidatePasswordUpdate,
+  ValidateRoleUpdate,
+  ValidateUserInputUpdate,
 };

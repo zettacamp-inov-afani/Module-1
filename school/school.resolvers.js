@@ -185,7 +185,7 @@ async function DeleteSchool(parent, { _id }) {
 
     // *************** Find the School with the given ID and "active" status, then update it to "deleted"
     const deletedSchool = await SchoolModel.findByIdAndUpdate(
-      { _id: _id, status: 'active' },
+      { _id: _id },
       { $set: { status: 'deleted', deleted_at: new Date() } },
       { new: true }
     );
