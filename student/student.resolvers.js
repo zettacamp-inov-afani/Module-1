@@ -107,6 +107,10 @@ async function CreateStudent(parent, { input }) {
       postal_code_of_birth,
       school_id,
     } = input;
+    // *************** Fail-fast
+    if (!input) {
+      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+    }
 
     // *************** Validation input
     StudentValidator.ValidateStudentInput({

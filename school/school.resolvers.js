@@ -72,6 +72,10 @@ async function GetAllSchools() {
  */
 async function CreateSchool(parent, { input }) {
   try {
+    // *************** Fail-fast
+    if (!input) {
+      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+    }
     // *************** Validate required input
     SchoolValidator.ValidateSchoolInput(input);
 

@@ -70,7 +70,10 @@ async function GetAllUsers() {
 async function CreateUser(parent, { input }) {
   try {
     const { civility, first_name, last_name, email, password, role } = input;
-
+    // *************** Fail-fast
+    if (!input) {
+      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+    }
     // *************** Validate required input
     UserValidator.ValidateUserInput({
       first_name,
