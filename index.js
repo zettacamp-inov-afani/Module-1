@@ -5,7 +5,7 @@ const { mergeTypeDefs } = require('@graphql-tools/merge');
 const { mergeResolvers } = require('@graphql-tools/merge');
 
 // *************** IMPORT DATALOADER ***************
-const initializeLoaders = require('./core/loader');
+const InitializeLoaders = require('./core/loader');
 
 // *************** IMPORT MODULE ***************
 const typeDefs = require('./core/typedef');
@@ -30,7 +30,7 @@ async function StartServer() {
       resolvers,
       context: () => ({
         // *************** Initialize DataLoader instances for batching and caching
-        loaders: initializeLoaders(),
+        loaders: InitializeLoaders(),
       }),
     });
 

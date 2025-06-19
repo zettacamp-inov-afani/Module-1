@@ -7,7 +7,7 @@ const CreateSchoolByIdLoader = require('../school/school.loader');
  *
  * @returns {Object} Loaders
  */
-function initializeLoaders() {
+function InitializeLoaders() {
   return {
     studentById: CreateStudentsByIdLoader(),
     schoolById: CreateSchoolByIdLoader(),
@@ -15,4 +15,4 @@ function initializeLoaders() {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = initializeLoaders;
+module.exports = InitializeLoaders;
