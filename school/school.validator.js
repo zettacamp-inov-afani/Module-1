@@ -99,7 +99,7 @@ function ValidateSchoolAddresses(addresses) {
     if (
       !address.zipcode ||
       typeof address.zipcode !== 'string' ||
-      address.country.trim() === ''
+      address.zipcode.trim() === ''
     ) {
       throw new ApolloError(
         `Address[${index}]: Zipcode is required.`,

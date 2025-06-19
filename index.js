@@ -8,7 +8,7 @@ const InitializeLoaders = require('./core/loader');
 // *************** IMPORT MODULE ***************
 const typeDefs = require('./core/typedef');
 const resolvers = require('./core/resolver');
-const ConnectDB = require('./config/db');
+const ConnectDB = require('./core/database');
 
 /**
  * Initializes and starts the Apollo GraphQL server with Express and MongoDB.
