@@ -125,6 +125,14 @@ function ValidateSchoolNameUpdate(name) {
     );
   }
 
+  // Check if name object is empty (no fields provided)
+  if (!Object.keys(name).length) {
+    throw new ApolloError(
+      'School name must contain at least one field to update.',
+      'EMPTY_SCHOOL_NAME_UPDATE'
+    );
+  }
+
   if ('long_name' in name) {
     if (typeof name.long_name !== 'string' || name.long_name.trim() === '') {
       throw new ApolloError(
