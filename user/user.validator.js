@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const { ApolloError } = require('apollo-server-express');
 
+// *************** Non-updateable fields
 /**
  * Validates the civility value.
  *
@@ -102,7 +103,6 @@ function ValidateRole(role, required = false) {
  * @param {string} fieldName - The name of the field (for error message context).
  * @throws {Error} If the id is not a valid ObjectId.
  */
-
 function ValidateUserInput(input) {
   const { civility, first_name, last_name, email, password, role } = input;
 
@@ -114,6 +114,86 @@ function ValidateUserInput(input) {
   ValidateRole(role);
 }
 
+// *************** Updateable fields
+function ValidateCivilityUpdate(civility) {
+  // *************** Check if civility is falsy or not a string
+  if (typeof civility !== 'string' || !['Mr', 'Mrs'].includes(civility)) {
+    throw new ApolloError(
+      "Civility is required and must be either 'Mr' or 'Mrs'.",
+      'INVALID_CIVILITY'
+    );
+  }
+}
+
+function ValidateNonEmptyStringUpdate(value, fieldName) {
+  // *************** Check if value is falsy or not a string
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new ApolloError(
+      `${fieldName} is required and must be a non-empty string.`,
+      'INVALID_STRING'
+    );
+  }
+}
+
+function ValidateEmailUpdate(email) {
+  // *************** Check if email is missing, not a string, or invalid format
+  if (typeof email !== 'string' || !validator.isEmail(email)) {
+    throw new ApolloError(
+      'Email is required and must be a valid format.',
+      'INVALID_EMAIL'
+    );
+  }
+}
+
+function ValidatePasswordUpdate(password) {
+  // *************** Check if password is missing, not a string, or too short
+  if (typeof password !== 'string' || password.length < 6) {
+    throw new ApolloError(
+      'Password is required and must be at least 6 characters long.',
+      'INVALID_PASSWORD'
+    );
+  }
+}
+
+function ValidateRoleUpdate(role, required = false) {
+  // *************** Define allowed roles
+  const validRoles = ['operator', 'acadir', 'student'];
+  // *************** If role is provided but not in allowed list or not a string
+  if (role && typeof role !== 'string') {
+    throw new ApolloError(
+      `Role must be one of: ${validRoles.join(', ')}.`,
+      'INVALID_ROLE'
+    );
+  }
+}
+
+function ValidateUserInputUpdate(input) {
+  const { civility, first_name, last_name, email, password, role } = input;
+
+  if (civility !== undefined) {
+    ValidateCivilityUpdate(civility);
+  }
+
+  if (first_name !== undefined) {
+    ValidateNonEmptyStringUpdate(first_name, 'First name');
+  }
+
+  if (last_name !== undefined) {
+    ValidateNonEmptyStringUpdate(last_name, 'Last name');
+  }
+
+  if (email !== undefined) {
+    ValidateEmailUpdate(email);
+  }
+
+  if (password !== undefined) {
+    ValidatePasswordUpdate(password);
+  }
+
+  if (role !== undefined) {
+    ValidateRoleUpdate(role);
+  }
+}
 // *************** EXPORT MODULE ***************
 module.exports = {
   ValidateCivility,
@@ -122,4 +202,10 @@ module.exports = {
   ValidatePassword,
   ValidateRole,
   ValidateUserInput,
+  ValidateCivilityUpdate,
+  ValidateNonEmptyStringUpdate,
+  ValidateEmailUpdate,
+  ValidatePasswordUpdate,
+  ValidateRoleUpdate,
+  ValidateUserInputUpdate,
 };

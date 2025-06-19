@@ -118,23 +118,27 @@ async function UpdateUser(parent, { input }) {
 
     // *************** Validate required input
     CommonValidator.ValidateObjectId(_id, 'User ID');
-    UserValidator.ValidateCivility(civility);
-    UserValidator.ValidateNonEmptyString(first_name, 'First name');
-    UserValidator.ValidateNonEmptyString(last_name, 'Last name');
-    UserValidator.ValidateEmail(email);
-    UserValidator.ValidatePassword(password);
-    UserValidator.ValidateRole(role);
+    // *************** Prepare object for dynamic updates
+    const updateFields = {};
+    if (civility !== undefined) updateFields.civility = civility;
+    if (first_name !== undefined) updateFields.first_name = first_name;
+    if (last_name !== undefined) updateFields.last_name = last_name;
+    if (email !== undefined) updateFields.email = email;
+    if (password !== undefined) updateFields.password = password;
+    if (role !== undefined) updateFields.role = role;
+    // *************** Ensure at least one field is being updated
+    if (Object.keys(updateFields).length === 0) {
+      throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
+    }
+
+    // *************** Validate only provided fields (dynamic)
+    UserValidator.ValidateUserInputUpdate(updateFields);
 
     // *************** Update the user data if active
     const updatedUser = await UserModel.findOneAndUpdate(
       { _id: _id, status: 'active' },
       {
-        first_name,
-        last_name,
-        civility,
-        email,
-        password,
-        role,
+        $set: updateFields,
       },
       { new: true }
     );

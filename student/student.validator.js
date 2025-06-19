@@ -6,6 +6,7 @@ const { ApolloError } = require('apollo-server-express');
 // *************** GLOBAL VARIABLE ***************
 const allowedCivilities = ['Mr', 'Mrs'];
 
+// *************** Non Update-able validator
 /**
  * Validates civility value to ensure it is one of the allowed options.
  *
@@ -98,6 +99,92 @@ function ValidateStudentInput(input) {
   ValidateNonEmptyString(tele_phone, 'telephone');
 }
 
+// *************** Update-able validator
+function ValidateCivilityUpdate(civility) {
+  // *************** Check if civility is missing (null/undefined/empty)
+  if (typeof civility !== 'string' || !allowedCivilities.includes(civility)) {
+    throw new ApolloError(
+      "Civility is required and must be either 'Mr' or 'Mrs'.",
+      'INVALID_CIVILITY'
+    );
+  }
+}
+
+function ValidateNonEmptyStringUpdate(value, fieldName) {
+  // *************** Check if value is missing (null/undefined/empty)
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new ApolloError(
+      `${fieldName} is required and must be a non-empty string.`,
+      'INVALID_STRING'
+    );
+  }
+}
+
+function ValidateEmailUpdate(email) {
+  // *************** Check if email is missing and not match the format
+  if (typeof email !== 'string' || !validator.isEmail(email)) {
+    throw new ApolloError(
+      'Email is required and must be a valid format.',
+      'INVALID_EMAIL'
+    );
+  }
+}
+
+function ValidateDateUpdate(date, fieldName = 'Date') {
+  // *************** Check if date is missing OR cannot be parsed as a valid date
+  if (isNaN(Date.parse(date))) {
+    throw new ApolloError(
+      `${fieldName} is required and must be a valid date.`,
+      'INVALID_DATE'
+    );
+  }
+}
+
+function ValidateStudentInputUpdate(input) {
+  const {
+    civility,
+    first_name,
+    last_name,
+    email,
+    place_of_birth,
+    postal_code_of_birth,
+    date_of_birth,
+    tele_phone,
+  } = input;
+
+  if (civility !== undefined) {
+    ValidateCivilityUpdate(civility);
+  }
+
+  if (first_name !== undefined) {
+    ValidateNonEmptyStringUpdate(first_name, 'First name');
+  }
+
+  if (last_name !== undefined) {
+    ValidateNonEmptyStringUpdate(last_name, 'Last name');
+  }
+
+  if (email !== undefined) {
+    ValidateEmailUpdate(email);
+  }
+
+  if (date_of_birth !== undefined) {
+    ValidateDateUpdate(date_of_birth, 'Date of Birth');
+  }
+
+  if (place_of_birth !== undefined) {
+    ValidateNonEmptyStringUpdate(place_of_birth, 'Place of birth');
+  }
+
+  if (postal_code_of_birth !== undefined) {
+    ValidateNonEmptyStringUpdate(postal_code_of_birth, 'Postal code of birth');
+  }
+
+  if (tele_phone !== undefined) {
+    ValidateNonEmptyStringUpdate(tele_phone, 'telephone');
+  }
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   ValidateCivility,
@@ -105,4 +192,9 @@ module.exports = {
   ValidateEmail,
   ValidateDate,
   ValidateStudentInput,
+  ValidateCivilityUpdate,
+  ValidateNonEmptyStringUpdate,
+  ValidateEmailUpdate,
+  ValidateDateUpdate,
+  ValidateStudentInputUpdate,
 };

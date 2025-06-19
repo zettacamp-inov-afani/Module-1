@@ -1,7 +1,7 @@
 // *************** IMPORT CORE ***************
 const { mergeResolvers } = require('@graphql-tools/merge');
 
-// *************** IMPORT MODULE ***************
+// *************** IMPORT MODULE ***************Add commentMore actions
 const UserResolvers = require('../user/user.resolvers');
 const StudentResolvers = require('../student/student.resolvers');
 const SchoolResolvers = require('../school/school.resolvers');

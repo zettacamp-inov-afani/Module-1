@@ -15,7 +15,7 @@ const CommonValidator = require('../utilities/validator');
  *
  * @throws {Error} If any of the provided IDs are invalid MongoDB ObjectIds.
  */
-function students(studentIds) {
+function StudentLoader(studentIds) {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (studentIds) => {
     // ***************  Validate the incoming schoolIds
@@ -38,4 +38,4 @@ function students(studentIds) {
   });
 }
 // *************** EXPORT MODULE ***************
-module.exports = students;
+module.exports = StudentLoader;

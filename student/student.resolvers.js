@@ -153,28 +153,19 @@ async function CreateStudent(parent, { input }) {
 }
 
 /**
- * Updates an existing student if they are active.
+ * Updates a student's data based on the provided input.
  *
- * Finds the student by ID and updates their data without using `{ new: true }`.
- * Then refetches and returns the updated student document.
+ * This function allows dynamic field updates — only fields sent in the input will be updated.
+ * It also handles validation, ensures student exists, and updates related school's student reference if needed.
  *
- * @async
- * @function
- * @param {Object} _ - Unused parent resolver argument.
- * @param {Object} args - Arguments containing the input for updating student.
- * @param {Object} args.input - The input object with updated student fields.
- * @param {string} args.input.id - The ID of the student to update.
- * @param {string} args.input.first_name - Updated first name.
- * @param {string} args.input.last_name - Updated last name.
- * @param {string} [args.input.email] - Optional updated email.
- * @param {string} [args.input.date_of_birth] - Optional updated date of birth.
- * @param {string} args.input.school_id - Updated school ID.
- * @returns {Promise<Object|null>} The updated student document, or null if not found.
+ * @param {Object} parent - GraphQL parent resolver (unused).
+ * @param {Object} args - Arguments containing input.
+ * @param {Object} args.input - The input object containing fields to update.
+ * @returns {Promise<Object>} - The updated student document.
+ * @throws {ApolloError} - If validation fails, student not found, or update error occurs.
  */
 async function UpdateStudent(parent, { input }) {
   try {
-    const allowedCivilities = ['Mr', 'Mrs'];
-
     // *************** Destructure input fields
     const {
       _id,
@@ -191,20 +182,33 @@ async function UpdateStudent(parent, { input }) {
 
     // *************** Validate all input
     CommonValidator.ValidateObjectId(_id, 'Student ID');
-    StudentValidator.ValidateCivility(civility);
-    StudentValidator.ValidateNonEmptyString(first_name, 'First name');
-    StudentValidator.ValidateNonEmptyString(last_name, 'Last name');
-    StudentValidator.ValidateEmail(email);
-    StudentValidator.ValidateNonEmptyString(tele_phone, 'Telephone');
-    StudentValidator.ValidateDate(date_of_birth, 'Date of birth');
-    StudentValidator.ValidateNonEmptyString(place_of_birth, 'Place of birth');
-    StudentValidator.ValidateNonEmptyString(
-      postal_code_of_birth,
-      'Postal code of birth'
-    );
-    CommonValidator.ValidateObjectId(school_id, 'School ID');
 
-    // *************** Find student before update (get from old school_id)
+    // *************** Prepare object for dynamic updates
+    const updateFields = {};
+    if (civility !== undefined) updateFields.civility = civility;
+    if (first_name !== undefined) updateFields.first_name = first_name;
+    if (last_name !== undefined) updateFields.last_name = last_name;
+    if (email !== undefined) updateFields.email = email;
+    if (tele_phone !== undefined) updateFields.tele_phone = tele_phone;
+    if (date_of_birth !== undefined) updateFields.date_of_birth = date_of_birth;
+    if (place_of_birth !== undefined)
+      updateFields.place_of_birth = place_of_birth;
+    if (postal_code_of_birth !== undefined)
+      updateFields.postal_code_of_birth = postal_code_of_birth;
+    // *************** Validate school ID if present and assign to updateFields
+    if (school_id !== undefined) {
+      CommonValidator.ValidateObjectId(school_id, 'School ID');
+      updateFields.school_id = school_id;
+    }
+    // *************** Ensure at least one field is being updated
+    if (Object.keys(updateFields).length === 0) {
+      throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
+    }
+
+    // *************** Validate only provided fields (dynamic)
+    StudentValidator.ValidateStudentInputUpdate(updateFields);
+
+    // *************** Keep track of current school for relation update
     const existingStudent = await StudentModel.findOne({
       _id,
       status: 'active',
@@ -222,17 +226,7 @@ async function UpdateStudent(parent, { input }) {
     // *************** Find and update active student
     const updatedStudent = await StudentModel.findOneAndUpdate(
       { _id: _id, status: 'active' },
-      {
-        civility,
-        first_name,
-        last_name,
-        email,
-        tele_phone,
-        date_of_birth,
-        place_of_birth,
-        postal_code_of_birth,
-        school_id,
-      },
+      { $set: updateFields },
       { new: true }
     );
 

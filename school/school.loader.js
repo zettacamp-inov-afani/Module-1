@@ -18,7 +18,7 @@ const CommonValidator = require('../utilities/validator');
  *
  *
  */
-function school_id() {
+function SchoolLoaders() {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (schoolIds) => {
     // ***************  Validate the incoming schoolIds
@@ -39,4 +39,4 @@ function school_id() {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = school_id;
+module.exports = SchoolLoaders;

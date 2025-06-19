@@ -3,7 +3,7 @@ const { ApolloServer, gql, ApolloError } = require('apollo-server-express');
 const express = require('express');
 
 // *************** IMPORT DATALOADER ***************
-const initializeLoaders = require('./core/loader');
+const InitializeLoaders = require('./core/loader');
 
 // *************** IMPORT MODULE ***************
 const typeDefs = require('./core/typedef');
@@ -27,8 +27,8 @@ async function StartServer() {
       typeDefs,
       resolvers,
       context: () => ({
-        // *************** Initialize DataLoader from core
-        loaders: initializeLoaders(),
+        // *************** Initialize DataLoader instances for batching and caching
+        loaders: InitializeLoaders(),
       }),
     });
 
