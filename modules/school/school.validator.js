@@ -213,7 +213,26 @@ function ValidateSchoolAddressesUpdate(addresses) {
   });
 }
 
+/**
+ * Validates the structure and presence of the input object for creating or updating a School.
+ *
+ * This is a fail-fast validator that ensures:
+ * - The input object is defined
+ * - The 'name' field passes school name validation
+ * - The 'addresses' field passes address array validation
+ *
+ * @function
+ * @param {Object} input - The input object representing school data.
+ * @param {string} input.name - The name of the school.
+ * @param {Array<Object>} input.addresses - An array of address objects for the school.
+ *
+ * @throws {ApolloError} Throws an INPUT_ERROR if the input is missing or fails validation.
+ */
 function ValidateSchoolInput(input) {
+  // *************** Validate input presence (fail-fast)
+  if (!input) {
+    throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+  }
   const { name, addresses } = input;
 
   ValidateSchoolName(name);

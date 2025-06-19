@@ -74,7 +74,7 @@ async function CreateSchool(parent, { input }) {
   try {
     // *************** Fail-fast
     if (!input) {
-      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+      throw new ApolloError('Input undefined', 'INPUT_ERROR');
     }
     // *************** Validate required input
     SchoolValidator.ValidateSchoolInput(input);
@@ -90,10 +90,7 @@ async function CreateSchool(parent, { input }) {
     // *************** Save the school and return the result
     return createSchool;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to create school',
-      'CREATE_SCHOOL_ERROR'
-    );
+    throw new ApolloError('Failed to create school', 'CREATE_SCHOOL_ERROR');
   }
 }
 
