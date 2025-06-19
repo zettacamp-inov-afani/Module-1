@@ -1,5 +1,4 @@
 // *************** IMPORT CORE ***************
-const mongoose = require('mongoose');
 const { ApolloError } = require('apollo-server-express');
 
 /**
@@ -50,7 +49,7 @@ function ValidateSchoolName(name) {
  */
 function ValidateSchoolAddresses(addresses) {
   // *************** Validate each address object inside the array
-  if (!Array.isArray(addresses) || addresses.length === 0) {
+  if (!Array.isArray(addresses) || !addresses.length) {
     throw new ApolloError(
       'Address must be a non-empty array.',
       'INVALID_ADDRESS_ARRAY'

@@ -93,7 +93,10 @@ async function GetAllStudents() {
  */
 async function CreateStudent(parent, { input }) {
   try {
-    const allowedCivilities = ['Mr', 'Mrs'];
+    // *************** Validate input presence (fail-fast)
+    if (!input) {
+      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+    }
 
     // *************** Destructure input fields
     const {
@@ -107,10 +110,6 @@ async function CreateStudent(parent, { input }) {
       postal_code_of_birth,
       school_id,
     } = input;
-    // *************** Fail-fast
-    if (!input) {
-      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
-    }
 
     // *************** Validation input
     StudentValidator.ValidateStudentInput({
@@ -170,6 +169,10 @@ async function CreateStudent(parent, { input }) {
  */
 async function UpdateStudent(parent, { input }) {
   try {
+    // *************** Validate input presence (fail-fast)
+    if (!input) {
+      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+    }
     // *************** Destructure input fields
     const {
       _id,
@@ -232,7 +235,7 @@ async function UpdateStudent(parent, { input }) {
       { _id: _id, status: 'active' },
       { $set: updateFields },
       { new: true }
-    );
+    ).lean();
 
     // *************** Handle case when student not found
     if (!updatedStudent) {
@@ -284,6 +287,10 @@ async function UpdateStudent(parent, { input }) {
  */
 async function DeleteStudent(parent, { _id }) {
   try {
+    // *************** Validate input presence (fail-fast)
+    if (!id) {
+      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+    }
     // *************** Validate required input field
     CommonValidator.ValidateObjectId(_id, 'Student ID');
 

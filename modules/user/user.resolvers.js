@@ -69,6 +69,10 @@ async function GetAllUsers() {
  */
 async function CreateUser(parent, { input }) {
   try {
+    // *************** Validate input presence (fail-fast)
+    if (!input) {
+      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+    }
     const { civility, first_name, last_name, email, password, role } = input;
     // *************** Fail-fast
     if (!input) {
@@ -116,6 +120,10 @@ async function CreateUser(parent, { input }) {
  */
 async function UpdateUser(parent, { input }) {
   try {
+    // *************** Validate input presence (fail-fast)
+    if (!input) {
+      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+    }
     const { _id, first_name, last_name, civility, email, password, role } =
       input;
 
@@ -166,6 +174,10 @@ async function UpdateUser(parent, { input }) {
  */
 async function DeleteUser(parent, { _id }) {
   try {
+    // *************** Validate input presence (fail-fast)
+    if (!id) {
+      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+    }
     // *************** Validate required input field
     CommonValidator.ValidateObjectId(_id, 'User ID');
 

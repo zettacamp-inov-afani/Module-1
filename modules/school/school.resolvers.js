@@ -80,7 +80,7 @@ async function CreateSchool(parent, { input }) {
     SchoolValidator.ValidateSchoolInput(input);
 
     // *************** Create a new School instance
-    const createSchool = SchoolModel.create({
+    const createSchool = await SchoolModel.create({
       long_name: input.name.long_name,
       short_name: input.name.short_name,
       addresses: input.addresses,
@@ -114,6 +114,10 @@ async function CreateSchool(parent, { input }) {
  */
 async function UpdateSchool(parent, { input }) {
   try {
+    // *************** Validate input presence (fail-fast)
+    if (!input) {
+      throw new ApolloError('Input undefined', 'INPUT_ERROR');
+    }
     const { _id, name, addresses } = input;
 
     // *************** Validate school ID (must be valid MongoDB ObjectId)
@@ -156,7 +160,7 @@ async function UpdateSchool(parent, { input }) {
       { _id: _id, status: 'active' },
       { $set: updateFields },
       { new: true }
-    );
+    ).lean();
 
     // *************** Handle case if School not found or already deleted
     if (!updatedSchool) {
@@ -167,10 +171,7 @@ async function UpdateSchool(parent, { input }) {
     }
     return updatedSchool;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to update school',
-      'UPDATE_SCHOOL_ERROR'
-    );
+    throw new ApolloError('Failed to update school', 'UPDATE_SCHOOL_ERROR');
   }
 }
 
@@ -184,6 +185,10 @@ async function UpdateSchool(parent, { input }) {
  */
 async function DeleteSchool(parent, { _id }) {
   try {
+    // *************** Validate input presence (fail-fast)
+    if (!_id) {
+      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+    }
     // *************** Validate required input field
     CommonValidator.ValidateObjectId(_id, 'School ID');
 
@@ -205,10 +210,7 @@ async function DeleteSchool(parent, { _id }) {
     // *************** Return the updated School (now with "deleted" status)
     return deletedSchool;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to delete school',
-      'DELETE_SCHOOL_ERROR'
-    );
+    throw new ApolloError('Failed to delete school', 'DELETE_SCHOOL_ERROR');
   }
 }
 
@@ -229,7 +231,7 @@ async function students(parent, args, { loaders }) {
   }
 
   // *************** Load students via DataLoader
-  const loadedStudents = loaders.studentById.loadMany(
+  const loadedStudents = await loaders.studentById.loadMany(
     parent.students.map((id) => String(id))
   );
 
