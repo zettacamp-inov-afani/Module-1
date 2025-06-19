@@ -26,11 +26,7 @@ async function StartServer() {
     server.applyMiddleware({ app });
 
     // *************** Start Express server
-    app.listen({ port: PORT }, () =>
-      console.log(
-        `Server ready at http://${DB_HOST}${PORT}${server.graphqlPath}`
-      )
-    );
+    app.listen({ port: PORT }, () => console.log(`Server ready`));
   } catch (error) {
     console.error('Server failed to start:', error.message);
     process.exit(1);
