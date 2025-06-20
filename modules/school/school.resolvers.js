@@ -6,7 +6,7 @@ const SchoolModel = require('./school.model');
 
 // *************** IMPORT VALIDATORS ***************
 
-const SchoolValidator = require('./school.validator');
+const ValidateSchoolInput = require('./school.validator');
 const CommonValidator = require('../../utilities/validator');
 
 // *************** QUERY ***************
@@ -77,7 +77,7 @@ async function CreateSchool(parent, { input }) {
       throw new ApolloError('Input undefined', 'INPUT_ERROR');
     }
     // *************** Validate required input
-    SchoolValidator.ValidateSchoolInput(input);
+    ValidateSchoolInput(input);
 
     // *************** Create a new School instance
     const createSchool = await SchoolModel.create({
@@ -115,7 +115,7 @@ async function UpdateSchool(parent, { input }) {
     if (!input) {
       throw new ApolloError('Input undefined', 'INPUT_ERROR');
     }
-    const { _id, name, addresses } = input;
+    const { _id, name } = input;
 
     // *************** Validate school ID (must be valid MongoDB ObjectId)
     CommonValidator.ValidateObjectId(_id, 'School ID');
@@ -124,27 +124,19 @@ async function UpdateSchool(parent, { input }) {
     const updateFields = {};
 
     // *************** Handle update for name (if provided)
-    if (name) {
-      // Validate name fields (if any)
-      SchoolValidator.ValidateSchoolNameUpdate(name);
+    ValidateSchoolInput(input, true);
 
-      // *************** Set new long_name if present
-      if (name.long_name !== undefined) {
-        updateFields.long_name = name.long_name.trim();
+    if ('name' in input) {
+      if ('long_name' in name) {
+        updateFields.long_name = input.name.long_name.trim();
       }
-
-      // *************** Set new short_name if present
-      if (name.short_name !== undefined) {
-        updateFields.short_name = name.short_name.trim();
+      if ('short_name' in name) {
+        updateFields.short_name = input.name.short_name.trim();
       }
     }
 
-    // *************** Handle update for addresses (if provided)
-    if (addresses !== undefined) {
-      // *************** Validate the new address array (may be dynamics)
-      SchoolValidator.ValidateSchoolAddressesUpdate(addresses);
-      // *************** Set new addresses to overwrite old ones
-      updateFields.addresses = addresses;
+    if ('addresses' in input) {
+      updateFields.addresses = input.addresses;
     }
 
     // *************** Prevent empty update if no valid fields provided
