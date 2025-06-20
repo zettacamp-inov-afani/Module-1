@@ -43,7 +43,7 @@ async function GetOneSchool(parent, { _id }) {
  *
  * @returns {Promise<Array>} Array of all active schools.
  */
-async function GetAllSchools() {
+async function GetAllSchools(parent, args) {
   try {
     // *************** Retrieve all schools with status 'active'
     const schools = await SchoolModel.find({
@@ -140,7 +140,7 @@ async function UpdateSchool(parent, { input }) {
     }
 
     // *************** Prevent empty update if no valid fields provided
-    if (Object.keys(updateFields).length === 0) {
+    if (!Object.keys(updateFields)) {
       throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
     }
 
@@ -184,8 +184,7 @@ async function DeleteSchool(parent, { _id }) {
     // *************** Find the School with the given ID and "active" status, then update it to "deleted"
     const deletedSchool = await SchoolModel.findByIdAndUpdate(
       { _id: _id },
-      { $set: { status: 'deleted', deleted_at: new Date() } },
-      { new: true }
+      { $set: { status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Handle case if School not found or already deleted
@@ -197,7 +196,7 @@ async function DeleteSchool(parent, { _id }) {
     }
 
     // *************** Return the updated School (now with "deleted" status)
-    return deletedSchool;
+    return { _id };
   } catch (error) {
     throw new ApolloError('Failed to delete school', 'DELETE_SCHOOL_ERROR');
   }

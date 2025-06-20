@@ -32,7 +32,6 @@ const userTypeDefs = gql`
   }
 
   input UpdateUserInput {
-    _id: ID!
     civility: Civility
     first_name: String
     last_name: String
@@ -48,7 +47,7 @@ const userTypeDefs = gql`
 
   type Mutation {
     CreateUser(input: CreateUserInput!): User
-    UpdateUser(input: UpdateUserInput!): User
+    UpdateUser(_id: ID!, input: UpdateUserInput!): User
     DeleteUser(_id: ID!): User
   }
 `;

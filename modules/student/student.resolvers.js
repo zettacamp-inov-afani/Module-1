@@ -6,7 +6,6 @@ const StudentModel = require('./student.model');
 const SchoolModel = require('../school/school.model');
 
 // *************** IMPORT VALIDATORS ***************
-const StudentValidator = require('./student2.validator');
 const CommonValidator = require('../../utilities/validator');
 const ValidateStudentInput = require('./student.validator');
 
@@ -50,7 +49,7 @@ async function GetOneStudent(parent, { _id }) {
  * @function
  * @returns {Promise<Array<Object>>} A list of active student documents.
  */
-async function GetAllStudents() {
+async function GetAllStudents(parent, args) {
   try {
     // *************** Retrieve all student documents with status "active"
     const students = await StudentModel.find({
@@ -114,7 +113,6 @@ async function CreateStudent(parent, { input }) {
 
     // *************** Validation input
     ValidateStudentInput(input);
-    CommonValidator.ValidateObjectId(school_id, 'School ID');
 
     // *************** Create and save student to DB
     const createStudent = await StudentModel.create({
@@ -159,49 +157,43 @@ async function CreateStudent(parent, { input }) {
  * @returns {Promise<Object>} - The updated student document.
  * @throws {ApolloError} - If validation fails, student not found, or update error occurs.
  */
-async function UpdateStudent(parent, { input }) {
+async function UpdateStudent(parent, { _id, input }) {
   try {
+    CommonValidator.ValidateObjectId(_id, 'Student ID');
     // *************** Validate input presence (fail-fast)
     if (!input) {
       throw new ApolloError('Input undefined', 'INPUT_ERROR');
     }
-    // *************** Destructure input fields
-    const {
-      _id,
-      civility,
-      first_name,
-      last_name,
-      email,
-      tele_phone,
-      date_of_birth,
-      place_of_birth,
-      postal_code_of_birth,
-      school_id,
-    } = input;
-
-    // *************** Validate all input
-    CommonValidator.ValidateObjectId(_id, 'Student ID');
 
     // *************** Prepare object for dynamic updates
     const updateFields = {};
-    if (civility !== undefined) updateFields.civility = civility;
-    if (first_name !== undefined) updateFields.first_name = first_name;
-    if (last_name !== undefined) updateFields.last_name = last_name;
-    if (email !== undefined) updateFields.email = email;
-    if (tele_phone !== undefined) updateFields.tele_phone = tele_phone;
-    if (date_of_birth !== undefined) updateFields.date_of_birth = date_of_birth;
-    if (place_of_birth !== undefined)
-      updateFields.place_of_birth = place_of_birth;
-    if (postal_code_of_birth !== undefined)
-      updateFields.postal_code_of_birth = postal_code_of_birth;
-
+    [
+      'civility',
+      'first_name',
+      'last_name',
+      'email',
+      'tele_phone',
+      'date_of_birth',
+      'place_of_birth',
+      'postal_code_of_birth',
+      'school_id',
+    ].forEach((field) => {
+      if (typeof input[field] !== 'undefined') {
+        updateFields[field] = input[field];
+      }
+    });
     // *************** Ensure at least one field is being updated
-    if (Object.keys(updateFields).length === 0) {
+    if (!Object.keys(updateFields)) {
       throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
     }
 
     // *************** Validate only provided fields (dynamic)
     ValidateStudentInput(updateFields, true);
+
+    // *************** Validate school ID if provided
+    if (input.school_id !== undefined) {
+      CommonValidator.ValidateObjectId(input.school_id, 'School ID');
+    }
 
     // *************** Keep track of current school for relation update
     const existingStudent = await StudentModel.findOne({
@@ -213,12 +205,6 @@ async function UpdateStudent(parent, { input }) {
         'Student not found or already deleted.',
         'STUDENT_NOT_FOUND'
       );
-    }
-
-    // *************** Validate school ID if present and assign to updateFields
-    if (school_id !== undefined) {
-      CommonValidator.ValidateObjectId(school_id, 'School ID');
-      updateFields.school_id = school_id;
     }
 
     // *************** School related update
@@ -239,7 +225,7 @@ async function UpdateStudent(parent, { input }) {
     }
 
     // *************** Update school's relation if school_id changed
-    const newSchoolId = String(school_id);
+    const newSchoolId = String(updateFields.school_id);
     const oldSchoolId = String(existingStudent.school_id);
     if (oldSchoolId !== newSchoolId) {
       // *************** Delete from old school
@@ -282,7 +268,7 @@ async function UpdateStudent(parent, { input }) {
 async function DeleteStudent(parent, { _id }) {
   try {
     // *************** Validate input presence (fail-fast)
-    if (!id) {
+    if (!_id) {
       throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
     }
     // *************** Validate required input field
@@ -290,9 +276,8 @@ async function DeleteStudent(parent, { _id }) {
 
     // *************** Find and update student status to deleted
     const deletedStudent = await StudentModel.findByIdAndUpdate(
-      { _id: _id, status: 'active' },
-      { $set: { status: 'deleted', deleted_at: new Date() } },
-      { new: true }
+      { _id: _id },
+      { $set: { status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Handle if student not found
@@ -304,7 +289,7 @@ async function DeleteStudent(parent, { _id }) {
     }
 
     // *************** Return soft-deleted student
-    return deletedStudent;
+    return { _id };
   } catch (error) {
     throw new ApolloError(
       error.message || 'Failed to delete student.',

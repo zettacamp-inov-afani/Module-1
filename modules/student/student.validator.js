@@ -2,6 +2,9 @@
 const validator = require('validator');
 const { ApolloError } = require('apollo-server-express');
 
+// *************** IMPORT VALIDATORS ***************
+const CommonValidator = require('../../utilities/validator');
+
 // *************** GLOBAL VARIABLE ***************
 const allowedCivilities = ['Mr', 'Mrs'];
 
@@ -9,7 +12,7 @@ const allowedCivilities = ['Mr', 'Mrs'];
  * Validates student input fields for both create and update operations.
  *
  * @param {Object} input - The input object containing student data.
- * @param {boolean} [isUpdate=false] - Indicates whether the validation is for an update operation.
+ * @param {boolean} [updateStudent=false] - Indicates whether the validation is for an update operation.
  *                                     If true, only present fields will be validated.
  *
  * @throws {ApolloError} If any required field is missing or invalid.
@@ -20,7 +23,7 @@ const allowedCivilities = ['Mr', 'Mrs'];
  * - email: must be a valid email string
  * - date_of_birth: must be a valid date string
  */
-function ValidateStudentInput(input, isUpdate = false) {
+function ValidateStudentInput(input, updateStudent = false) {
   // *************** Check input validity
   if (!input || typeof input !== 'object') {
     throw new ApolloError(
@@ -41,7 +44,7 @@ function ValidateStudentInput(input, isUpdate = false) {
   } = input;
 
   // *************** Validate civility
-  if (!isUpdate || civility !== undefined) {
+  if (!updateStudent || civility !== undefined) {
     if (typeof civility !== 'string' || !allowedCivilities.includes(civility)) {
       throw new ApolloError(
         "Civility must be either 'Mr' or 'Mrs'.",
@@ -51,7 +54,7 @@ function ValidateStudentInput(input, isUpdate = false) {
   }
 
   // *************** Validate first_name
-  if (!isUpdate || first_name !== undefined) {
+  if (!updateStudent || first_name !== undefined) {
     if (typeof first_name !== 'string' || first_name.trim() === '') {
       throw new ApolloError(
         'First name must be a non-empty string.',
@@ -61,7 +64,7 @@ function ValidateStudentInput(input, isUpdate = false) {
   }
 
   // *************** Validate last_name
-  if (!isUpdate || last_name !== undefined) {
+  if (!updateStudent || last_name !== undefined) {
     if (typeof last_name !== 'string' || last_name.trim() === '') {
       throw new ApolloError(
         'Last name must be a non-empty string.',
@@ -71,14 +74,14 @@ function ValidateStudentInput(input, isUpdate = false) {
   }
 
   // *************** Validate email
-  if (!isUpdate || email !== undefined) {
+  if (!updateStudent || email !== undefined) {
     if (typeof email !== 'string' || !validator.isEmail(email)) {
       throw new ApolloError('Email must be valid.', 'INVALID_EMAIL');
     }
   }
 
   // *************** Validate date_of_birth
-  if (!isUpdate || date_of_birth !== undefined) {
+  if (!updateStudent || date_of_birth !== undefined) {
     if (!date_of_birth || isNaN(Date.parse(date_of_birth))) {
       throw new ApolloError(
         'Date of birth must be a valid date.',
@@ -88,7 +91,7 @@ function ValidateStudentInput(input, isUpdate = false) {
   }
 
   // *************** Validate place_of_birth
-  if (!isUpdate || place_of_birth !== undefined) {
+  if (!updateStudent || place_of_birth !== undefined) {
     if (typeof place_of_birth !== 'string' || place_of_birth.trim() === '') {
       throw new ApolloError(
         'Place of birth must be a non-empty string.',
@@ -98,7 +101,7 @@ function ValidateStudentInput(input, isUpdate = false) {
   }
 
   // *************** Validate postal_code_of_birth
-  if (!isUpdate || postal_code_of_birth !== undefined) {
+  if (!updateStudent || postal_code_of_birth !== undefined) {
     if (
       typeof postal_code_of_birth !== 'string' ||
       postal_code_of_birth.trim() === ''
@@ -111,13 +114,18 @@ function ValidateStudentInput(input, isUpdate = false) {
   }
 
   // *************** Validate telephone
-  if (!isUpdate || tele_phone !== undefined) {
+  if (!updateStudent || tele_phone !== undefined) {
     if (typeof tele_phone !== 'string' || tele_phone.trim() === '') {
       throw new ApolloError(
         'Telephone must be a non-empty string.',
         'INVALID_STRING'
       );
     }
+  }
+
+  // *************** Validate school_id
+  if (!updateStudent || input.school_id !== undefined) {
+    CommonValidator.ValidateObjectId(input.school_id, 'School ID');
   }
 }
 

@@ -37,7 +37,6 @@ const studentTypeDefs = gql`
   }
 
   input UpdateStudentInput {
-    _id: ID!
     civility: Civility
     first_name: String
     last_name: String
@@ -56,7 +55,7 @@ const studentTypeDefs = gql`
 
   type Mutation {
     CreateStudent(input: CreateStudentInput!): Student
-    UpdateStudent(input: UpdateStudentInput!): Student
+    UpdateStudent(_id: ID!, input: UpdateStudentInput!): Student
     DeleteStudent(_id: ID!): Student
   }
 `;

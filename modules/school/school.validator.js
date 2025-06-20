@@ -5,7 +5,7 @@ const { ApolloError } = require('apollo-server-express');
  * Validates school input data for both create and update operations.
  *
  * @param {Object} input - The input object containing school data.
- * @param {boolean} [isUpdate=false] - If true, allows partial updates (fields can be optional).
+ * @param {boolean} [updateSchool=false] - If true, allows partial updates (fields can be optional).
  *
  * @throws {ApolloError} If any required field is missing or invalid.
  *
@@ -16,7 +16,7 @@ const { ApolloError } = require('apollo-server-express');
  *
  * If `isUpdate` is true, the function only validates fields that are present.
  */
-function ValidateSchoolInput(input, isUpdate = false) {
+function ValidateSchoolInput(input, updateSchool = false) {
   // Validate that the input exists and is an object
   if (!input || typeof input !== 'object') {
     throw new ApolloError(
@@ -28,7 +28,7 @@ function ValidateSchoolInput(input, isUpdate = false) {
   const { name, addresses } = input;
 
   // *************** Validate `name` if it's a create OR explicitly provided during update
-  if (!isUpdate || name !== undefined) {
+  if (!updateSchool || name !== undefined) {
     if (!name || typeof name !== 'object') {
       throw new ApolloError(
         'School name must be an object.',
@@ -38,7 +38,7 @@ function ValidateSchoolInput(input, isUpdate = false) {
   }
 
   // *************** Validate `long_name` if it's a create OR explicitly present in update input
-  if (!isUpdate || 'long_name' in name) {
+  if (!updateSchool || 'long_name' in name) {
     if (typeof name.long_name !== 'string' || name.long_name.trim() === '') {
       throw new ApolloError(
         'Long name must be a non empty string.',
@@ -48,7 +48,7 @@ function ValidateSchoolInput(input, isUpdate = false) {
   }
 
   // *************** Validate `short_name` if it's a create OR explicitly present in update input
-  if (!isUpdate || 'short_name' in name) {
+  if (!updateSchool || 'short_name' in name) {
     if (typeof name.short_name !== 'string' || name.short_name.trim() === '') {
       throw new ApolloError(
         'Short name must be a non empty string.',
@@ -58,7 +58,7 @@ function ValidateSchoolInput(input, isUpdate = false) {
   }
 
   // *************** Validate `addresses` if it's a create OR explicitly provided during update
-  if (!isUpdate || addresses !== undefined) {
+  if (!updateSchool || addresses !== undefined) {
     if (!Array.isArray(addresses)) {
       throw new ApolloError(
         'Addresses must be an array',
@@ -75,7 +75,7 @@ function ValidateSchoolInput(input, isUpdate = false) {
       }
 
       // *************** Validate `detail` if it's a create OR present in update
-      if (!isUpdate || 'detail' in address) {
+      if (!updateSchool || 'detail' in address) {
         if (
           typeof address.detail !== 'string' ||
           address.detail.trim() === ''
@@ -88,7 +88,7 @@ function ValidateSchoolInput(input, isUpdate = false) {
       }
 
       // *************** Validate `city` if it's a create OR present in update
-      if (!isUpdate || 'city' in address) {
+      if (!updateSchool || 'city' in address) {
         if (typeof address.city !== 'string' || address.city.trim() === '') {
           throw new ApolloError(
             `Address[${index}].city must be a non-empty string.`,
@@ -98,7 +98,7 @@ function ValidateSchoolInput(input, isUpdate = false) {
       }
 
       // *************** Validate `country` if it's a create OR present in update
-      if (!isUpdate || 'country' in address) {
+      if (!updateSchool || 'country' in address) {
         if (
           typeof address.country !== 'string' ||
           address.country.trim() === ''
@@ -111,7 +111,7 @@ function ValidateSchoolInput(input, isUpdate = false) {
       }
 
       // *************** Validate `zipcode` if it's a create OR present in update
-      if (!isUpdate || 'zipcode' in address) {
+      if (!updateSchool || 'zipcode' in address) {
         if (
           typeof address.zipcode !== 'string' ||
           address.zipcode.trim() === ''

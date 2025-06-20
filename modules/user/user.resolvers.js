@@ -5,7 +5,7 @@ const { ApolloError } = require('apollo-server-express');
 const UserModel = require('./user.model');
 
 // *************** IMPORT VALIDATORS ***************
-const UserValidator = require('./user.validator');
+const ValidateUserInput = require('./user.validator');
 const CommonValidator = require('../../utilities/validator');
 
 // *************** QUERY ***************
@@ -42,7 +42,7 @@ async function GetOneUser(parent, { _id }) {
  *
  * @returns {Promise<Array>} Array of active users.
  */
-async function GetAllUsers() {
+async function GetAllUsers(parent, args) {
   try {
     // *************** Retrieve all users with status 'active'
     const users = await UserModel.find({ status: 'active' }).lean();
@@ -74,19 +74,8 @@ async function CreateUser(parent, { input }) {
       throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
     }
     const { civility, first_name, last_name, email, password, role } = input;
-    // *************** Fail-fast
-    if (!input) {
-      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
-    }
     // *************** Validate required input
-    UserValidator.ValidateUserInput({
-      first_name,
-      last_name,
-      civility,
-      email,
-      password,
-      role,
-    });
+    ValidateUserInput(input);
 
     // *************** Create a new User instance
     const createUser = UserModel.create({
@@ -118,32 +107,35 @@ async function CreateUser(parent, { input }) {
  * @returns {Promise<Object|null>} The updated user document, or null if not found.
  * @throws {Error} If validation fails or update fails.
  */
-async function UpdateUser(parent, { input }) {
+async function UpdateUser(parent, { _id, input }) {
   try {
     // *************** Validate input presence (fail-fast)
     if (!input) {
       throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
     }
-    const { _id, first_name, last_name, civility, email, password, role } =
-      input;
-
     // *************** Validate required input
     CommonValidator.ValidateObjectId(_id, 'User ID');
     // *************** Prepare object for dynamic updates
     const updateFields = {};
-    if (civility !== undefined) updateFields.civility = civility;
-    if (first_name !== undefined) updateFields.first_name = first_name;
-    if (last_name !== undefined) updateFields.last_name = last_name;
-    if (email !== undefined) updateFields.email = email;
-    if (password !== undefined) updateFields.password = password;
-    if (role !== undefined) updateFields.role = role;
+    [
+      'civility',
+      'first_name',
+      'last_name',
+      'email',
+      'password',
+      'role',
+    ].forEach((field) => {
+      if (typeof input[field] !== 'undefined') {
+        updateFields[field] = input[field];
+      }
+    });
     // *************** Ensure at least one field is being updated
-    if (Object.keys(updateFields).length === 0) {
+    if (!Object.keys(updateFields)) {
       throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
     }
 
     // *************** Validate only provided fields (dynamic)
-    UserValidator.ValidateUserInputUpdate(updateFields);
+    ValidateUserInput(updateFields, true);
 
     // *************** Update the user data if active
     const updatedUser = await UserModel.findOneAndUpdate(
@@ -175,7 +167,7 @@ async function UpdateUser(parent, { input }) {
 async function DeleteUser(parent, { _id }) {
   try {
     // *************** Validate input presence (fail-fast)
-    if (!id) {
+    if (!_id) {
       throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
     }
     // *************** Validate required input field
@@ -183,9 +175,8 @@ async function DeleteUser(parent, { _id }) {
 
     // *************** Find the User with the given ID and "active" status, then update it to "deleted"
     const deletedUser = await UserModel.findByIdAndUpdate(
-      { _id: _id, status: 'active' },
-      { $set: { status: 'deleted', deleted_at: new Date() } },
-      { new: true }
+      { _id: _id },
+      { $set: { status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Handle case if User not found or already deleted
@@ -197,7 +188,7 @@ async function DeleteUser(parent, { _id }) {
     }
 
     // *************** Return the updated User (now with "deleted" status)
-    return deletedUser;
+    return { _id };
   } catch (error) {
     throw new ApolloError(
       error.message || 'Failed to delete user.',
