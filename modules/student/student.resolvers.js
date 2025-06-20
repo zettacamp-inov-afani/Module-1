@@ -6,8 +6,9 @@ const StudentModel = require('./student.model');
 const SchoolModel = require('../school/school.model');
 
 // *************** IMPORT VALIDATORS ***************
-const StudentValidator = require('./student.validator');
+const StudentValidator = require('./student2.validator');
 const CommonValidator = require('../../utilities/validator');
+const ValidateStudentInput = require('./student2.validator');
 
 // *************** QUERY ***************
 
@@ -112,16 +113,7 @@ async function CreateStudent(parent, { input }) {
     } = input;
 
     // *************** Validation input
-    StudentValidator.ValidateStudentInput({
-      civility,
-      first_name,
-      last_name,
-      email,
-      tele_phone,
-      date_of_birth,
-      place_of_birth,
-      postal_code_of_birth,
-    });
+    ValidateStudentInput(input);
     CommonValidator.ValidateObjectId(school_id, 'School ID');
 
     // *************** Create and save student to DB
@@ -171,7 +163,7 @@ async function UpdateStudent(parent, { input }) {
   try {
     // *************** Validate input presence (fail-fast)
     if (!input) {
-      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+      throw new ApolloError('Input undefined', 'INPUT_ERROR');
     }
     // *************** Destructure input fields
     const {
@@ -202,18 +194,14 @@ async function UpdateStudent(parent, { input }) {
       updateFields.place_of_birth = place_of_birth;
     if (postal_code_of_birth !== undefined)
       updateFields.postal_code_of_birth = postal_code_of_birth;
-    // *************** Validate school ID if present and assign to updateFields
-    if (school_id !== undefined) {
-      CommonValidator.ValidateObjectId(school_id, 'School ID');
-      updateFields.school_id = school_id;
-    }
+
     // *************** Ensure at least one field is being updated
     if (Object.keys(updateFields).length === 0) {
       throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
     }
 
     // *************** Validate only provided fields (dynamic)
-    StudentValidator.ValidateStudentInputUpdate(updateFields);
+    ValidateStudentInput(updateFields, true);
 
     // *************** Keep track of current school for relation update
     const existingStudent = await StudentModel.findOne({
@@ -227,8 +215,13 @@ async function UpdateStudent(parent, { input }) {
       );
     }
 
-    // *************** Prepare the existing old school_id
-    const oldSchoolId = String(existingStudent.school_id);
+    // *************** Validate school ID if present and assign to updateFields
+    if (school_id !== undefined) {
+      CommonValidator.ValidateObjectId(school_id, 'School ID');
+      updateFields.school_id = school_id;
+    }
+
+    // *************** School related update
 
     // *************** Find and update active student
     const updatedStudent = await StudentModel.findOneAndUpdate(
@@ -247,6 +240,7 @@ async function UpdateStudent(parent, { input }) {
 
     // *************** Update school's relation if school_id changed
     const newSchoolId = String(school_id);
+    const oldSchoolId = String(existingStudent.school_id);
     if (oldSchoolId !== newSchoolId) {
       // *************** Delete from old school
       await SchoolModel.updateOne(
