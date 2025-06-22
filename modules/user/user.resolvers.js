@@ -67,7 +67,7 @@ async function GetAllUsers(parent, args) {
  * @returns {Promise<Object>} The created user document.
  * @throws {Error} If validation fails or saving fails.
  */
-async function CreateUser(parent, { input }) {
+async function CreateUser(_, { input }) {
   try {
     // *************** Validate input presence (fail-fast)
     if (!input) {
@@ -107,35 +107,28 @@ async function CreateUser(parent, { input }) {
  * @returns {Promise<Object|null>} The updated user document, or null if not found.
  * @throws {Error} If validation fails or update fails.
  */
-async function UpdateUser(parent, { _id, input }) {
+async function UpdateUser(_, { _id, input }) {
   try {
     // *************** Validate input presence (fail-fast)
     if (!input) {
       throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
     }
+
+    const { civility, first_name, last_name, email, password, role } = input;
     // *************** Validate required input
     CommonValidator.ValidateObjectId(_id, 'User ID');
-    // *************** Prepare object for dynamic updates
-    const updateFields = {};
-    [
-      'civility',
-      'first_name',
-      'last_name',
-      'email',
-      'password',
-      'role',
-    ].forEach((field) => {
-      if (typeof input[field] !== 'undefined') {
-        updateFields[field] = input[field];
-      }
-    });
-    // *************** Ensure at least one field is being updated
-    if (!Object.keys(updateFields)) {
-      throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
-    }
 
-    // *************** Validate only provided fields (dynamic)
-    ValidateUserInput(updateFields, true);
+    // *************** Validate required input
+    ValidateUserInput(input);
+    // *************** Prepare object for dynamic updates
+    const updateFields = {
+      civility,
+      first_name,
+      last_name,
+      email,
+      password,
+      role,
+    };
 
     // *************** Update the user data if active
     const updatedUser = await UserModel.findOneAndUpdate(
@@ -164,7 +157,7 @@ async function UpdateUser(parent, { _id, input }) {
  * @returns {Promise<Object>} The soft-deleted user document.
  * @throws {Error} If user is not found or already deleted.
  */
-async function DeleteUser(parent, { _id }) {
+async function DeleteUser(_, { _id }) {
   try {
     // *************** Validate input presence (fail-fast)
     if (!_id) {

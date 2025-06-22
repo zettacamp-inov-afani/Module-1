@@ -91,7 +91,7 @@ async function GetAllStudents(parent, args) {
  * @returns {Promise<Object>} The newly created student document.
  * @throws {Error} If any required field is missing.
  */
-async function CreateStudent(parent, { input }) {
+async function CreateStudent(_, { input }) {
   try {
     // *************** Validate input presence (fail-fast)
     if (!input) {
@@ -157,43 +157,41 @@ async function CreateStudent(parent, { input }) {
  * @returns {Promise<Object>} - The updated student document.
  * @throws {ApolloError} - If validation fails, student not found, or update error occurs.
  */
-async function UpdateStudent(parent, { _id, input }) {
+async function UpdateStudent(_, { _id, input }) {
   try {
-    CommonValidator.ValidateObjectId(_id, 'Student ID');
     // *************** Validate input presence (fail-fast)
     if (!input) {
       throw new ApolloError('Input undefined', 'INPUT_ERROR');
     }
 
-    // *************** Prepare object for dynamic updates
-    const updateFields = {};
-    [
-      'civility',
-      'first_name',
-      'last_name',
-      'email',
-      'tele_phone',
-      'date_of_birth',
-      'place_of_birth',
-      'postal_code_of_birth',
-      'school_id',
-    ].forEach((field) => {
-      if (typeof input[field] !== 'undefined') {
-        updateFields[field] = input[field];
-      }
-    });
-    // *************** Ensure at least one field is being updated
-    if (!Object.keys(updateFields)) {
-      throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
-    }
+    const {
+      civility,
+      first_name,
+      last_name,
+      email,
+      tele_phone,
+      date_of_birth,
+      place_of_birth,
+      postal_code_of_birth,
+      school_id,
+    } = input;
 
-    // *************** Validate only provided fields (dynamic)
-    ValidateStudentInput(updateFields, true);
+    CommonValidator.ValidateObjectId(_id, 'Student ID');
 
-    // *************** Validate school ID if provided
-    if (input.school_id !== undefined) {
-      CommonValidator.ValidateObjectId(input.school_id, 'School ID');
-    }
+    // *************** Validation input
+    ValidateStudentInput(input);
+
+    const updateFields = {
+      civility,
+      first_name,
+      last_name,
+      email,
+      tele_phone,
+      date_of_birth,
+      place_of_birth,
+      postal_code_of_birth,
+      school_id,
+    };
 
     // *************** Keep track of current school for relation update
     const existingStudent = await StudentModel.findOne({
@@ -265,7 +263,7 @@ async function UpdateStudent(parent, { _id, input }) {
  * @param {string} args.id - The ID of the student to soft delete.
  * @returns {Promise<Object|null>} The soft-deleted student document, or null if not found.
  */
-async function DeleteStudent(parent, { _id }) {
+async function DeleteStudent(_, { _id }) {
   try {
     // *************** Validate input presence (fail-fast)
     if (!_id) {

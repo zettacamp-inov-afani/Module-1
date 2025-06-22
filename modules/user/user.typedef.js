@@ -32,12 +32,12 @@ const userTypeDefs = gql`
   }
 
   input UpdateUserInput {
-    civility: Civility
-    first_name: String
-    last_name: String
-    email: String
-    password: String
-    role: String
+    civility: Civility!
+    first_name: String!
+    last_name: String!
+    email: String!
+    password: String!
+    role: String!
   }
 
   type Query {

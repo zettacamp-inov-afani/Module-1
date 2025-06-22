@@ -37,15 +37,15 @@ const studentTypeDefs = gql`
   }
 
   input UpdateStudentInput {
-    civility: Civility
-    first_name: String
-    last_name: String
-    email: String
-    tele_phone: String
-    date_of_birth: Date
-    place_of_birth: String
-    postal_code_of_birth: String
-    school_id: ID
+    civility: Civility!
+    first_name: String!
+    last_name: String!
+    email: String!
+    tele_phone: String!
+    date_of_birth: Date!
+    place_of_birth: String!
+    postal_code_of_birth: String!
+    school_id: ID!
   }
 
   type Query {

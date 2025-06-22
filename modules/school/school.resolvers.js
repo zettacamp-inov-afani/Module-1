@@ -19,7 +19,7 @@ const CommonValidator = require('../../utilities/validator');
  * @param {string} args._id - The ID of the school to retrieve.
  * @returns {Promise<Object|null>} The found school or null if not found.
  */
-async function GetOneSchool(parent, { _id }) {
+async function GetOneSchool(_, { _id }) {
   try {
     // *************** Validate School ID
     CommonValidator.ValidateObjectId(_id, 'School ID');
@@ -43,7 +43,7 @@ async function GetOneSchool(parent, { _id }) {
  *
  * @returns {Promise<Array>} Array of all active schools.
  */
-async function GetAllSchools(parent, args) {
+async function GetAllSchools(_, args) {
   try {
     // *************** Retrieve all schools with status 'active'
     const schools = await SchoolModel.find({
@@ -62,28 +62,30 @@ async function GetAllSchools(parent, args) {
 // *************** MUTATION ***************
 
 /**
- * Create a new school with validated name and addresses.
+ * Create a new school entry in the database.
  *
- * @param {Object} parent - Parent resolver (unused).
- * @param {Object} args - Arguments object.
- * @param {Object} args.input - Input data for the new school.
- * @returns {Promise<Object>} The created school document.
- * @throws {Error} If validation fails or saving fails.
+ * @param {object} _ - Unused (parent resolver).
+ * @param {object} args
+ * @param {object} args.input - School data to create.
+ * @returns {Promise<object>} Newly created school document.
+ * @throws {ApolloError} If input is invalid or creation fails.
  */
-async function CreateSchool(parent, { input }) {
+async function CreateSchool(_, { input }) {
   try {
     // *************** Fail-fast
     if (!input) {
       throw new ApolloError('Input undefined', 'INPUT_ERROR');
     }
+
+    const { long_name, short_name, addresses } = input;
     // *************** Validate required input
     ValidateSchoolInput(input);
 
     // *************** Create a new School instance
     const createSchool = await SchoolModel.create({
-      long_name: input.name.long_name,
-      short_name: input.name.short_name,
-      addresses: input.addresses,
+      long_name,
+      short_name,
+      addresses,
       status: 'active',
     });
 
@@ -95,54 +97,33 @@ async function CreateSchool(parent, { input }) {
 }
 
 /**
- * Updates a school's data (name and/or addresses) if it is still active.
+ * Update school data by ID if it's active.
  *
- * @async
- * @function UpdateSchool
- * @param {Object} parent - Not used, part of GraphQL resolver signature.
- * @param {Object} args.input - The input object for updating school data.
- * @param {string} args.input._id - The ID of the school to update.
- * @param {Object} [args.input.name] - Optional. The new name values.
- * @param {string} [args.input.name.long_name] - Optional. The new long name.
- * @param {string} [args.input.name.short_name] - Optional. The new short name.
- * @param {Array<Object>} [args.input.addresses] - Optional. New address objects to replace old ones.
- * @returns {Promise<Object>} The updated school document.
- * @throws {ApolloError} Throws if validation fails or school is not found or update fails.
+ * @param {object} _ - Unused (parent resolver).
+ * @param {object} args
+ * @param {object} args.input - School update data.
+ * @returns {Promise<object>} Updated school data.
+ * @throws {ApolloError} If input invalid or school not found.
  */
-async function UpdateSchool(parent, { input }) {
+async function UpdateSchool(_, { input }) {
   try {
     // *************** Validate input presence (fail-fast)
     if (!input) {
       throw new ApolloError('Input undefined', 'INPUT_ERROR');
     }
-    const { _id, name } = input;
+    const { _id, long_name, short_name, addresses } = input;
 
     // *************** Validate school ID (must be valid MongoDB ObjectId)
     CommonValidator.ValidateObjectId(_id, 'School ID');
 
-    // *************** Initialize fields to be updated
-    const updateFields = {};
+    // *************** Validate school input
+    ValidateSchoolInput(input);
 
-    // *************** Handle update for name (if provided)
-    ValidateSchoolInput(input, true);
-
-    if ('name' in input) {
-      if ('long_name' in name) {
-        updateFields.long_name = input.name.long_name.trim();
-      }
-      if ('short_name' in name) {
-        updateFields.short_name = input.name.short_name.trim();
-      }
-    }
-
-    if ('addresses' in input) {
-      updateFields.addresses = input.addresses;
-    }
-
-    // *************** Prevent empty update if no valid fields provided
-    if (!Object.keys(updateFields)) {
-      throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
-    }
+    const updateFields = {
+      long_name: long_name.trim(),
+      short_name: short_name.trim(),
+      addresses,
+    };
 
     // *************** Update the school data if active
     const updatedSchool = await SchoolModel.findOneAndUpdate(
@@ -172,7 +153,7 @@ async function UpdateSchool(parent, { input }) {
  * @returns {Promise<Object>} The soft-deleted school document.
  * @throws {Error} If validation fails or deletion fails.
  */
-async function DeleteSchool(parent, { _id }) {
+async function DeleteSchool(_, { _id }) {
   try {
     // *************** Validate input presence (fail-fast)
     if (!_id) {
