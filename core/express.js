@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const express = require('express');
 
 /**
@@ -10,10 +10,10 @@ const express = require('express');
  * @function ExpressApp
  * @returns {import('express').Express} An instance of an Express application.
  */
-function ExpressApp() {
+function CreateExpressApp() {
   const app = express();
   return app;
 }
 
 // *************** EXPORT CORE ***************
-module.exports = ExpressApp;
+module.exports = CreateExpressApp;

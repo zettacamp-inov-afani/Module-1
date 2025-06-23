@@ -1,7 +1,7 @@
 // *************** IMPORT CORE ***************
 const CreateApolloServer = require('./core/apollo');
-const ExpressApp = require('./core/express');
-const ConnectDB = require('./core/database');
+const CreateExpressApp = require('./core/express');
+const ConnectMongoDB = require('./core/database');
 const { PORT, DB_HOST } = require('./core/config');
 
 /**
@@ -14,10 +14,10 @@ const { PORT, DB_HOST } = require('./core/config');
 async function StartServer() {
   try {
     // *************** Connect to MongoDB
-    await ConnectDB();
+    await ConnectMongoDB();
 
     // *************** Initialize Express app
-    const app = ExpressApp();
+    const app = CreateExpressApp();
 
     // *************** Initialize Apollo Server
     const server = await CreateApolloServer();
