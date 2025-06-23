@@ -175,7 +175,7 @@ async function DeleteSchool(_, { _id }) {
   }
 }
 
-// *************** LOADERS ***************
+// *************** LOADER ***************
 
 /**
  * DataLoader resolver for loading student documents related to the school.

@@ -12,7 +12,7 @@ const ValidateStudentInput = require('./student.validator');
 // *************** QUERY ***************
 
 /**
- * Retrieves a single student by ID if their status is "active".
+ * Retrieves a single student by ID
  *
  * @async
  * @function
@@ -108,15 +108,12 @@ async function CreateStudent(_, { input }) {
       school_id,
     } = input;
 
-    // let { email } = input;
-    // email = email.toLowerCase();
-
     // *************** Create and save student to DB
     const createStudent = await StudentModel.create({
       civility,
       first_name,
       last_name,
-      email: email.toLowerCase(),
+      email,
       tele_phone,
       date_of_birth,
       place_of_birth,
@@ -274,7 +271,7 @@ async function DeleteStudent(_, { _id }) {
   }
 }
 
-// *************** LOADERS ***************
+// *************** LOADER ***************
 
 /**
  * Resolves the school associated with a student using DataLoader.
