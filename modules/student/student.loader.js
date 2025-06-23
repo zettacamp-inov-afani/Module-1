@@ -15,7 +15,7 @@ const CommonValidator = require('../../utilities/validator');
  *
  * @throws {Error} If any of the provided IDs are invalid MongoDB ObjectIds.
  */
-function StudentLoader(studentIds) {
+function StudentLoader() {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (studentIds) => {
     // ***************  Validate the incoming schoolIds

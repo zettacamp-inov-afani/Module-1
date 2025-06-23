@@ -34,7 +34,7 @@ function SchoolLoaders() {
     });
 
     // *************** Return an array containing schools in the order of the requested schoolIds.
-    const orderedSchools = schoolIds.map((id) => schoolMap[String(id)]);
+    const orderedSchools = schoolIds.map((_id) => schoolMap[String(_id)]);
     return orderedSchools;
   });
 }

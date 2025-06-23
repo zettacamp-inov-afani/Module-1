@@ -100,20 +100,23 @@ async function CreateStudent(_, { input }) {
       civility,
       first_name,
       last_name,
-      email,
       tele_phone,
+      email,
       date_of_birth,
       place_of_birth,
       postal_code_of_birth,
       school_id,
     } = input;
 
+    // let { email } = input;
+    // email = email.toLowerCase();
+
     // *************** Create and save student to DB
     const createStudent = await StudentModel.create({
       civility,
       first_name,
       last_name,
-      email,
+      email: email.toLowerCase(),
       tele_phone,
       date_of_birth,
       place_of_birth,
