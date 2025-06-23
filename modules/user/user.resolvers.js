@@ -167,10 +167,9 @@ async function DeleteUser(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'User ID');
 
     // *************** Find the User with the given ID and "active" status, then update it to "deleted"
-    const deletedUser = await UserModel.findByIdAndUpdate(
-      { _id: _id },
-      { $set: { status: 'deleted', deleted_at: new Date() } }
-    );
+    const deletedUser = await UserModel.findByIdAndUpdate(_id, {
+      $set: { status: 'deleted', deleted_at: new Date() },
+    });
 
     // *************** Handle case if User not found or already deleted
     if (!deletedUser) {

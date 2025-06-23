@@ -163,10 +163,9 @@ async function DeleteSchool(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'School ID');
 
     // *************** Find the School with the given ID and "active" status, then update it to "deleted"
-    const deletedSchool = await SchoolModel.findByIdAndUpdate(
-      { _id: _id },
-      { $set: { status: 'deleted', deleted_at: new Date() } }
-    );
+    const deletedSchool = await SchoolModel.findByIdAndUpdate(_id, {
+      $set: { status: 'deleted', deleted_at: new Date() },
+    });
 
     // *************** Handle case if School not found or already deleted
     if (!deletedSchool) {

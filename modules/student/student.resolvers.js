@@ -273,10 +273,9 @@ async function DeleteStudent(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Student ID');
 
     // *************** Find and update student status to deleted
-    const deletedStudent = await StudentModel.findByIdAndUpdate(
-      { _id: _id },
-      { $set: { status: 'deleted', deleted_at: new Date() } }
-    );
+    const deletedStudent = await StudentModel.findByIdAndUpdate(_id, {
+      $set: { status: 'deleted', deleted_at: new Date() },
+    });
 
     // *************** Handle if student not found
     if (!deletedStudent) {
