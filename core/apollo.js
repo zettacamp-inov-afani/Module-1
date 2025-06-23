@@ -26,7 +26,7 @@ async function CreateApolloServer() {
       typeDefs,
       resolvers,
       context: () => ({
-        // *************** Initialize DataLoader instances for batching and caching
+        // *************** Initialize DataLoader instances for batching
         loaders: InitializeLoaders(),
       }),
     });
