@@ -1,5 +1,5 @@
 // *************** IMPORT LIBRARY ***************
-const validator = require('validator');
+const { isEmail } = require('validator');
 const { ApolloError } = require('apollo-server-express');
 
 // *************** GLOBAL VARIABLES ***************
@@ -46,7 +46,7 @@ function ValidateUserInput(input) {
   }
 
   // *************** Email validation
-  if (typeof email !== 'string' || !validator.isEmail(email)) {
+  if (typeof email !== 'string' || !isEmail(email)) {
     throw new ApolloError('Email must be a valid format.', 'INVALID_EMAIL');
   }
 

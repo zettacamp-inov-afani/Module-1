@@ -187,9 +187,7 @@ async function DeleteSchool(_, { _id }) {
  */
 async function students(parent, args, { loaders }) {
   // *************** sanity check to ensure parent.students is an array with elements before attempting to use DataLoader. If not, return an empty array.
-  if (!Array.isArray(parent.students)) {
-    return [];
-  }
+  CommonValidator.ValidateMongoObjectIds(parent.students);
 
   // *************** Load students via DataLoader
   const loadedStudents = await loaders.StudentLoader.loadMany(

@@ -1,5 +1,5 @@
 // *************** IMPORT LIBRARY ***************
-const validator = require('validator');
+const { isEmail } = require('validator');
 const { ApolloError } = require('apollo-server-express');
 
 // *************** IMPORT VALIDATORS ***************
@@ -61,7 +61,7 @@ function ValidateStudentInput(input) {
   }
 
   // *************** Validate email
-  if (typeof email !== 'string' || !validator.isEmail(email)) {
+  if (typeof email !== 'string' || !isEmail(email)) {
     throw new ApolloError('Email must be valid.', 'INVALID_EMAIL');
   }
 
