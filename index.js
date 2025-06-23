@@ -1,5 +1,5 @@
 // *************** IMPORT CORE ***************
-const GetApolloServer = require('./core/apollo');
+const CreateApolloServer = require('./core/apollo');
 const ExpressApp = require('./core/express');
 const ConnectDB = require('./core/database');
 const { PORT, DB_HOST } = require('./core/config');
@@ -20,7 +20,7 @@ async function StartServer() {
     const app = ExpressApp();
 
     // *************** Initialize Apollo Server
-    const server = await GetApolloServer();
+    const server = await CreateApolloServer();
 
     // *************** Apply Apollo middleware to Express app
     server.applyMiddleware({ app });

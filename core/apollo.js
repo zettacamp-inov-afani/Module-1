@@ -1,12 +1,12 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const { ApolloServer, gql, ApolloError } = require('apollo-server-express');
-
-// *************** IMPORT DATALOADER ***************
-const InitializeLoaders = require('./loader');
 
 // *************** IMPORT MODULE ***************
 const typeDefs = require('./typedef');
 const resolvers = require('./resolver');
+
+// *************** IMPORT UTILITIES ***************
+const InitializeLoaders = require('./loader');
 
 /**
  * Initializes and returns a configured Apollo Server instance.
@@ -16,11 +16,11 @@ const resolvers = require('./resolver');
  * for efficient batching and caching of database requests.
  *
  * @async
- * @function GetApolloServer
+ * @function CreateApolloServer
  * @returns {Promise<ApolloServer>} A configured Apollo Server instance ready to be applied to an Express app.
  * @throws {ApolloError} If the server fails to initialize.
  */
-async function GetApolloServer() {
+async function CreateApolloServer() {
   try {
     return new ApolloServer({
       typeDefs,
@@ -36,4 +36,4 @@ async function GetApolloServer() {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = GetApolloServer;
+module.exports = CreateApolloServer;
