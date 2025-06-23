@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const validator = require('validator');
 const { ApolloError } = require('apollo-server-express');
 

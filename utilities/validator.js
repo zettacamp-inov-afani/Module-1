@@ -1,6 +1,5 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const mongoose = require('mongoose');
-const validator = require('validator');
 const { ApolloError } = require('apollo-server-express');
 
 /**
