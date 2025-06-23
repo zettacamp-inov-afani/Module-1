@@ -5,7 +5,6 @@ const { ApolloError } = require('apollo-server-express');
 const SchoolModel = require('./school.model');
 
 // *************** IMPORT VALIDATORS ***************
-
 const ValidateSchoolInput = require('./school.validator');
 const CommonValidator = require('../../utilities/validator');
 
@@ -25,9 +24,8 @@ async function GetOneSchool(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'School ID');
 
     // *************** Retrieve school with status 'active'
-    const school = await SchoolModel.findOne({
-      _id: _id,
-      status: 'active',
+    const school = await SchoolModel.findById({
+      _id,
     }).lean();
 
     // *************** Handle case if School not found or already deleted
@@ -44,9 +42,14 @@ async function GetOneSchool(_, { _id }) {
 }
 
 /**
- * Get all schools with status "active".
+ * Retrieves all schools with status 'active'.
  *
- * @returns {Promise<Array>} Array of all active schools.
+ * @param {Object} _ - Unused parent argument (GraphQL resolver signature).
+ * @param {Object} args - Unused arguments object.
+ *
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of active school objects.
+ *
+ * @throws {ApolloError} If any error occurs while retrieving the schools.
  */
 async function GetAllSchools(_, args) {
   try {
@@ -168,7 +171,7 @@ async function DeleteSchool(_, { _id }) {
     }
 
     // *************** Return the updated School (now with "deleted" status)
-    return { _id };
+    return _id;
   } catch (error) {
     throw new ApolloError(error.message);
   }

@@ -27,9 +27,8 @@ async function GetOneStudent(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Student ID');
 
     // *************** Find student by ID and check if status is active
-    const student = await StudentModel.findOne({
-      _id: _id,
-      status: 'active',
+    const student = await StudentModel.findById({
+      _id,
     }).lean();
 
     // *************** Handle case if School not found or already deleted
@@ -270,7 +269,7 @@ async function DeleteStudent(_, { _id }) {
     }
 
     // *************** Return soft-deleted student
-    return { _id };
+    return _id;
   } catch (error) {
     throw new ApolloError(error.message);
   }

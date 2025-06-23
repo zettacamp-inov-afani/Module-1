@@ -24,9 +24,8 @@ async function GetOneUser(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'User ID');
 
     // *************** Retrieve user with status 'active'
-    const user = await UserModel.findOne({
-      _id: _id,
-      status: 'active',
+    const user = await UserModel.findById({
+      _id,
     }).lean();
 
     // *************** Handle case if School not found or already deleted
@@ -175,7 +174,7 @@ async function DeleteUser(_, { _id }) {
     }
 
     // *************** Return the updated User (now with "deleted" status)
-    return { _id };
+    return _id;
   } catch (error) {
     throw new ApolloError(error.message);
   }

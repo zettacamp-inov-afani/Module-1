@@ -48,7 +48,7 @@ const SchoolTypeDefs = gql`
   type Mutation {
     CreateSchool(input: CreateSchoolInput!): School!
     UpdateSchool(_id: ID!, input: UpdateSchoolInput!): School!
-    DeleteSchool(_id: ID!): School!
+    DeleteSchool(_id: ID!): ID!
   }
 `;
 
