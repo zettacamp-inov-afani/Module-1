@@ -1,7 +1,7 @@
 // *************** IMPORT MODULE ***************
 const mongoose = require('mongoose');
 
-const studentSchema = new mongoose.Schema(
+const StudentSchema = new mongoose.Schema(
   {
     // Civility of the student
     civility: {
@@ -55,7 +55,5 @@ const studentSchema = new mongoose.Schema(
   }
 );
 
-const StudentModel = mongoose.model('student', studentSchema);
-
 // *************** EXPORT MODULE ***************
-module.exports = StudentModel;
+module.exports = mongoose.model('student', StudentSchema);
