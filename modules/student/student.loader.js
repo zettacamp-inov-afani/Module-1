@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const DataLoader = require('dataloader');
 
 // *************** IMPORT MODULE ***************
