@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const { gql } = require('apollo-server-express');
 
 const SchoolTypeDefs = gql`
@@ -35,7 +35,6 @@ const SchoolTypeDefs = gql`
   }
 
   input UpdateSchoolInput {
-    _id: ID!
     long_name: String!
     short_name: String!
     addresses: [AddressInput]
@@ -48,7 +47,7 @@ const SchoolTypeDefs = gql`
 
   type Mutation {
     CreateSchool(input: CreateSchoolInput!): School!
-    UpdateSchool(input: UpdateSchoolInput!): School!
+    UpdateSchool(_id: ID!, input: UpdateSchoolInput!): School!
     DeleteSchool(_id: ID!): School!
   }
 `;

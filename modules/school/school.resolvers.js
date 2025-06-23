@@ -105,13 +105,13 @@ async function CreateSchool(_, { input }) {
  * @returns {Promise<object>} Updated school data.
  * @throws {ApolloError} If input invalid or school not found.
  */
-async function UpdateSchool(_, { input }) {
+async function UpdateSchool(_, { _id, input }) {
   try {
     // *************** Validate input presence (fail-fast)
     if (!input) {
       throw new ApolloError('Input undefined', 'INPUT_ERROR');
     }
-    const { _id, long_name, short_name, addresses } = input;
+    const { long_name, short_name, addresses } = input;
 
     // *************** Validate school ID (must be valid MongoDB ObjectId)
     CommonValidator.ValidateObjectId(_id, 'School ID');
