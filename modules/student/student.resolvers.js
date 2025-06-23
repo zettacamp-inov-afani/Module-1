@@ -193,8 +193,6 @@ async function UpdateStudent(_, { _id, input }) {
       );
     }
 
-    // *************** School related update
-
     // *************** Find and update active student
     const updatedStudent = await StudentModel.findOneAndUpdate(
       { _id: _id, status: 'active' },
