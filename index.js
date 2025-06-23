@@ -1,5 +1,5 @@
 // *************** IMPORT MODULE ***************
-const { PORT, DB_HOST } = require('./core/config');
+const { PORT } = require('./core/config');
 
 // *************** IMPORT UTILITIES ***************
 const CreateApolloServer = require('./core/apollo');
