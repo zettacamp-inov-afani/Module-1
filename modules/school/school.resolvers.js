@@ -192,7 +192,7 @@ async function students(parent, args, { loaders }) {
   }
 
   // *************** Load students via DataLoader
-  const loadedStudents = await loaders.studentById.loadMany(
+  const loadedStudents = await loaders.StudentLoader.loadMany(
     parent.students.map((id) => String(id))
   );
 

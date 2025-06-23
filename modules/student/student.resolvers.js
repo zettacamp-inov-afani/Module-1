@@ -284,7 +284,7 @@ async function DeleteStudent(_, { _id }) {
  * @param {Object} _ - Unused GraphQL argument.
  * @param {Object} context - The GraphQL context object.
  * @param {Object} context.loaders - Contains all DataLoader instances.
- * @param {DataLoader<string, Object>} context.loaders.schoolById - DataLoader for fetching schools by ID.
+ * @param {DataLoader<string, Object>} context.loaders.SchoolLoader - DataLoader for fetching schools by ID.
  * @returns {Promise<Object|null>} The associated school document, or null if not found.
  */
 async function school_id(parent, args, { loaders }) {
@@ -292,8 +292,10 @@ async function school_id(parent, args, { loaders }) {
   if (CommonValidator.ValidateObjectId(parent.school_id)) {
     return null;
   }
-  // *************** Use the DataLoader `schoolById` from context to fetch the related school.
-  const loadedSchools = await loaders.schoolById.load(String(parent.school_id));
+  // *************** Use the DataLoader `SchoolLoader` from context to fetch the related school.
+  const loadedSchools = await loaders.SchoolLoader.load(
+    String(parent.school_id)
+  );
 
   // *************** Return associated school
   return loadedSchools;
