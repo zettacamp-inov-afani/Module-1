@@ -1,10 +1,10 @@
+// *************** IMPORT MODULE ***************
+const { PORT, DB_HOST } = require('./core/config');
+
 // *************** IMPORT UTILITIES ***************
 const CreateApolloServer = require('./core/apollo');
 const CreateExpressApp = require('./core/express');
 const ConnectMongoDB = require('./core/database');
-
-// *************** IMPORT MODULE ***************
-const { PORT, DB_HOST } = require('./core/config');
 
 /**
  * Initializes and starts the Apollo GraphQL server with Express and MongoDB.
