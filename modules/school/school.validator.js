@@ -35,8 +35,6 @@ function ValidateSchoolInput(input) {
     );
   }
 
-  // *************** Validate addresses
-
   // *************** Validate that the addresses input is an array
   if (!Array.isArray(addresses)) {
     throw new ApolloError(

@@ -2,7 +2,7 @@
 const DataLoader = require('dataloader');
 
 // *************** IMPORT MODULE ***************
-const studentModel = require('./student.model');
+const StudentModel = require('./student.model');
 
 // *************** IMPORT VALIDATOR ***************
 const CommonValidator = require('../../utilities/validator');
@@ -22,9 +22,9 @@ function StudentLoader() {
     CommonValidator.ValidateMongoObjectIds(studentIds);
 
     // *************** Find all Schools whose id is in the schoolIds array
-    const students = await studentModel
-      .find({ _id: { $in: studentIds } })
-      .lean();
+    const students = await StudentModel.find({
+      _id: { $in: studentIds },
+    }).lean();
 
     // *************** Create schoolMap object for dictionary
     const studentMap = {};
