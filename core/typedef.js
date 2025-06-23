@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const { mergeTypeDefs } = require('@graphql-tools/merge');
 
 // *************** IMPORT MODULE ***************
