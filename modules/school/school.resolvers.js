@@ -29,6 +29,14 @@ async function GetOneSchool(_, { _id }) {
       _id: _id,
       status: 'active',
     }).lean();
+
+    // *************** Handle case if School not found or already deleted
+    if (!school) {
+      throw new ApolloError(
+        'School not found or already deleted.',
+        'SCHOOL_NOT_FOUND'
+      );
+    }
     return school;
   } catch (error) {
     throw new ApolloError(error.message);

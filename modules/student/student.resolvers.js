@@ -32,6 +32,14 @@ async function GetOneStudent(_, { _id }) {
       status: 'active',
     }).lean();
 
+    // *************** Handle case if School not found or already deleted
+    if (!student) {
+      throw new ApolloError(
+        'Student not found or already deleted.',
+        'STUDENT_NOT_FOUND'
+      );
+    }
+
     // *************** Return student document or null if not found
     return student;
   } catch (error) {

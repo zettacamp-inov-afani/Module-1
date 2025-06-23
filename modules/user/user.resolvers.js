@@ -28,6 +28,14 @@ async function GetOneUser(_, { _id }) {
       _id: _id,
       status: 'active',
     }).lean();
+
+    // *************** Handle case if School not found or already deleted
+    if (!user) {
+      throw new ApolloError(
+        'User not found or already deleted.',
+        'USER_NOT_FOUND'
+      );
+    }
     return user;
   } catch (error) {
     throw new ApolloError(error.message);
