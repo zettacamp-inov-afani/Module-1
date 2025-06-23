@@ -150,11 +150,11 @@ async function CreateStudent(_, { input }) {
  */
 async function UpdateStudent(_, { _id, input }) {
   try {
-    // *************** Validation input
-    ValidateStudentInput(input);
-
     // *************** Validation ObjectId
     CommonValidator.ValidateObjectId(_id, 'Student ID');
+
+    // *************** Validation input
+    ValidateStudentInput(input);
 
     // *************** Destructuring the input
     const {
@@ -236,8 +236,6 @@ async function UpdateStudent(_, { _id, input }) {
 /**
  * Soft deletes a student by setting their status to "deleted".
  *
- * Only affects students whose status is currently "active".
- * After update, fetches and returns the updated student.
  *
  * @async
  * @function
