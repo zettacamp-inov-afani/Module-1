@@ -14,7 +14,7 @@ const CommonValidator = require('../../utilities/validator');
 /**
  * Get one school by ID, only if its status is active.
  *
- * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments object containing school ID.
  * @param {string} args._id - The ID of the school to retrieve.
  * @returns {Promise<Object|null>} The found school or null if not found.
@@ -31,10 +31,7 @@ async function GetOneSchool(_, { _id }) {
     }).lean();
     return school;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to retrieve school',
-      'GET_ONE_SCHOOL_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -52,10 +49,7 @@ async function GetAllSchools(_, args) {
 
     return schools;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to retrieve schools',
-      'GET_ALL_SCHOOLS_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -72,14 +66,11 @@ async function GetAllSchools(_, args) {
  */
 async function CreateSchool(_, { input }) {
   try {
-    // *************** Fail-fast
-    if (!input) {
-      throw new ApolloError('Input undefined', 'INPUT_ERROR');
-    }
-
-    const { long_name, short_name, addresses } = input;
     // *************** Validate required input
     ValidateSchoolInput(input);
+
+    // *************** Destructuring the input
+    const { long_name, short_name, addresses } = input;
 
     // *************** Create a new School instance
     const createSchool = await SchoolModel.create({
@@ -92,7 +83,7 @@ async function CreateSchool(_, { input }) {
     // *************** Save the school and return the result
     return createSchool;
   } catch (error) {
-    throw new ApolloError('Failed to create school', 'CREATE_SCHOOL_ERROR');
+    throw new ApolloError(error.message);
   }
 }
 
@@ -107,17 +98,14 @@ async function CreateSchool(_, { input }) {
  */
 async function UpdateSchool(_, { _id, input }) {
   try {
-    // *************** Validate input presence (fail-fast)
-    if (!input) {
-      throw new ApolloError('Input undefined', 'INPUT_ERROR');
-    }
-    const { long_name, short_name, addresses } = input;
-
     // *************** Validate school ID (must be valid MongoDB ObjectId)
     CommonValidator.ValidateObjectId(_id, 'School ID');
 
     // *************** Validate school input
     ValidateSchoolInput(input);
+
+    // *************** Destructuring the input
+    const { long_name, short_name, addresses } = input;
 
     const updateFields = {
       long_name: long_name.trim(),
@@ -141,7 +129,7 @@ async function UpdateSchool(_, { _id, input }) {
     }
     return updatedSchool;
   } catch (error) {
-    throw new ApolloError('Failed to update school', 'UPDATE_SCHOOL_ERROR');
+    throw new ApolloError(error.message);
   }
 }
 
@@ -155,10 +143,6 @@ async function UpdateSchool(_, { _id, input }) {
  */
 async function DeleteSchool(_, { _id }) {
   try {
-    // *************** Validate input presence (fail-fast)
-    if (!_id) {
-      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
-    }
     // *************** Validate required input field
     CommonValidator.ValidateObjectId(_id, 'School ID');
 
@@ -178,7 +162,7 @@ async function DeleteSchool(_, { _id }) {
     // *************** Return the updated School (now with "deleted" status)
     return { _id };
   } catch (error) {
-    throw new ApolloError('Failed to delete school', 'DELETE_SCHOOL_ERROR');
+    throw new ApolloError(error.message);
   }
 }
 

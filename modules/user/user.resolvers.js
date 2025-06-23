@@ -30,29 +30,28 @@ async function GetOneUser(_, { _id }) {
     }).lean();
     return user;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to retrieve user.',
-      'GET_ONE_USER_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
 /**
- * Retrieve all users with status "active".
+ * Retrieves all users with status 'active'.
  *
- * @returns {Promise<Array>} Array of active users.
+ * @param {Object} _ - Unused parent argument (GraphQL resolver signature).
+ * @param {Object} args - Unused arguments object.
+ *
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of active user objects.
+ *
+ * @throws {ApolloError} If any error occurs while retrieving the users.
  */
-async function GetAllUsers(parent, args) {
+async function GetAllUsers(_, args) {
   try {
     // *************** Retrieve all users with status 'active'
     const users = await UserModel.find({ status: 'active' }).lean();
 
     return users;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to retrieve users.',
-      'GET_ALL_USERS_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -61,7 +60,7 @@ async function GetAllUsers(parent, args) {
 /**
  * Create a new user after validating the input.
  *
- * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments containing user input.
  * @param {Object} args.input - User creation input data.
  * @returns {Promise<Object>} The created user document.
@@ -69,13 +68,10 @@ async function GetAllUsers(parent, args) {
  */
 async function CreateUser(_, { input }) {
   try {
-    // *************** Validate input presence (fail-fast)
-    if (!input) {
-      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
-    }
-    const { civility, first_name, last_name, email, password, role } = input;
     // *************** Validate required input
     ValidateUserInput(input);
+
+    const { civility, first_name, last_name, email, password, role } = input;
 
     // *************** Create a new User instance
     const createUser = UserModel.create({
@@ -91,17 +87,14 @@ async function CreateUser(_, { input }) {
     // *************** Save the user and return the result
     return createUser;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to create user.',
-      'CREATE_USER_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
 /**
  * Update an existing active user with new data.
  *
- * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments containing user input.
  * @param {Object} args.input - User update input data.
  * @returns {Promise<Object|null>} The updated user document, or null if not found.
@@ -109,17 +102,14 @@ async function CreateUser(_, { input }) {
  */
 async function UpdateUser(_, { _id, input }) {
   try {
-    // *************** Validate input presence (fail-fast)
-    if (!input) {
-      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
-    }
+    // *************** Validate required input
+    ValidateUserInput(input);
 
-    const { civility, first_name, last_name, email, password, role } = input;
     // *************** Validate required input
     CommonValidator.ValidateObjectId(_id, 'User ID');
 
-    // *************** Validate required input
-    ValidateUserInput(input);
+    const { civility, first_name, last_name, email, password, role } = input;
+
     // *************** Prepare object for dynamic updates
     const updateFields = {
       civility,
@@ -141,10 +131,7 @@ async function UpdateUser(_, { _id, input }) {
 
     return updatedUser;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to update user.',
-      'UPDATE_USER_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -182,10 +169,7 @@ async function DeleteUser(_, { _id }) {
     // *************** Return the updated User (now with "deleted" status)
     return { _id };
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to delete user.',
-      'DELETE_USER_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 

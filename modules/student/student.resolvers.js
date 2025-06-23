@@ -35,10 +35,7 @@ async function GetOneStudent(_, { _id }) {
     // *************** Return student document or null if not found
     return student;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to get student.',
-      'GET_ONE_STUDENT_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -59,10 +56,7 @@ async function GetAllStudents(_, args) {
     // *************** Return list of students
     return students;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to get all students.',
-      'GET_ALL_STUDENTS_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -93,10 +87,8 @@ async function GetAllStudents(_, args) {
  */
 async function CreateStudent(_, { input }) {
   try {
-    // *************** Validate input presence (fail-fast)
-    if (!input) {
-      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
-    }
+    // *************** Validation input
+    ValidateStudentInput(input);
 
     // *************** Destructure input fields
     const {
@@ -110,9 +102,6 @@ async function CreateStudent(_, { input }) {
       postal_code_of_birth,
       school_id,
     } = input;
-
-    // *************** Validation input
-    ValidateStudentInput(input);
 
     // *************** Create and save student to DB
     const createStudent = await StudentModel.create({
@@ -138,10 +127,7 @@ async function CreateStudent(_, { input }) {
     return createStudent;
   } catch (error) {
     // *************** Throw error if something went wrong
-    throw new ApolloError(
-      error.message || 'Failed to create student.',
-      'CREATE_STUDENT_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -159,11 +145,13 @@ async function CreateStudent(_, { input }) {
  */
 async function UpdateStudent(_, { _id, input }) {
   try {
-    // *************** Validate input presence (fail-fast)
-    if (!input) {
-      throw new ApolloError('Input undefined', 'INPUT_ERROR');
-    }
+    // *************** Validation input
+    ValidateStudentInput(input);
 
+    // *************** Validation ObjectId
+    CommonValidator.ValidateObjectId(_id, 'Student ID');
+
+    // *************** Destructuring the input
     const {
       civility,
       first_name,
@@ -175,11 +163,6 @@ async function UpdateStudent(_, { _id, input }) {
       postal_code_of_birth,
       school_id,
     } = input;
-
-    CommonValidator.ValidateObjectId(_id, 'Student ID');
-
-    // *************** Validation input
-    ValidateStudentInput(input);
 
     const updateFields = {
       civility,
@@ -243,10 +226,7 @@ async function UpdateStudent(_, { _id, input }) {
     return updatedStudent;
   } catch (error) {
     // *************** Throw update error
-    throw new ApolloError(
-      error.message || 'Failed to update student.',
-      'UPDATE_STUDENT_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -265,10 +245,6 @@ async function UpdateStudent(_, { _id, input }) {
  */
 async function DeleteStudent(_, { _id }) {
   try {
-    // *************** Validate input presence (fail-fast)
-    if (!_id) {
-      throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
-    }
     // *************** Validate required input field
     CommonValidator.ValidateObjectId(_id, 'Student ID');
 
@@ -288,10 +264,7 @@ async function DeleteStudent(_, { _id }) {
     // *************** Return soft-deleted student
     return { _id };
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to delete student.',
-      'DELETE_STUDENT_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
