@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const mongoose = require('mongoose');
 
 // *************** IMPORT MODULE ***************
@@ -9,10 +9,10 @@ const { DB_HOST, DB_NAME } = require('./config');
  * Logs success or failure status to the console.
  *
  * @async
- * @function ConnectDB
+ * @function ConnectMongoDB
  * @returns {Promise<void>} - Resolves when the database is connected successfully.
  */
-async function ConnectDB() {
+async function ConnectMongoDB() {
   try {
     // *************** Attempt to connect to MongoDB using mongoose.connect with options
     const uri = `mongodb://${DB_HOST}/${DB_NAME}`;
@@ -33,4 +33,4 @@ async function ConnectDB() {
 }
 
 // *************** EXPORT MODULE ***************
-module.exports = ConnectDB;
+module.exports = ConnectMongoDB;
