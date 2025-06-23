@@ -21,7 +21,7 @@ const ValidateStudentInput = require('./student.validator');
  * @param {string} args.id - The ID of the student to retrieve.
  * @returns {Promise<Object|null>} The student document if found, otherwise null.
  */
-async function GetOneStudent(parent, { _id }) {
+async function GetOneStudent(_, { _id }) {
   try {
     // *************** Validate the input ID
     CommonValidator.ValidateObjectId(_id, 'Student ID');
@@ -49,7 +49,7 @@ async function GetOneStudent(parent, { _id }) {
  * @function
  * @returns {Promise<Array<Object>>} A list of active student documents.
  */
-async function GetAllStudents(parent, args) {
+async function GetAllStudents(_, args) {
   try {
     // *************** Retrieve all student documents with status "active"
     const students = await StudentModel.find({

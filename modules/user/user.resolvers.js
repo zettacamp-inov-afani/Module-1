@@ -18,7 +18,7 @@ const CommonValidator = require('../../utilities/validator');
  * @param {string} args._id - User ID to look for.
  * @returns {Promise<Object|null>} The found user or null if not found.
  */
-async function GetOneUser(parent, { _id }) {
+async function GetOneUser(_, { _id }) {
   try {
     // *************** Validate user ID
     CommonValidator.ValidateObjectId(_id, 'User ID');

@@ -34,5 +34,6 @@ async function GetApolloServer() {
     throw new ApolloError('Server not starting', 'SERVER_FAIL');
   }
 }
-// *************** START SERVER ***************
+
+// *************** EXPORT MODULE ***************
 module.exports = GetApolloServer;
