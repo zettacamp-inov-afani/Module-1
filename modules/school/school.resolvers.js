@@ -145,7 +145,7 @@ async function UpdateSchool(_, { _id, input }) {
 /**
  * Soft deletes a school by marking its status as "deleted" and setting deleted_at timestamp.
  *
- * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments object containing the school ID.
  * @returns {Promise<Object>} The soft-deleted school document.
  * @throws {Error} If validation fails or deletion fails.
