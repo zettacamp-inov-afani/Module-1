@@ -24,9 +24,7 @@ async function GetOneUser(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'User ID');
 
     // *************** Retrieve user with status 'active'
-    const user = await UserModel.findById({
-      _id,
-    }).lean();
+    const user = await UserModel.findById(_id).lean();
 
     // *************** Handle case if School not found or already deleted
     if (!user) {

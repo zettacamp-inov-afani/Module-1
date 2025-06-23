@@ -27,9 +27,7 @@ async function GetOneStudent(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Student ID');
 
     // *************** Find student by ID and check if status is active
-    const student = await StudentModel.findById({
-      _id,
-    }).lean();
+    const student = await StudentModel.findById(_id).lean();
 
     // *************** Handle case if School not found or already deleted
     if (!student) {

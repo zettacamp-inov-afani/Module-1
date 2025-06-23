@@ -24,9 +24,7 @@ async function GetOneSchool(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'School ID');
 
     // *************** Retrieve school with status 'active'
-    const school = await SchoolModel.findById({
-      _id,
-    }).lean();
+    const school = await SchoolModel.findById(_id).lean();
 
     // *************** Handle case if School not found or already deleted
     if (!school) {
