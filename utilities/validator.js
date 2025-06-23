@@ -33,13 +33,8 @@ function ValidateMongoObjectIds(ids) {
   }
 
   // *************** Loop through each ID to validate individually
-  ids.forEach((id, index) => {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new ApolloError(
-        `ID at index ${index} is not a valid MongoDB ObjectId.`,
-        'INVALID_OBJECT_ID'
-      );
-    }
+  ids.forEach((_id, index) => {
+    ValidateObjectId(_id, `ID at index ${index}`);
   });
 }
 
