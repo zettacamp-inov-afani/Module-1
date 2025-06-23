@@ -2,7 +2,7 @@
 const { gql } = require('apollo-server-express');
 
 // *************** QUERY ***************
-const userTypeDefs = gql`
+const UserTypeDefs = gql`
   scalar Date
 
   enum Civility {
@@ -53,4 +53,4 @@ const userTypeDefs = gql`
 `;
 
 // *************** EXPORT MODULE ***************
-module.exports = userTypeDefs;
+module.exports = UserTypeDefs;

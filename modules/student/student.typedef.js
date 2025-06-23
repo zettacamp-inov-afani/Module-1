@@ -1,7 +1,7 @@
 // *************** IMPORT CORE ***************
 const { gql } = require('apollo-server-express');
 
-const studentTypeDefs = gql`
+const StudentTypeDefs = gql`
   enum Civility {
     Mr
     Mrs
@@ -61,4 +61,4 @@ const studentTypeDefs = gql`
 `;
 
 // *************** EXPORT MODULE ***************
-module.exports = studentTypeDefs;
+module.exports = StudentTypeDefs;

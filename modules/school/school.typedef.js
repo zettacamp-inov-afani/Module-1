@@ -1,7 +1,7 @@
 // *************** IMPORT CORE ***************
 const { gql } = require('apollo-server-express');
 
-const schoolTypeDefs = gql`
+const SchoolTypeDefs = gql`
   type Address {
     detail: String!
     city: String!
@@ -54,4 +54,4 @@ const schoolTypeDefs = gql`
 `;
 
 // *************** EXPORT MODULE ***************
-module.exports = schoolTypeDefs;
+module.exports = SchoolTypeDefs;
