@@ -1,4 +1,4 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const { ApolloError } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
@@ -6,13 +6,13 @@ const StudentModel = require('./student.model');
 const SchoolModel = require('../school/school.model');
 
 // *************** IMPORT VALIDATORS ***************
-const StudentValidator = require('./student.validator');
-const CommonValidator = require('../utilities/validator');
+const CommonValidator = require('../../utilities/validator');
+const ValidateStudentInput = require('./student.validator');
 
 // *************** QUERY ***************
 
 /**
- * Retrieves a single student by ID if their status is "active".
+ * Retrieves a single student by ID
  *
  * @async
  * @function
@@ -21,24 +21,26 @@ const CommonValidator = require('../utilities/validator');
  * @param {string} args.id - The ID of the student to retrieve.
  * @returns {Promise<Object|null>} The student document if found, otherwise null.
  */
-async function GetOneStudent(parent, { _id }) {
+async function GetOneStudent(_, { _id }) {
   try {
     // *************** Validate the input ID
     CommonValidator.ValidateObjectId(_id, 'Student ID');
 
     // *************** Find student by ID and check if status is active
-    const student = await StudentModel.findOne({
-      _id: _id,
-      status: 'active',
-    }).lean();
+    const student = await StudentModel.findById(_id).lean();
+
+    // *************** Handle case if School not found or already deleted
+    if (!student) {
+      throw new ApolloError(
+        'Student not found or already deleted.',
+        'STUDENT_NOT_FOUND'
+      );
+    }
 
     // *************** Return student document or null if not found
     return student;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to get student.',
-      'GET_ONE_STUDENT_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -49,7 +51,7 @@ async function GetOneStudent(parent, { _id }) {
  * @function
  * @returns {Promise<Array<Object>>} A list of active student documents.
  */
-async function GetAllStudents() {
+async function GetAllStudents(_, args) {
   try {
     // *************** Retrieve all student documents with status "active"
     const students = await StudentModel.find({
@@ -59,10 +61,7 @@ async function GetAllStudents() {
     // *************** Return list of students
     return students;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to get all students.',
-      'GET_ALL_STUDENTS_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -91,35 +90,23 @@ async function GetAllStudents() {
  * @returns {Promise<Object>} The newly created student document.
  * @throws {Error} If any required field is missing.
  */
-async function CreateStudent(parent, { input }) {
+async function CreateStudent(_, { input }) {
   try {
-    const allowedCivilities = ['Mr', 'Mrs'];
+    // *************** Validation input
+    ValidateStudentInput(input);
 
     // *************** Destructure input fields
     const {
       civility,
       first_name,
       last_name,
-      email,
       tele_phone,
+      email,
       date_of_birth,
       place_of_birth,
       postal_code_of_birth,
       school_id,
     } = input;
-
-    // *************** Validation input
-    StudentValidator.ValidateStudentInput({
-      civility,
-      first_name,
-      last_name,
-      email,
-      tele_phone,
-      date_of_birth,
-      place_of_birth,
-      postal_code_of_birth,
-    });
-    CommonValidator.ValidateObjectId(school_id, 'School ID');
 
     // *************** Create and save student to DB
     const createStudent = await StudentModel.create({
@@ -145,10 +132,7 @@ async function CreateStudent(parent, { input }) {
     return createStudent;
   } catch (error) {
     // *************** Throw error if something went wrong
-    throw new ApolloError(
-      error.message || 'Failed to create student.',
-      'CREATE_STUDENT_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
@@ -164,11 +148,16 @@ async function CreateStudent(parent, { input }) {
  * @returns {Promise<Object>} - The updated student document.
  * @throws {ApolloError} - If validation fails, student not found, or update error occurs.
  */
-async function UpdateStudent(parent, { input }) {
+async function UpdateStudent(_, { _id, input }) {
   try {
-    // *************** Destructure input fields
+    // *************** Validation ObjectId
+    CommonValidator.ValidateObjectId(_id, 'Student ID');
+
+    // *************** Validation input
+    ValidateStudentInput(input);
+
+    // *************** Destructuring the input
     const {
-      _id,
       civility,
       first_name,
       last_name,
@@ -180,33 +169,17 @@ async function UpdateStudent(parent, { input }) {
       school_id,
     } = input;
 
-    // *************** Validate all input
-    CommonValidator.ValidateObjectId(_id, 'Student ID');
-
-    // *************** Prepare object for dynamic updates
-    const updateFields = {};
-    if (civility !== undefined) updateFields.civility = civility;
-    if (first_name !== undefined) updateFields.first_name = first_name;
-    if (last_name !== undefined) updateFields.last_name = last_name;
-    if (email !== undefined) updateFields.email = email;
-    if (tele_phone !== undefined) updateFields.tele_phone = tele_phone;
-    if (date_of_birth !== undefined) updateFields.date_of_birth = date_of_birth;
-    if (place_of_birth !== undefined)
-      updateFields.place_of_birth = place_of_birth;
-    if (postal_code_of_birth !== undefined)
-      updateFields.postal_code_of_birth = postal_code_of_birth;
-    // *************** Validate school ID if present and assign to updateFields
-    if (school_id !== undefined) {
-      CommonValidator.ValidateObjectId(school_id, 'School ID');
-      updateFields.school_id = school_id;
-    }
-    // *************** Ensure at least one field is being updated
-    if (Object.keys(updateFields).length === 0) {
-      throw new ApolloError('No fields to update.', 'EMPTY_UPDATE_INPUT');
-    }
-
-    // *************** Validate only provided fields (dynamic)
-    StudentValidator.ValidateStudentInputUpdate(updateFields);
+    const updateFields = {
+      civility,
+      first_name,
+      last_name,
+      email,
+      tele_phone,
+      date_of_birth,
+      place_of_birth,
+      postal_code_of_birth,
+      school_id,
+    };
 
     // *************** Keep track of current school for relation update
     const existingStudent = await StudentModel.findOne({
@@ -220,15 +193,12 @@ async function UpdateStudent(parent, { input }) {
       );
     }
 
-    // *************** Prepare the existing old school_id
-    const oldSchoolId = String(existingStudent.school_id);
-
     // *************** Find and update active student
     const updatedStudent = await StudentModel.findOneAndUpdate(
       { _id: _id, status: 'active' },
       { $set: updateFields },
       { new: true }
-    );
+    ).lean();
 
     // *************** Handle case when student not found
     if (!updatedStudent) {
@@ -239,7 +209,8 @@ async function UpdateStudent(parent, { input }) {
     }
 
     // *************** Update school's relation if school_id changed
-    const newSchoolId = String(school_id);
+    const newSchoolId = String(updateFields.school_id);
+    const oldSchoolId = String(existingStudent.school_id);
     if (oldSchoolId !== newSchoolId) {
       // *************** Delete from old school
       await SchoolModel.updateOne(
@@ -258,18 +229,13 @@ async function UpdateStudent(parent, { input }) {
     return updatedStudent;
   } catch (error) {
     // *************** Throw update error
-    throw new ApolloError(
-      error.message || 'Failed to update student.',
-      'UPDATE_STUDENT_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
 /**
  * Soft deletes a student by setting their status to "deleted".
  *
- * Only affects students whose status is currently "active".
- * After update, fetches and returns the updated student.
  *
  * @async
  * @function
@@ -278,17 +244,15 @@ async function UpdateStudent(parent, { input }) {
  * @param {string} args.id - The ID of the student to soft delete.
  * @returns {Promise<Object|null>} The soft-deleted student document, or null if not found.
  */
-async function DeleteStudent(parent, { _id }) {
+async function DeleteStudent(_, { _id }) {
   try {
     // *************** Validate required input field
     CommonValidator.ValidateObjectId(_id, 'Student ID');
 
     // *************** Find and update student status to deleted
-    const deletedStudent = await StudentModel.findByIdAndUpdate(
-      { _id: _id, status: 'active' },
-      { $set: { status: 'deleted', deleted_at: new Date() } },
-      { new: true }
-    );
+    const deletedStudent = await StudentModel.findByIdAndUpdate(_id, {
+      $set: { status: 'deleted', deleted_at: new Date() },
+    });
 
     // *************** Handle if student not found
     if (!deletedStudent) {
@@ -299,16 +263,13 @@ async function DeleteStudent(parent, { _id }) {
     }
 
     // *************** Return soft-deleted student
-    return deletedStudent;
+    return _id;
   } catch (error) {
-    throw new ApolloError(
-      error.message || 'Failed to delete student.',
-      'DELETE_STUDENT_ERROR'
-    );
+    throw new ApolloError(error.message);
   }
 }
 
-// *************** LOADERS ***************
+// *************** LOADER ***************
 
 /**
  * Resolves the school associated with a student using DataLoader.
@@ -321,7 +282,7 @@ async function DeleteStudent(parent, { _id }) {
  * @param {Object} _ - Unused GraphQL argument.
  * @param {Object} context - The GraphQL context object.
  * @param {Object} context.loaders - Contains all DataLoader instances.
- * @param {DataLoader<string, Object>} context.loaders.schoolById - DataLoader for fetching schools by ID.
+ * @param {DataLoader<string, Object>} context.loaders.SchoolLoader - DataLoader for fetching schools by ID.
  * @returns {Promise<Object|null>} The associated school document, or null if not found.
  */
 async function school_id(parent, args, { loaders }) {
@@ -329,8 +290,10 @@ async function school_id(parent, args, { loaders }) {
   if (CommonValidator.ValidateObjectId(parent.school_id)) {
     return null;
   }
-  // *************** Use the DataLoader `schoolById` from context to fetch the related school.
-  const loadedSchools = await loaders.schoolById.load(String(parent.school_id));
+  // *************** Use the DataLoader `SchoolLoader` from context to fetch the related school.
+  const loadedSchools = await loaders.SchoolLoader.load(
+    String(parent.school_id)
+  );
 
   // *************** Return associated school
   return loadedSchools;

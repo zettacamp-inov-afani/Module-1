@@ -1,7 +1,7 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const { gql } = require('apollo-server-express');
 
-const studentTypeDefs = gql`
+const StudentTypeDefs = gql`
   enum Civility {
     Mr
     Mrs
@@ -37,16 +37,15 @@ const studentTypeDefs = gql`
   }
 
   input UpdateStudentInput {
-    _id: ID!
-    civility: Civility
-    first_name: String
-    last_name: String
-    email: String
-    tele_phone: String
-    date_of_birth: Date
-    place_of_birth: String
-    postal_code_of_birth: String
-    school_id: ID
+    civility: Civility!
+    first_name: String!
+    last_name: String!
+    email: String!
+    tele_phone: String!
+    date_of_birth: Date!
+    place_of_birth: String!
+    postal_code_of_birth: String!
+    school_id: ID!
   }
 
   type Query {
@@ -56,10 +55,10 @@ const studentTypeDefs = gql`
 
   type Mutation {
     CreateStudent(input: CreateStudentInput!): Student
-    UpdateStudent(input: UpdateStudentInput!): Student
-    DeleteStudent(_id: ID!): Student
+    UpdateStudent(_id: ID!, input: UpdateStudentInput!): Student
+    DeleteStudent(_id: ID!): ID!
   }
 `;
 
 // *************** EXPORT MODULE ***************
-module.exports = studentTypeDefs;
+module.exports = StudentTypeDefs;

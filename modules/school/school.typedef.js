@@ -1,7 +1,7 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const { gql } = require('apollo-server-express');
 
-const schoolTypeDefs = gql`
+const SchoolTypeDefs = gql`
   type Address {
     detail: String!
     city: String!
@@ -14,41 +14,30 @@ const schoolTypeDefs = gql`
     long_name: String!
     short_name: String!
     addresses: [Address!]!
-    students: [Student!]!
+    students: [Student]
     status: String!
     created_at: String!
     updated_at: String!
     deleted_at: Date
   }
 
-  input CreateAddressInput {
+  input AddressInput {
     detail: String!
     city: String!
     country: String!
     zipcode: String!
   }
 
-  input UpdateAddressInput {
-    detail: String
-    city: String
-    country: String
-    zipcode: String
-  }
-
-  input SchoolNameInput {
-    long_name: String
-    short_name: String
-  }
-
   input CreateSchoolInput {
-    name: SchoolNameInput!
-    addresses: [CreateAddressInput!]!
+    long_name: String!
+    short_name: String!
+    addresses: [AddressInput!]!
   }
 
   input UpdateSchoolInput {
-    _id: ID!
-    name: SchoolNameInput
-    addresses: [UpdateAddressInput]
+    long_name: String!
+    short_name: String!
+    addresses: [AddressInput]
   }
 
   type Query {
@@ -58,10 +47,10 @@ const schoolTypeDefs = gql`
 
   type Mutation {
     CreateSchool(input: CreateSchoolInput!): School!
-    UpdateSchool(input: UpdateSchoolInput!): School!
-    DeleteSchool(_id: ID!): School!
+    UpdateSchool(_id: ID!, input: UpdateSchoolInput!): School!
+    DeleteSchool(_id: ID!): ID!
   }
 `;
 
 // *************** EXPORT MODULE ***************
-module.exports = schoolTypeDefs;
+module.exports = SchoolTypeDefs;

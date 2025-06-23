@@ -1,7 +1,7 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const mongoose = require('mongoose');
 
-const addressSchema = new mongoose.Schema({
+const AddressSchema = new mongoose.Schema({
   // detail of the address
   detail: { type: String, required: true },
 
@@ -15,7 +15,7 @@ const addressSchema = new mongoose.Schema({
   zipcode: { type: String, required: true },
 });
 
-const schoolSchema = new mongoose.Schema(
+const SchoolSchema = new mongoose.Schema(
   {
     // Long name of the school
     long_name: { type: String, required: true },
@@ -24,7 +24,7 @@ const schoolSchema = new mongoose.Schema(
     short_name: { type: String, required: true },
 
     // School addresses
-    addresses: [addressSchema],
+    addresses: [AddressSchema],
 
     // Student connected
     students: [
@@ -53,7 +53,5 @@ const schoolSchema = new mongoose.Schema(
   }
 );
 
-const SchoolModel = mongoose.model('school', schoolSchema);
-
 // *************** EXPORT MODULE ***************
-module.exports = SchoolModel;
+module.exports = mongoose.model('school', SchoolSchema);

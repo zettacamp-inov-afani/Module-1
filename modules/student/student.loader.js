@@ -1,11 +1,11 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const DataLoader = require('dataloader');
 
 // *************** IMPORT MODULE ***************
-const studentModel = require('./student.model');
+const StudentModel = require('./student.model');
 
 // *************** IMPORT VALIDATOR ***************
-const CommonValidator = require('../utilities/validator');
+const CommonValidator = require('../../utilities/validator');
 
 /**
  * Creates a DataLoader instance for batching and caching student lookups by ID.
@@ -15,16 +15,16 @@ const CommonValidator = require('../utilities/validator');
  *
  * @throws {Error} If any of the provided IDs are invalid MongoDB ObjectIds.
  */
-function StudentLoader(studentIds) {
+function StudentLoader() {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (studentIds) => {
     // ***************  Validate the incoming schoolIds
     CommonValidator.ValidateMongoObjectIds(studentIds);
 
     // *************** Find all Schools whose id is in the schoolIds array
-    const students = await studentModel
-      .find({ _id: { $in: studentIds } })
-      .lean();
+    const students = await StudentModel.find({
+      _id: { $in: studentIds },
+    }).lean();
 
     // *************** Create schoolMap object for dictionary
     const studentMap = {};

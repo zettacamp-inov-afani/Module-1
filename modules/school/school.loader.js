@@ -1,11 +1,12 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT LIBRARY ***************
 const DataLoader = require('dataloader');
 
 // *************** IMPORT MODULE ***************
 const SchoolModel = require('./school.model');
 
 // *************** IMPORT VALIDATOR ***************
-const CommonValidator = require('../utilities/validator');
+const CommonValidator = require('../../utilities/validator');
+
 /**
  * Creates a DataLoader instance to batch and cache school lookups by ID.
  *
@@ -33,7 +34,7 @@ function SchoolLoaders() {
     });
 
     // *************** Return an array containing schools in the order of the requested schoolIds.
-    const orderedSchools = schoolIds.map((id) => schoolMap[String(id)]);
+    const orderedSchools = schoolIds.map((_id) => schoolMap[String(_id)]);
     return orderedSchools;
   });
 }

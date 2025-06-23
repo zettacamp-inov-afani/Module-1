@@ -1,10 +1,10 @@
-// *************** IMPORT CORE ***************Add commentMore actions
+// *************** IMPORT LIBRARY ***************
 const { mergeTypeDefs } = require('@graphql-tools/merge');
 
 // *************** IMPORT MODULE ***************
-const UserTypeDefs = require('../user/user.typedef');
-const StudentTypeDefs = require('../student/student.typedef');
-const SchoolTypeDefs = require('../school/school.typedef');
+const UserTypeDefs = require('../modules/user/user.typedef');
+const StudentTypeDefs = require('../modules/student/student.typedef');
+const SchoolTypeDefs = require('../modules/school/school.typedef');
 
 // *************** Merge typedefs
 const typeDefs = mergeTypeDefs([UserTypeDefs, StudentTypeDefs, SchoolTypeDefs]);
