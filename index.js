@@ -1,7 +1,9 @@
-// *************** IMPORT CORE ***************
+// *************** IMPORT UTILITIES ***************
 const CreateApolloServer = require('./core/apollo');
 const CreateExpressApp = require('./core/express');
 const ConnectMongoDB = require('./core/database');
+
+// *************** IMPORT MODULE ***************
 const { PORT, DB_HOST } = require('./core/config');
 
 /**
@@ -26,7 +28,7 @@ async function StartServer() {
     server.applyMiddleware({ app });
 
     // *************** Start Express server
-    app.listen({ port: PORT }, () => console.log(`Server ready`));
+    app.listen({ port: PORT }, () => console.log('Server ready'));
   } catch (error) {
     console.error('Server failed to start:', error.message);
     process.exit(1);
