@@ -165,9 +165,6 @@ async function UpdateStudent(_, { _id, input }) {
       );
     }
 
-    // *************** get the old school id
-    const oldSchoolId = String(oldSchoolData.school_id);
-
     // *************** Prepare update fields
     const updateFields = {
       civility: input.civility,
@@ -180,9 +177,6 @@ async function UpdateStudent(_, { _id, input }) {
       postal_code_of_birth: input.postal_code_of_birth,
       school_id: input.school_id,
     };
-
-    // *************** Get the new updated school_id
-    const newSchoolId = String(input.school_id);
 
     // *************** Find and update active student
     const updatedStudent = await StudentModel.findOneAndUpdate(
@@ -198,6 +192,11 @@ async function UpdateStudent(_, { _id, input }) {
         'STUDENT_NOT_FOUND'
       );
     }
+
+    // *************** Get the old school id
+    const oldSchoolId = String(oldSchoolData.school_id);
+    // *************** Get the new updated school_id
+    const newSchoolId = String(input.school_id);
 
     if (oldSchoolId !== newSchoolId) {
       // *************** Delete from old school
