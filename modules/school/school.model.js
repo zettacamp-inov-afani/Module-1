@@ -18,10 +18,10 @@ const AddressSchema = new mongoose.Schema({
 const SchoolSchema = new mongoose.Schema(
   {
     // Long name of the school
-    long_name: { type: String, required: true },
+    long_name: { type: String, required: true, unique: true },
 
     // Short name of the school
-    short_name: { type: String, required: true },
+    short_name: { type: String, required: true, unique: true },
 
     // School addresses
     addresses: [AddressSchema],

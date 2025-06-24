@@ -153,6 +153,22 @@ async function UpdateStudent(_, { _id, input }) {
     // *************** Validation input
     ValidateStudentInput(input);
 
+    // *************** Prepare data for school update
+    const oldSchoolData = await StudentModel.findOne({
+      _id,
+      status: 'active',
+    });
+    if (!oldSchoolData) {
+      throw new ApolloError(
+        'Student not found or already deleted.',
+        'STUDENT_NOT_FOUND'
+      );
+    }
+
+    const oldSchoolId = String(oldSchoolData.school_id);
+    const newSchoolId = String(input.school_id);
+
+    // *************** Prepare update fields
     const updateFields = {
       civility: input.civility,
       first_name: input.first_name,
@@ -164,18 +180,6 @@ async function UpdateStudent(_, { _id, input }) {
       postal_code_of_birth: input.postal_code_of_birth,
       school_id: input.school_id,
     };
-
-    // *************** Keep track of current school for relation update
-    const existingStudent = await StudentModel.findOne({
-      _id,
-      status: 'active',
-    });
-    if (!existingStudent) {
-      throw new ApolloError(
-        'Student not found or already deleted.',
-        'STUDENT_NOT_FOUND'
-      );
-    }
 
     // *************** Find and update active student
     const updatedStudent = await StudentModel.findOneAndUpdate(
@@ -192,9 +196,6 @@ async function UpdateStudent(_, { _id, input }) {
       );
     }
 
-    // *************** Update school's relation if school_id changed
-    const newSchoolId = String(updateFields.school_id);
-    const oldSchoolId = String(existingStudent.school_id);
     if (oldSchoolId !== newSchoolId) {
       // *************** Delete from old school
       await SchoolModel.updateOne(
