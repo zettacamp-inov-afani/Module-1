@@ -13,7 +13,7 @@ const CommonValidator = require('../../utilities/validator');
 /**
  * Retrieve a single active user by their MongoDB ObjectId.
  *
- * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments object.
  * @param {string} args._id - User ID to look for.
  * @returns {Promise<Object|null>} The found user or null if not found.
@@ -143,7 +143,7 @@ async function UpdateUser(_, { _id, input }) {
 /**
  * Soft delete a user by updating their status to "deleted" and setting a deleted_at timestamp.
  *
- * @param {Object} parent - Parent resolver (unused).
+ * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments containing the user ID.
  * @param {string} args._id - The ID of the user to delete.
  * @returns {Promise<Object>} The soft-deleted user document.

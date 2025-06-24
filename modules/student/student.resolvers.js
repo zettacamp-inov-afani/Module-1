@@ -142,7 +142,7 @@ async function CreateStudent(_, { input }) {
  * This function allows dynamic field updates — only fields sent in the input will be updated.
  * It also handles validation, ensures student exists, and updates related school's student reference if needed.
  *
- * @param {Object} parent - GraphQL parent resolver (unused).
+ * @param {Object} _ - GraphQL parent resolver (unused).
  * @param {Object} args - Arguments containing input.
  * @param {Object} args.input - The input object containing fields to update.
  * @returns {Promise<Object>} - The updated student document.
