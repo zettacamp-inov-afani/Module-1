@@ -181,7 +181,7 @@ async function UpdateStudent(_, { _id, input }) {
       school_id: input.school_id,
     };
 
-    // *************** Get the new old school_id
+    // *************** Get the new updated school_id
     const newSchoolId = String(input.school_id);
 
     // *************** Find and update active student
