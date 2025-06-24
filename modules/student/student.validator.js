@@ -24,20 +24,11 @@ function ValidateStudentInput(input) {
     );
   }
 
-  const {
-    civility,
-    first_name,
-    last_name,
-    email,
-    tele_phone,
-    date_of_birth,
-    place_of_birth,
-    postal_code_of_birth,
-    school_id,
-  } = input;
-
   // *************** Validate civility
-  if (typeof civility !== 'string' || !allowedCivilities.includes(civility)) {
+  if (
+    typeof input.civility !== 'string' ||
+    !allowedCivilities.includes(input.civility)
+  ) {
     throw new ApolloError(
       "Civility must be either 'Mr' or 'Mrs'.",
       'INVALID_CIVILITY'
@@ -45,7 +36,7 @@ function ValidateStudentInput(input) {
   }
 
   // *************** Validate first_name
-  if (typeof first_name !== 'string' || first_name.trim() === '') {
+  if (typeof input.first_name !== 'string' || input.first_name.trim() === '') {
     throw new ApolloError(
       'First name must be a non-empty string.',
       'INVALID_STRING'
@@ -53,7 +44,7 @@ function ValidateStudentInput(input) {
   }
 
   // *************** Validate last_name
-  if (typeof last_name !== 'string' || last_name.trim() === '') {
+  if (typeof input.last_name !== 'string' || input.last_name.trim() === '') {
     throw new ApolloError(
       'Last name must be a non-empty string.',
       'INVALID_STRING'
@@ -61,12 +52,12 @@ function ValidateStudentInput(input) {
   }
 
   // *************** Validate email
-  if (typeof email !== 'string' || !isEmail(email)) {
+  if (typeof input.email !== 'string' || !isEmail(input.email)) {
     throw new ApolloError('Email must be valid.', 'INVALID_EMAIL');
   }
 
   // *************** Validate date_of_birth
-  if (!date_of_birth || isNaN(Date.parse(date_of_birth))) {
+  if (!input.date_of_birth || isNaN(Date.parse(input.date_of_birth))) {
     throw new ApolloError(
       'Date of birth must be a valid date.',
       'INVALID_DATE'
@@ -74,7 +65,10 @@ function ValidateStudentInput(input) {
   }
 
   // *************** Validate place_of_birth
-  if (typeof place_of_birth !== 'string' || place_of_birth.trim() === '') {
+  if (
+    typeof input.place_of_birth !== 'string' ||
+    input.place_of_birth.trim() === ''
+  ) {
     throw new ApolloError(
       'Place of birth must be a non-empty string.',
       'INVALID_STRING'
@@ -83,8 +77,8 @@ function ValidateStudentInput(input) {
 
   // *************** Validate postal_code_of_birth
   if (
-    typeof postal_code_of_birth !== 'string' ||
-    postal_code_of_birth.trim() === ''
+    typeof input.postal_code_of_birth !== 'string' ||
+    input.postal_code_of_birth.trim() === ''
   ) {
     throw new ApolloError(
       'Postal code of birth must be a non-empty string.',
@@ -93,7 +87,7 @@ function ValidateStudentInput(input) {
   }
 
   // *************** Validate telephone
-  if (typeof tele_phone !== 'string' || tele_phone.trim() === '') {
+  if (typeof input.tele_phone !== 'string' || input.tele_phone.trim() === '') {
     throw new ApolloError(
       'Telephone must be a non-empty string.',
       'INVALID_STRING'
@@ -101,7 +95,7 @@ function ValidateStudentInput(input) {
   }
 
   // *************** Validate school_id
-  CommonValidator.ValidateObjectId(school_id, 'School ID');
+  CommonValidator.ValidateObjectId(input.school_id, 'School ID');
 }
 
 // *************** EXPORT MODULE ***************

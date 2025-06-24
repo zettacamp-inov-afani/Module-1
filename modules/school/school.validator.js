@@ -17,10 +17,8 @@ function ValidateSchoolInput(input) {
     );
   }
 
-  const { long_name, short_name, addresses } = input;
-
   // *************** Validate long_name
-  if (typeof long_name !== 'string' || long_name.trim() === '') {
+  if (typeof input.long_name !== 'string' || input.long_name.trim() === '') {
     throw new ApolloError(
       'Long name must be a non-empty string.',
       'INVALID_SCHOOL_LONG_NAME'
@@ -28,7 +26,7 @@ function ValidateSchoolInput(input) {
   }
 
   // *************** Validate short_name
-  if (typeof short_name !== 'string' || short_name.trim() === '') {
+  if (typeof input.short_name !== 'string' || input.short_name.trim() === '') {
     throw new ApolloError(
       'Short name must be a non-empty string.',
       'INVALID_SCHOOL_SHORT_NAME'
@@ -36,14 +34,14 @@ function ValidateSchoolInput(input) {
   }
 
   // *************** Validate that the addresses input is an array
-  if (!Array.isArray(addresses)) {
+  if (!Array.isArray(input.addresses)) {
     throw new ApolloError(
       'Addresses must be an array.',
       'INVALID_ADDRESS_ARRAY'
     );
   }
 
-  addresses.forEach((address, index) => {
+  input.addresses.forEach((address, index) => {
     // *************** Validate that the input exists and is an object
     if (typeof address !== 'object' || address === null) {
       throw new ApolloError(

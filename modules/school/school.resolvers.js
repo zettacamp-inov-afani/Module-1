@@ -119,13 +119,10 @@ async function UpdateSchool(_, { _id, input }) {
     // *************** Validate school input
     ValidateSchoolInput(input);
 
-    // *************** Destructuring the input
-    const { long_name, short_name, addresses } = input;
-
     const updateFields = {
-      long_name,
-      short_name,
-      addresses,
+      long_name: input.long_name,
+      short_name: input.short_name,
+      addresses: input.addresses,
     };
 
     // *************** Update the school data if active

@@ -22,10 +22,11 @@ function ValidateUserInput(input) {
     );
   }
 
-  const { civility, first_name, last_name, email, password, role } = input;
-
   // *************** Civility validation
-  if (typeof civility !== 'string' || !allowedCivilities.includes(civility)) {
+  if (
+    typeof input.civility !== 'string' ||
+    !allowedCivilities.includes(input.civility)
+  ) {
     throw new ApolloError(
       `Civility must be either 'Mr' or 'Mrs'.`,
       'INVALID_CIVILITY'
@@ -33,7 +34,7 @@ function ValidateUserInput(input) {
   }
 
   // *************** First name validation
-  if (typeof first_name !== 'string' || first_name.trim() === '') {
+  if (typeof input.first_name !== 'string' || input.first_name.trim() === '') {
     throw new ApolloError(
       'First name must be a non-empty string.',
       'INVALID_STRING'
@@ -41,7 +42,7 @@ function ValidateUserInput(input) {
   }
 
   // *************** Last name validation
-  if (typeof last_name !== 'string' || last_name.trim() === '') {
+  if (typeof input.last_name !== 'string' || input.last_name.trim() === '') {
     throw new ApolloError(
       'Last name must be a non-empty string.',
       'INVALID_STRING'
@@ -49,12 +50,12 @@ function ValidateUserInput(input) {
   }
 
   // *************** Email validation
-  if (typeof email !== 'string' || !isEmail(email)) {
+  if (typeof input.email !== 'string' || !isEmail(input.email)) {
     throw new ApolloError('Email must be a valid format.', 'INVALID_EMAIL');
   }
 
   // *************** Password validation
-  if (typeof password !== 'string' || password.length < 6) {
+  if (typeof input.password !== 'string' || input.password.length < 6) {
     throw new ApolloError(
       'Password must be at least 6 characters long.',
       'INVALID_PASSWORD'
@@ -62,9 +63,9 @@ function ValidateUserInput(input) {
   }
 
   // *************** Role validation
-  if (typeof role !== 'string' || !allowedRoles.includes(role)) {
+  if (typeof input.role !== 'string' || !allowedRoles.includes(input.role)) {
     throw new ApolloError(
-      `Civility must be either 'operator', 'acadir' or 'student'.`,
+      `Role must be either 'operator', 'acadir' or 'student'.`,
       'INVALID_ROLE'
     );
   }
