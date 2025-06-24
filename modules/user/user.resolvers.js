@@ -108,10 +108,10 @@ async function CreateUser(_, { input }) {
 async function UpdateUser(_, { _id, input }) {
   try {
     // *************** Validate required input
-    ValidateUserInput(input);
+    CommonValidator.ValidateObjectId(_id, 'User ID');
 
     // *************** Validate required input
-    CommonValidator.ValidateObjectId(_id, 'User ID');
+    ValidateUserInput(input);
 
     const { civility, first_name, last_name, email, password, role } = input;
 
