@@ -193,26 +193,27 @@ async function UpdateStudent(_, { _id, input }) {
       );
     }
 
-    // *************** Get the old school id
-    const oldSchoolId = String(oldSchoolData.school_id);
+    // *************** Fail fast for update school
+    if ('school_id' in input) {
+      // *************** Get the old school id
+      const oldSchoolId = String(oldSchoolData.school_id);
+      // *************** Get the new updated school_id
+      const newSchoolId = String(input.school_id);
 
-    // *************** Get the new updated school_id
-    const newSchoolId = String(input.school_id);
+      if (oldSchoolId !== newSchoolId) {
+        // *************** Delete from old school
+        await SchoolModel.updateOne(
+          { _id: oldSchoolId },
+          { $pull: { students: _id } }
+        );
 
-    if (oldSchoolId !== newSchoolId) {
-      // *************** Delete from old school
-      await SchoolModel.updateOne(
-        { _id: oldSchoolId },
-        { $pull: { students: _id } }
-      );
-
-      // *************** Add the new school
-      await SchoolModel.updateOne(
-        { _id: newSchoolId },
-        { $addToSet: { students: _id } }
-      );
+        // *************** Add the new school
+        await SchoolModel.updateOne(
+          { _id: newSchoolId },
+          { $addToSet: { students: _id } }
+        );
+      }
     }
-
     // *************** Return updated student
     return updatedStudent;
   } catch (error) {
