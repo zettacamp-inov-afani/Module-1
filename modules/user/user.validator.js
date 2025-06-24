@@ -14,9 +14,12 @@ const allowedRoles = ['operator', 'acadir', 'student'];
  * @throws {ApolloError} If any required field is missing or invalid.
  */
 function ValidateUserInput(input) {
-  // *************** Validate input presence (fail-fast)
-  if (!input) {
-    throw new ApolloError(error.message || 'Input undefined', 'INPUT_ERROR');
+  // *************** Check input validity
+  if (!input || typeof input !== 'object') {
+    throw new ApolloError(
+      'Input must be a valid object.',
+      'INVALID_STUDENT_INPUT'
+    );
   }
 
   const { civility, first_name, last_name, email, password, role } = input;

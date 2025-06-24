@@ -24,7 +24,7 @@ async function GetOneUser(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'User ID');
 
     // *************** Retrieve user with status 'active'
-    const user = await UserModel.findById(_id).lean();
+    const user = await UserModel.findOne({ _id: _id, status: 'active' }).lean();
 
     // *************** Handle case if School not found or already deleted
     if (!user) {
@@ -40,14 +40,17 @@ async function GetOneUser(_, { _id }) {
 }
 
 /**
- * Retrieves all users with status 'active'.
+ * Retrieves all users with status "active".
  *
- * @param {Object} _ - Unused parent argument (GraphQL resolver signature).
- * @param {Object} args - Unused arguments object.
+ * This query fetches all user documents from the database that have a status of "active".
+ * It uses `.lean()` to return plain JavaScript objects for better performance.
  *
- * @returns {Promise<Array<Object>>} A promise that resolves to an array of active user objects.
- *
- * @throws {ApolloError} If any error occurs while retrieving the users.
+ * @async
+ * @function GetAllUsers
+ * @param {Object} _ - Unused parent resolver argument (GraphQL convention).
+ * @param {Object} args - Arguments passed to the resolver (not used in this query).
+ * @returns {Promise<Array<Object>>} A list of active user documents.
+ * @throws {ApolloError} If the database query fails.
  */
 async function GetAllUsers(_, args) {
   try {
@@ -76,16 +79,14 @@ async function CreateUser(_, { input }) {
     // *************** Validate required input
     ValidateUserInput(input);
 
-    const { civility, first_name, last_name, email, password, role } = input;
-
     // *************** Create a new User instance
     const createUser = UserModel.create({
-      civility,
-      first_name,
-      last_name,
-      email,
-      password,
-      role: role || 'operator',
+      civility: input.civility,
+      first_name: input.first_name,
+      last_name: input.last_name,
+      email: input.email,
+      password: input.password,
+      role: input.role || 'operator',
       status: 'active',
     });
 
@@ -113,16 +114,14 @@ async function UpdateUser(_, { _id, input }) {
     // *************** Validate required input
     ValidateUserInput(input);
 
-    const { civility, first_name, last_name, email, password, role } = input;
-
     // *************** Prepare object for dynamic updates
     const updateFields = {
-      civility,
-      first_name,
-      last_name,
-      email,
-      password,
-      role,
+      civility: input.civility,
+      first_name: input.first_name,
+      last_name: input.last_name,
+      email: input.email,
+      password: input.password,
+      role: input.role,
     };
 
     // *************** Update the user data if active
@@ -159,9 +158,12 @@ async function DeleteUser(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'User ID');
 
     // *************** Find the User with the given ID and "active" status, then update it to "deleted"
-    const deletedUser = await UserModel.findByIdAndUpdate(_id, {
-      $set: { status: 'deleted', deleted_at: new Date() },
-    });
+    const deletedUser = await UserModel.findOneAndUpdate(
+      { _id, status: 'active' },
+      {
+        $set: { status: 'deleted', deleted_at: new Date() },
+      }
+    );
 
     // *************** Handle case if User not found or already deleted
     if (!deletedUser) {

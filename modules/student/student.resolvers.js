@@ -27,7 +27,10 @@ async function GetOneStudent(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Student ID');
 
     // *************** Find student by ID and check if status is active
-    const student = await StudentModel.findById(_id).lean();
+    const student = await StudentModel.findOne({
+      _id: _id,
+      status: 'active',
+    }).lean();
 
     // *************** Handle case if School not found or already deleted
     if (!student) {
@@ -47,9 +50,15 @@ async function GetOneStudent(_, { _id }) {
 /**
  * Retrieves all students with status "active".
  *
+ * This query fetches all students documents from the database that have a status of "active".
+ * It uses `.lean()` to return plain JavaScript objects for better performance.
+ *
  * @async
- * @function
- * @returns {Promise<Array<Object>>} A list of active student documents.
+ * @function GetAllStudents
+ * @param {Object} _ - Unused parent resolver argument (GraphQL convention).
+ * @param {Object} args - Arguments passed to the resolver (not used in this query).
+ * @returns {Promise<Array<Object>>} A list of active user documents.
+ * @throws {ApolloError} If the database query fails.
  */
 async function GetAllStudents(_, args) {
   try {
@@ -95,36 +104,23 @@ async function CreateStudent(_, { input }) {
     // *************** Validation input
     ValidateStudentInput(input);
 
-    // *************** Destructure input fields
-    const {
-      civility,
-      first_name,
-      last_name,
-      tele_phone,
-      email,
-      date_of_birth,
-      place_of_birth,
-      postal_code_of_birth,
-      school_id,
-    } = input;
-
     // *************** Create and save student to DB
     const createStudent = await StudentModel.create({
-      civility,
-      first_name,
-      last_name,
-      email,
-      tele_phone,
-      date_of_birth,
-      place_of_birth,
-      postal_code_of_birth,
-      school_id,
+      civility: input.civility,
+      first_name: input.first_name,
+      last_name: input.last_name,
+      email: input.email,
+      tele_phone: input.tele_phone,
+      date_of_birth: input.date_of_birth,
+      place_of_birth: input.place_of_birth,
+      postal_code_of_birth: input.postal_code_of_birth,
+      school_id: input.school_id,
       status: 'active',
     });
 
     // *************** Add student ID to associated school
     await SchoolModel.updateOne(
-      { _id: school_id },
+      { _id: input.school_id },
       { $push: { students: createStudent._id } }
     );
 
@@ -156,29 +152,16 @@ async function UpdateStudent(_, { _id, input }) {
     // *************** Validation input
     ValidateStudentInput(input);
 
-    // *************** Destructuring the input
-    const {
-      civility,
-      first_name,
-      last_name,
-      email,
-      tele_phone,
-      date_of_birth,
-      place_of_birth,
-      postal_code_of_birth,
-      school_id,
-    } = input;
-
     const updateFields = {
-      civility,
-      first_name,
-      last_name,
-      email,
-      tele_phone,
-      date_of_birth,
-      place_of_birth,
-      postal_code_of_birth,
-      school_id,
+      civility: input.civility,
+      first_name: input.first_name,
+      last_name: input.last_name,
+      email: input.email,
+      tele_phone: input.tele_phone,
+      date_of_birth: input.date_of_birth,
+      place_of_birth: input.place_of_birth,
+      postal_code_of_birth: input.postal_code_of_birth,
+      school_id: input.school_id,
     };
 
     // *************** Keep track of current school for relation update
@@ -250,9 +233,12 @@ async function DeleteStudent(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Student ID');
 
     // *************** Find and update student status to deleted
-    const deletedStudent = await StudentModel.findByIdAndUpdate(_id, {
-      $set: { status: 'deleted', deleted_at: new Date() },
-    });
+    const deletedStudent = await StudentModel.findOneAndUpdate(
+      { _id, status: 'active' },
+      {
+        $set: { status: 'deleted', deleted_at: new Date() },
+      }
+    );
 
     // *************** Handle if student not found
     if (!deletedStudent) {

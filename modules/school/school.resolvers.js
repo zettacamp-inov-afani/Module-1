@@ -24,7 +24,10 @@ async function GetOneSchool(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'School ID');
 
     // *************** Retrieve school with status 'active'
-    const school = await SchoolModel.findById(_id).lean();
+    const school = await SchoolModel.findOne({
+      _id: _id,
+      status: 'active',
+    }).lean();
 
     // *************** Handle case if School not found or already deleted
     if (!school) {
@@ -40,14 +43,17 @@ async function GetOneSchool(_, { _id }) {
 }
 
 /**
- * Retrieves all schools with status 'active'.
+ * Retrieves all School with status "active".
  *
- * @param {Object} _ - Unused parent argument (GraphQL resolver signature).
- * @param {Object} args - Unused arguments object.
+ * This query fetches all schools documents from the database that have a status of "active".
+ * It uses `.lean()` to return plain JavaScript objects for better performance.
  *
- * @returns {Promise<Array<Object>>} A promise that resolves to an array of active school objects.
- *
- * @throws {ApolloError} If any error occurs while retrieving the schools.
+ * @async
+ * @function GetAllSchool
+ * @param {Object} _ - Unused parent resolver argument (GraphQL convention).
+ * @param {Object} args - Arguments passed to the resolver (not used in this query).
+ * @returns {Promise<Array<Object>>} A list of active user documents.
+ * @throws {ApolloError} If the database query fails.
  */
 async function GetAllSchools(_, args) {
   try {
@@ -78,14 +84,11 @@ async function CreateSchool(_, { input }) {
     // *************** Validate required input
     ValidateSchoolInput(input);
 
-    // *************** Destructuring the input
-    const { long_name, short_name, addresses } = input;
-
     // *************** Create a new School instance
     const createSchool = await SchoolModel.create({
-      long_name,
-      short_name,
-      addresses,
+      long_name: input.long_name,
+      short_name: input.short_name,
+      addresses: input.addresses,
       status: 'active',
     });
 
@@ -117,8 +120,8 @@ async function UpdateSchool(_, { _id, input }) {
     const { long_name, short_name, addresses } = input;
 
     const updateFields = {
-      long_name: long_name.trim(),
-      short_name: short_name.trim(),
+      long_name,
+      short_name,
       addresses,
     };
 
@@ -156,9 +159,12 @@ async function DeleteSchool(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'School ID');
 
     // *************** Find the School with the given ID and "active" status, then update it to "deleted"
-    const deletedSchool = await SchoolModel.findByIdAndUpdate(_id, {
-      $set: { status: 'deleted', deleted_at: new Date() },
-    });
+    const deletedSchool = await SchoolModel.findOneAndUpdate(
+      { _id, status: 'active' },
+      {
+        $set: { status: 'deleted', deleted_at: new Date() },
+      }
+    );
 
     // *************** Handle case if School not found or already deleted
     if (!deletedSchool) {
