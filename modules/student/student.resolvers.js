@@ -165,8 +165,8 @@ async function UpdateStudent(_, { _id, input }) {
       );
     }
 
+    // *************** get the old school id
     const oldSchoolId = String(oldSchoolData.school_id);
-    const newSchoolId = String(input.school_id);
 
     // *************** Prepare update fields
     const updateFields = {
@@ -180,6 +180,9 @@ async function UpdateStudent(_, { _id, input }) {
       postal_code_of_birth: input.postal_code_of_birth,
       school_id: input.school_id,
     };
+
+    // *************** Get the new old school_id
+    const newSchoolId = String(input.school_id);
 
     // *************** Find and update active student
     const updatedStudent = await StudentModel.findOneAndUpdate(
