@@ -8,16 +8,18 @@ const SchoolModel = require('./school.model');
 const CommonValidator = require('../../utilities/validator');
 
 /**
- * Creates a DataLoader instance to batch and cache school lookups by ID.
+ * Creates a DataLoader instance to batch and cache school retrievals by ID.
  *
- * This function helps prevent the N+1 query problem by combining multiple
- * requests for schools into a single database query. It then maps each
- * requested ID to the corresponding school document in the correct order.
+ * This function returns a DataLoader that:
+ * - Validates incoming school IDs.
+ * - Fetches all matching school documents from the database.
+ * - Builds a dictionary to map each school by its ID.
+ * - Returns the schools in the same order as the requested IDs.
  *
- * @function
- * @returns {DataLoader<string, Object>} A DataLoader that loads School documents by their ID.
+ * Helps avoid N+1 problems when resolving school data in GraphQL.
  *
- *
+ * @function SchoolLoaders
+ * @returns {DataLoader<string, Object>} A DataLoader instance that loads schools by their ObjectId.
  */
 function SchoolLoaders() {
   // *************** Create new instance of DataLoader

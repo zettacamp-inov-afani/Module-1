@@ -13,6 +13,7 @@ const CommonValidator = require('../../utilities/validator');
 /**
  * Retrieve a single active user by their MongoDB ObjectId.
  *
+ * @function GetOneUser
  * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments object.
  * @param {string} args._id - User ID to look for.
@@ -68,6 +69,7 @@ async function GetAllUsers(_, args) {
 /**
  * Create a new user after validating the input.
  *
+ * @function CreateUser
  * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments containing user input.
  * @param {Object} args.input - User creation input data.
@@ -100,6 +102,7 @@ async function CreateUser(_, { input }) {
 /**
  * Update an existing active user with new data.
  *
+ * @function UpdateStudent
  * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments containing user input.
  * @param {Object} args.input - User update input data.
@@ -142,6 +145,7 @@ async function UpdateUser(_, { _id, input }) {
 /**
  * Soft delete a user by updating their status to "deleted" and setting a deleted_at timestamp.
  *
+ * @function DeleteUser
  * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments containing the user ID.
  * @param {string} args._id - The ID of the user to delete.

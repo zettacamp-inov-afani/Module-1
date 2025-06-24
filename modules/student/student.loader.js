@@ -8,12 +8,18 @@ const StudentModel = require('./student.model');
 const CommonValidator = require('../../utilities/validator');
 
 /**
- * Creates a DataLoader instance for batching and caching student lookups by ID.
+ * Creates a DataLoader instance to batch and cache student retrievals by ID.
  *
- * @param {Array<string>} studentIds - Array of student MongoDB ObjectIds.
- * @returns {DataLoader<string, Object|null>} A DataLoader instance to load students by ID.
+ * This function returns a new DataLoader that:
+ * - Validates incoming student IDs.
+ * - Fetches all matching student documents from the database.
+ * - Maps them by ID for efficient lookup.
+ * - Returns students in the same order as requested IDs.
  *
- * @throws {Error} If any of the provided IDs are invalid MongoDB ObjectIds.
+ * Used to prevent N+1 query problems in GraphQL resolvers when resolving related student data.
+ *
+ * @function StudentLoader
+ * @returns {DataLoader<string, Object>} A DataLoader instance that loads students by their ObjectId.
  */
 function StudentLoader() {
   // *************** Create new instance of DataLoader

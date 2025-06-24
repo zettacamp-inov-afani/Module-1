@@ -13,6 +13,7 @@ const CommonValidator = require('../../utilities/validator');
 /**
  * Get one school by ID, only if its status is active.
  *
+ * @function GetOneSchhol
  * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments object containing school ID.
  * @param {string} args._id - The ID of the school to retrieve.
@@ -73,6 +74,7 @@ async function GetAllSchools(_, args) {
 /**
  * Create a new school entry in the database.
  *
+ * @function CreateSchool
  * @param {object} _ - Unused (parent resolver).
  * @param {object} args
  * @param {object} args.input - School data to create.
@@ -102,6 +104,7 @@ async function CreateSchool(_, { input }) {
 /**
  * Update school data by ID if it's active.
  *
+ * @function UpdateSchool
  * @param {object} _ - Unused (parent resolver).
  * @param {object} args
  * @param {object} args.input - School update data.
@@ -148,6 +151,7 @@ async function UpdateSchool(_, { _id, input }) {
 /**
  * Soft deletes a school by marking its status as "deleted" and setting deleted_at timestamp.
  *
+ * @function DeleteSchool
  * @param {Object} _ - Parent resolver (unused).
  * @param {Object} args - Arguments object containing the school ID.
  * @returns {Promise<Object>} The soft-deleted school document.

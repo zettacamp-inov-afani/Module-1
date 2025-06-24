@@ -15,7 +15,7 @@ const ValidateStudentInput = require('./student.validator');
  * Retrieves a single student by ID
  *
  * @async
- * @function
+ * @function GetOneStudent
  * @param {Object} _ - Unused parent resolver argument.
  * @param {Object} args - Arguments passed to the query.
  * @param {string} args.id - The ID of the student to retrieve.
@@ -138,6 +138,7 @@ async function CreateStudent(_, { input }) {
  * This function allows dynamic field updates — only fields sent in the input will be updated.
  * It also handles validation, ensures student exists, and updates related school's student reference if needed.
  *
+ * @function UpdateStudent
  * @param {Object} _ - GraphQL parent resolver (unused).
  * @param {Object} args - Arguments containing input.
  * @param {Object} args.input - The input object containing fields to update.
@@ -221,7 +222,7 @@ async function UpdateStudent(_, { _id, input }) {
  *
  *
  * @async
- * @function
+ * @function DeleteStudent
  * @param {Object} _ - Unused parent resolver argument.
  * @param {Object} args - Arguments for the mutation.
  * @param {string} args.id - The ID of the student to soft delete.
