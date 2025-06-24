@@ -195,6 +195,7 @@ async function UpdateStudent(_, { _id, input }) {
 
     // *************** Get the old school id
     const oldSchoolId = String(oldSchoolData.school_id);
+
     // *************** Get the new updated school_id
     const newSchoolId = String(input.school_id);
 
