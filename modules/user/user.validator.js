@@ -13,7 +13,7 @@ const allowedRoles = ['operator', 'acadir', 'student'];
  *
  * @throws {ApolloError} If any required field is missing or invalid.
  */
-function ValidateUserInput(input) {
+function ValidateUserInput(input, updateFields = false) {
   // *************** Check input validity
   if (!input || typeof input !== 'object') {
     throw new ApolloError(
@@ -55,11 +55,13 @@ function ValidateUserInput(input) {
   }
 
   // *************** Password validation
-  if (typeof input.password !== 'string' || input.password.length < 6) {
-    throw new ApolloError(
-      'Password must be at least 6 characters long.',
-      'INVALID_PASSWORD'
-    );
+  if (!updateFields) {
+    if (typeof input.password !== 'string' || input.password.length < 6) {
+      throw new ApolloError(
+        'Password must be at least 6 characters long.',
+        'INVALID_PASSWORD'
+      );
+    }
   }
 
   // *************** Role validation

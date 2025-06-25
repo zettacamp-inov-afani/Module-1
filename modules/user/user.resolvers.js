@@ -115,7 +115,7 @@ async function UpdateUser(_, { _id, input }) {
     CommonValidator.ValidateObjectId(_id, 'User ID');
 
     // *************** Validate required input
-    ValidateUserInput(input);
+    ValidateUserInput(input, true);
 
     // *************** Prepare object for dynamic updates
     const updateFields = {
@@ -123,7 +123,6 @@ async function UpdateUser(_, { _id, input }) {
       first_name: input.first_name,
       last_name: input.last_name,
       email: input.email,
-      password: input.password,
       role: input.role,
     };
 
