@@ -1,0 +1,55 @@
+// *************** IMPORT LIBRARY ***************
+const { gql } = require('apollo-server-express');
+
+// *************** QUERY ***************
+const UserTypeDefs = gql`
+  scalar Date
+
+  enum Civility {
+    Mr
+    Mrs
+  }
+
+  type User {
+    _id: ID!
+    civility: Civility!
+    first_name: String!
+    last_name: String!
+    email: String!
+    password: String!
+    role: String!
+    status: String!
+    deleted_at: Date
+  }
+
+  input CreateUserInput {
+    civility: Civility!
+    first_name: String!
+    last_name: String!
+    email: String!
+    password: String!
+    role: String!
+  }
+
+  input UpdateUserInput {
+    civility: Civility!
+    first_name: String!
+    last_name: String!
+    email: String!
+    role: String!
+  }
+
+  type Query {
+    GetAllUsers: [User!]!
+    GetOneUser(_id: ID!): User
+  }
+
+  type Mutation {
+    CreateUser(input: CreateUserInput!): User
+    UpdateUser(_id: ID!, input: UpdateUserInput!): User
+    DeleteUser(_id: ID!): ID!
+  }
+`;
+
+// *************** EXPORT MODULE ***************
+module.exports = UserTypeDefs;
