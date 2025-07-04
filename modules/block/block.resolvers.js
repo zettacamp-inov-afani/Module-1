@@ -1,5 +1,5 @@
 // *************** IMPORT LIBRARY ***************
-const { ApolloError, delegateToSchema } = require('apollo-server-express');
+const { ApolloError } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
 const BlockModel = require('./block.model');
@@ -154,6 +154,43 @@ async function UpdateBlock(_, { _id, input }) {
   }
 }
 
+/**
+ * DeleteBlock resolver to soft-delete a Block by updating its status to 'deleted'.
+ *
+ * @param {object} _ - Unused parent resolver argument, required by GraphQL resolver signature.
+ * @param {object} args - Arguments object containing the _id of the Block to delete.
+ * @param {string} args._id - The MongoDB ObjectId of the Block to soft-delete.
+ * @returns {Promise<string>} - A Promise that resolves to the _id of the deleted Block.
+ *
+ * @throws {ApolloError} - Throws BLOCK_NOT_FOUND if no active Block is found with the given _id.
+ * @throws {ApolloError} - Throws a generic ApolloError if deletion fails.
+ */
+async function DeleteBlock(_, { _id }) {
+  try {
+    // *************** Validate required input field
+    CommonValidator.ValidateObjectId(_id, 'Block ID');
+
+    // *************** Find the Block with the given ID and "active" status, then update it to "deleted"
+    const deletedBlock = await BlockModel.findOneAndUpdate(
+      { _id, status: 'active' },
+      { $set: { status: 'deleted', deleted_at: new Date() } }
+    );
+
+    // *************** Handle case if School not found or already deleted
+    if (!deletedBlock) {
+      throw new ApolloError(
+        'Block not found or already deleted.',
+        'BLOCK_NOT_FOUND'
+      );
+    }
+
+    // *************** Return the _id
+    return _id;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
 module.exports = {
   Query: {
     GetOneBlock,
@@ -162,5 +199,6 @@ module.exports = {
   Mutation: {
     CreateBlock,
     UpdateBlock,
+    DeleteBlock,
   },
 };
