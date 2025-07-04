@@ -1,31 +1,43 @@
 // *************** IMPORT LIBRARY ***************
 const mongoose = require('mongoose');
 
-const BlockSchema = new mongoose.Schema(
+const SubjectSchema = new mongoose.Schema(
   {
-    // Name of the block
+    // Name of the subject
     name: { type: String, required: true, unique: true },
 
-    // Description of the block
+    // Description of the subject
     description: { type: String, required: true, unique: true },
 
-    // Subject reference
-    subjects: [
+    // Coefficient of the subject
+    coefficient: { type: Number, required: true, min: 0 },
+
+    // Block reference
+    block: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'subject',
+        ref: 'block',
         required: true,
       },
     ],
 
-    // Block status
-    block_status: {
+    // Tests reference
+    tests: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'test',
+        required: true,
+      },
+    ],
+
+    // Subject status
+    subject_status: {
       type: String,
       enum: ['active', 'deleted'],
       default: 'active',
     },
 
-    // Block's delete_at detail
+    // Subject's delete_at detail
     delete_at: { type: Date, default: null },
   },
   {
@@ -37,4 +49,4 @@ const BlockSchema = new mongoose.Schema(
 );
 
 // *************** EXPORT MODULE ***************
-module.exports = mongoose.model('block', BlockSchema);
+module.exports = mongoose.model('subject', SubjectSchema);
