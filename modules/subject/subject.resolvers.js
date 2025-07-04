@@ -110,7 +110,7 @@ async function CreateSubject(_, { input }) {
     // *************** Add the new subject's ID to the corresponding Block's `subjects` array
     await BlockModel.updateOne(
       { block_id: input.block_id },
-      { $addToSet: { subjects: createSubject._id } }
+      { $addToSet: { subject_ids: createSubject._id } }
     );
 
     // *************** return the result
@@ -174,6 +174,49 @@ async function UpdateSubject(_, { _id, input }) {
     throw new ApolloError(error.message);
   }
 }
+
+/**
+ * Soft deletes a subject by setting its status to 'deleted' and recording the deletion timestamp.
+ *
+ * @async
+ * @function DeleteSubject
+ * @param {Object} _ - Unused parent resolver argument (ignored).
+ * @param {Object} args - GraphQL resolver arguments.
+ * @param {string} args._id - The ID of the subject to delete.
+ * @returns {Promise<string>} The ID of the deleted subject.
+ * @throws {ApolloError} Throws if the subject ID is invalid, subject not found, or update fails.
+ */
+async function DeleteSubject(_, { _id }) {
+  try {
+    // *************** Validate required input field
+    CommonValidator.ValidateObjectId(_id, 'Subject ID');
+
+    // *************** Find the Subject with the given ID and "active" status, then update it to "deleted"
+    const deletedSubject = await SubjectModel.findOneAndUpdate(
+      { _id, status: 'active' },
+      { $set: { status: 'deleted', deleted_at: new Date() } }
+    );
+
+    // *************** Delete subject from relate block
+    await BlockModel.updateOne(
+      { block_id: input.block_id },
+      { $pull: { stubject_ids: _id } }
+    );
+
+    // *************** Handle case if Subject not found or already deleted
+    if (!deletedSubject) {
+      throw new ApolloError(
+        'Subject not found or already deleted.',
+        'SUBJECT_NOT_FOUND'
+      );
+    }
+
+    // *************** Return the _id
+    return _id;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
@@ -183,5 +226,6 @@ module.exports = {
   Mutation: {
     CreateSubject,
     UpdateSubject,
+    DeleteSubject,
   },
 };
