@@ -67,7 +67,7 @@ async function GetAllSubjects(_, args) {
       status: 'active',
     }).lean();
 
-    // *************** Return the result
+    // *************** return the result
     return subjects;
   } catch (error) {
     throw new ApolloError(error.message);
