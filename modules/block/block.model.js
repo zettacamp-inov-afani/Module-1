@@ -10,7 +10,7 @@ const BlockSchema = new mongoose.Schema(
     description: { type: String, required: true, unique: true },
 
     // Subject reference
-    subjects: [
+    subject_ids: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'subject',

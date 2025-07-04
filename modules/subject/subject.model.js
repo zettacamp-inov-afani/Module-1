@@ -13,7 +13,7 @@ const SubjectSchema = new mongoose.Schema(
     coefficient: { type: Number, required: true, min: 0 },
 
     // Block reference
-    block: [
+    block_id: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'block',
@@ -22,7 +22,7 @@ const SubjectSchema = new mongoose.Schema(
     ],
 
     // Tests reference
-    tests: [
+    test_ids: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'test',

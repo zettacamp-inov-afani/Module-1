@@ -5,7 +5,7 @@ const { ApolloError } = require('apollo-server-express');
 const SubjectModel = require('./subject.model');
 
 // *************** IMPORT VALIDATORS ***************
-const ValidateBlockInput = require('./subject.validator');
+const ValidateSubjectInput = require('./subject.validator');
 const CommonValidator = require('../../utilities/validator');
 const { Query } = require('mongoose');
 
@@ -74,10 +74,114 @@ async function GetAllSubjects(_, args) {
   }
 }
 
+// *************** MUTATION ***************
+
+/**
+ * Creates a new subject and updates the corresponding Block to include the subject's ID.
+ *
+ * @async
+ * @function CreateSubject
+ * @param {Object} _ - Unused parent resolver argument (ignored).
+ * @param {Object} args - GraphQL resolver arguments.
+ * @param {Object} args.input - Input data for the new subject.
+ * @param {string} args.input.name - Name of the subject.
+ * @param {string} [args.input.description] - Optional description of the subject.
+ * @param {number} args.input.coefficient - Coefficient value (must be >= 0).
+ * @param {string} args.input.block_id - The ID of the Block to associate this subject with.
+ * @param {string[]} [args.input.test_ids] - Optional array of related Test IDs.
+ * @returns {Promise<Object>} The newly created subject document.
+ * @throws {ApolloError} Throws an error if validation or database operations fail.
+ *
+ */
+async function CreateSubject(_, { input }) {
+  try {
+    // *************** Validate required input
+    ValidateSubjectInput(input);
+
+    // *************** Create a new Subject instance
+    const createSubject = await SubjectModel.create({
+      name: input.name,
+      description: input.description,
+      coefficient: input.coefficient,
+      block_id: input.block_id,
+      test_ids: input.test_ids,
+    });
+
+    // *************** Add the new subject's ID to the corresponding Block's `subjects` array
+    await BlockModel.updateOne(
+      { block_id: input.block_id },
+      { $addToSet: { subjects: createSubject._id } }
+    );
+
+    // *************** return the result
+    return createSubject;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
+/**
+ * Updates an existing subject with the provided input fields.
+ *
+ * @async
+ * @function UpdateSubject
+ * @param {Object} _ - Unused parent resolver argument (ignored).
+ * @param {Object} args - GraphQL resolver arguments.
+ * @param {string} args._id - The ID of the subject to update.
+ * @param {Object} args.input - Updated subject data.
+ * @param {string} args.input.name - Updated name of the subject.
+ * @param {string} [args.input.description] - Updated description of the subject (optional).
+ * @param {number} args.input.coefficient - Updated coefficient (must be ≥ 0).
+ * @param {string} args.input.block_id - The ID of the associated Block.
+ * @param {string[]} [args.input.test_ids] - Updated array of associated Test IDs (optional).
+ * @returns {Promise<Object>} The updated subject document.
+ * @throws {ApolloError} Throws if subject ID is invalid, subject not found, or update fails.
+ */
+async function UpdateSubject(_, { _id, input }) {
+  try {
+    // *************** Validate subject ID (must be valid MongoDB ObjectId)
+    CommonValidator.ValidateObjectId(_id, 'Subject ID');
+
+    // *************** Validate subject input
+    ValidateSubjectInput(input);
+
+    const updateFields = {
+      name: input.name,
+      description: input.description,
+      coefficient: input.coefficient,
+      block_id: input.block_id,
+      test_ids: input.test_ids,
+    };
+
+    // *************** Update the subject data if active
+    const updatedSubject = await SubjectModel.findOneAndUpdate(
+      { _id: _id, status: 'active' },
+      { $set: updateFields },
+      { new: true }
+    ).lean();
+
+    // *************** Handle case if Subject not found or already deleted
+    if (!updatedSubject) {
+      throw new ApolloError(
+        'Subject not found or already deleted.',
+        'SUBJECT_NOT_FOUND'
+      );
+    }
+
+    // *************** Return the updated data
+    return updatedSubject;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
     GetOneSubject,
     GetAllSubjects,
+  },
+  Mutation: {
+    CreateSubject,
+    UpdateSubject,
   },
 };

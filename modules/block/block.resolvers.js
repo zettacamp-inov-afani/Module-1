@@ -191,6 +191,7 @@ async function DeleteBlock(_, { _id }) {
   }
 }
 
+// *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
     GetOneBlock,
