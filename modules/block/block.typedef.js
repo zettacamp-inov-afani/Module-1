@@ -43,3 +43,6 @@ const BlockTypeDefs = gql`
     DeleteBlock(_id: ID!): ID!
   }
 `;
+
+// *************** EXPORT MODULE ***************
+module.exports = BlockTypeDefs;
