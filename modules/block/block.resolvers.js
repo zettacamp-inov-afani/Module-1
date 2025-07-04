@@ -1,5 +1,5 @@
 // *************** IMPORT LIBRARY ***************
-const { ApolloError } = require('apollo-server-express');
+const { ApolloError, delegateToSchema } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
 const BlockModel = require('./block.model');
@@ -7,7 +7,6 @@ const BlockModel = require('./block.model');
 // *************** IMPORT VALIDATORS ***************
 const ValidateBlockInput = require('./block.validator');
 const CommonValidator = require('../../utilities/validator');
-const { Query } = require('mongoose');
 
 // *************** QUERY ***************
 
@@ -41,6 +40,7 @@ async function GetOneBlock(_, { _id }) {
       );
     }
 
+    // *************** return the result
     return block;
   } catch (error) {
     throw new ApolloError(error.message);
@@ -63,7 +63,43 @@ async function GetAllBlocks(_, args) {
       status: 'active',
     }).lean();
 
+    // *************** return the result
     return blocks;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
+// *************** MUTATION ***************
+
+/**
+ * CreateBlock resolver to create a new Block document with the provided input.
+ *
+ * @param {object} _ - Unused parent resolver argument, required by GraphQL resolver signature.
+ * @param {object} args - The arguments object containing input for the new Block.
+ * @param {object} args.input - The input data to create the Block.
+ * @param {string} args.input.name - The name of the Block.
+ * @param {string} args.input.description - The description of the Block.
+ * @param {string[]} args.input.subject_ids - An array of Subject IDs associated with the Block.
+ * @returns {Promise<object>} - A Promise that resolves to the newly created Block document.
+ *
+ * @throws {ApolloError} - Throws an ApolloError if validation fails or creation encounters an error.
+ */
+async function CreateBlock(_, { input }) {
+  try {
+    // *************** Validate required input
+    ValidateBlockInput(input);
+
+    // *************** Create a new Block instance
+    const createBlock = await BlockModel.create({
+      name: input.name,
+      description: input.description,
+      subject_ids: input.subject_ids,
+      block_status: 'active',
+    });
+
+    // *************** return the result
+    return createBlock;
   } catch (error) {
     throw new ApolloError(error.message);
   }
@@ -73,5 +109,8 @@ module.exports = {
   Query: {
     GetOneBlock,
     GetAllBlocks,
+  },
+  Mutation: {
+    CreateBlock,
   },
 };
