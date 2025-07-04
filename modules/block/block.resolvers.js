@@ -105,6 +105,55 @@ async function CreateBlock(_, { input }) {
   }
 }
 
+/**
+ * UpdateBlock resolver to update an existing active Block document by its _id.
+ *
+ * @param {object} _ - Unused parent resolver argument, required by GraphQL resolver signature.
+ * @param {object} args - Arguments object containing the _id of the Block and input fields to update.
+ * @param {string} args._id - The MongoDB ObjectId of the Block to update.
+ * @param {object} args.input - The input fields for updating the Block.
+ * @param {string} args.input.name - The updated name of the Block.
+ * @param {string} args.input.description - The updated description of the Block.
+ * @param {string[]} args.input.subject_ids - The updated array of Subject IDs.
+ * @returns {Promise<object>} - A Promise that resolves to the updated Block document.
+ *
+ * @throws {ApolloError} - Throws BLOCK_NOT_FOUND if no active Block is found with the given _id.
+ * @throws {ApolloError} - Throws a generic ApolloError if validation or update fails.
+ */
+async function UpdateBlock(_, { _id, input }) {
+  try {
+    // *************** Validate Block ID (must be valid MongoDB ObjectId)
+    CommonValidator.ValidateObjectId(_id, 'Block ID');
+
+    // *************** Validate block input
+    ValidateBlockInput(input);
+
+    const updateFields = {
+      name: input.name,
+      description: input.description,
+      subject_ids: input.subject_ids,
+    };
+
+    const updatedBlock = await BlockModel.findOneAndUpdate(
+      { _id: _id, status: 'active' },
+      { $set: updateFields },
+      { new: true }
+    ).lean();
+
+    // *************** Handle case if Block not found or already deleted
+    if (!updatedBlock) {
+      throw new ApolloError(
+        'Block not found or already deleted.',
+        'BLOCK_NOT_FOUND'
+      );
+    }
+
+    return updatedBlock;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
 module.exports = {
   Query: {
     GetOneBlock,
@@ -112,5 +161,6 @@ module.exports = {
   },
   Mutation: {
     CreateBlock,
+    UpdateBlock,
   },
 };
