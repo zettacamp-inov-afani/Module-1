@@ -27,7 +27,7 @@ async function GetOneBlock(_, { _id }) {
     // *************** Find block by ID and check if status is active
     const block = await BlockModel.findOne({
       _id: _id,
-      status: 'active',
+      block_status: 'active',
     }).lean();
 
     // *************** Handle case if Block not found or already deleted
@@ -55,7 +55,7 @@ async function GetAllBlocks() {
   try {
     // *************** Retrieve all blocks with status 'active'
     const blocks = await BlockModel.find({
-      status: 'active',
+      block_status: 'active',
     }).lean();
 
     // *************** return the result
@@ -128,7 +128,7 @@ async function UpdateBlock(_, { _id, input }) {
     };
 
     const updatedBlock = await BlockModel.findOneAndUpdate(
-      { _id: _id, status: 'active' },
+      { _id: _id, block_status: 'active' },
       { $set: updateFields },
       { new: true }
     ).lean();
@@ -164,8 +164,8 @@ async function DeleteBlock(_, { _id }) {
 
     // *************** Find the Block with the given ID and "active" status, then update it to "deleted"
     const deletedBlock = await BlockModel.findOneAndUpdate(
-      { _id, status: 'active' },
-      { $set: { status: 'deleted', deleted_at: new Date() } }
+      { _id, block_status: 'active' },
+      { $set: { block_status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Handle case if School not found or already deleted

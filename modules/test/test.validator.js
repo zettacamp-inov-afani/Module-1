@@ -94,7 +94,7 @@ function ValidateTestInput(input) {
 
 function ValidatePublishTestInput(input) {
   // *************** Validate that user_id is provided
-  if (!input?.user_id) {
+  if (!input || !input.user_id) {
     throw new ApolloError('User ID is required.', 'USER_ID_REQUIRED');
   }
 

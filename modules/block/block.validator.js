@@ -33,7 +33,7 @@ function ValidateBlockInput(input) {
   }
 
   // *************** Validate subject_ids
-  CommonValidator.ValidateObjectId(input.subject_id, 'Subject ID');
+  CommonValidator.ValidateObjectId(input.subject_ids, 'Subject ID');
 }
 
 // *************** EXPORT MODULE ***************

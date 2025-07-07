@@ -13,13 +13,11 @@ const SubjectSchema = new mongoose.Schema(
     coefficient: { type: Number, required: true, min: 0 },
 
     // Block reference of Subject
-    block_id: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'block',
-        required: true,
-      },
-    ],
+    block_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'block',
+      required: true,
+    },
 
     // Tests reference of Subject
     test_ids: [
@@ -38,7 +36,7 @@ const SubjectSchema = new mongoose.Schema(
     },
 
     // Subject's delete_at detail
-    delete_at: { type: Date, default: null },
+    deleted_at: { type: Date, default: null },
   },
   {
     timestamps: {

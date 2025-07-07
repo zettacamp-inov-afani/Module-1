@@ -24,13 +24,11 @@ const TestSchema = new mongoose.Schema(
     published_date: { type: Date, default: null },
 
     // Subject reference of test
-    subject_id: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'subject',
-        required: true,
-      },
-    ],
+    subject_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'subject',
+      required: true,
+    },
 
     // Test status
     test_status: {
@@ -40,7 +38,7 @@ const TestSchema = new mongoose.Schema(
     },
 
     // Test's delete_at detail
-    delete_at: { type: Date, default: null },
+    deleted_at: { type: Date, default: null },
   },
   {
     timestamps: {

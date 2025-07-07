@@ -47,8 +47,15 @@ function ValidateSubjectInput(input) {
   // *************** Validate block_id
   CommonValidator.ValidateObjectId(input.block_id, 'Block ID');
 
-  // *************** Validate test_ids
-  CommonValidator.ValidateObjectId(input.test_ids, 'Test ID');
+  if (input.test_ids) {
+    if (!Array.isArray(input.test_ids)) {
+      throw new ApolloError('test_ids must be an array.', 'INVALID_TEST_IDS');
+    }
+
+    input.test_ids.forEach((id, index) => {
+      CommonValidator.ValidateObjectId(id, `Test ID at index ${index}`);
+    });
+  }
 }
 
 // *************** EXPORT MODULE ***************

@@ -7,7 +7,6 @@ const SubjectModel = require('./subject.model');
 // *************** IMPORT VALIDATOR ***************
 const ValidateSubjectInput = require('./subject.validator');
 const CommonValidator = require('../../utilities/validator');
-const { Query } = require('mongoose');
 
 // *************** QUERY ***************
 
@@ -30,7 +29,7 @@ async function GetOneSubject(_, { _id }) {
     // *************** Find subject by ID and check if status is active
     const subject = await SubjectModel.findOne({
       _id: _id,
-      status: 'active',
+      subject_status: 'active',
     }).lean();
 
     // *************** Handle case if Subject not found or already deleted
@@ -61,7 +60,7 @@ async function GetAllSubjects() {
   try {
     // *************** Retrieve all subjects with status 'active'
     const subjects = await SubjectModel.find({
-      status: 'active',
+      subject_status: 'active',
     }).lean();
 
     // *************** return the result
@@ -105,7 +104,7 @@ async function CreateSubject(_, { input }) {
 
     // *************** Add the new subject's ID to the corresponding Block's `subjects` array
     await BlockModel.updateOne(
-      { block_id: input.block_id },
+      { _id: input.block_id },
       { $addToSet: { subject_ids: createSubject._id } }
     );
 
@@ -150,7 +149,7 @@ async function UpdateSubject(_, { _id, input }) {
 
     // *************** Update the subject data if active
     const updatedSubject = await SubjectModel.findOneAndUpdate(
-      { _id: _id, status: 'active' },
+      { _id: _id, subject_status: 'active' },
       { $set: updateFields },
       { new: true }
     ).lean();
@@ -185,8 +184,8 @@ async function DeleteSubject(_, { _id }) {
 
     // *************** Find the Subject with the given ID and "active" status, then update it to "deleted"
     const deletedSubject = await SubjectModel.findOneAndUpdate(
-      { _id, status: 'active' },
-      { $set: { status: 'deleted', deleted_at: new Date() } }
+      { _id, subject_status: 'active' },
+      { $set: { subject_status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Handle case if Subject not found or already deleted

@@ -48,15 +48,15 @@ const TaskTypeDefs = gql`
   }
 
   type Query {
-  GetOneTask(_id: ID!): Task
-  GetAllTasks: [Task!]!
+    GetOneTask(_id: ID!): Task
+    GetAllTasks: [Task!]!
   }
 
   type Mutation {
-  CreateTask(input: CreateTaskInput!): Task!
-  UpdateTask(_id: ID!, inputL UpdateTaskInput!): Task!
-  AssignCorrector(_id: ID!, input: AssignCorrectorInput!): Task!
-  Deletetask(_id: ID!): ID!
+    CreateTask(input: CreateTaskInput!): Task!
+    UpdateTask(_id: ID!, input: UpdateTaskInput!): Task!
+    AssignCorrector(_id: ID!, input: AssignCorrectorInput!): Task!
+    Deletetask(_id: ID!): ID!
   }
 `;
 

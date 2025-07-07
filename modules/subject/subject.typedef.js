@@ -12,7 +12,7 @@ const SubjectTypeDefs = gql`
     name: String!
     description: String!
     coefficient: Int!
-    subject_status: EnumSubjecttStatus!
+    subject_status: EnumSubjectStatus!
     block_id: Block!
     test_ids: [Test!]
     created_at: Date!

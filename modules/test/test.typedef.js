@@ -48,7 +48,7 @@ const TestTypeDefs = gql`
   }
 
   type Query {
-    GetOneTest(_iid: ID!): Test
+    GetOneTest(_id: ID!): Test
     GetAllTests: [Test!]!
   }
 

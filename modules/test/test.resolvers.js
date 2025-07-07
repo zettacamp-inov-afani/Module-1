@@ -2,7 +2,7 @@
 const { ApolloError } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
-const TesttModel = require('./test.model');
+const TestModel = require('./test.model');
 const TaskModel = require('../task/task.model');
 const UserModel = require('../user/user.model');
 
@@ -27,13 +27,13 @@ async function GetOneTest(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Test ID');
 
     // *************** Find test by ID and check if status is active
-    const test = await TesttModel.findOne({
+    const test = await TestModel.findOne({
       _id: _id,
-      status: 'active',
+      test_status: 'active',
     }).lean();
 
     // *************** Handle case if Test not found or already deleted
-    if (!subject) {
+    if (!test) {
       throw new ApolloError(
         'Test not found or already deleted.',
         'TEST_NOT_FOUND'
@@ -55,8 +55,8 @@ async function GetOneTest(_, { _id }) {
 async function GetAllTests() {
   try {
     // *************** Retrieve all tests with status 'active'
-    const tests = await TesttModel.find({
-      status: 'activve',
+    const tests = await TestModel.find({
+      test_status: 'active',
     }).lean();
 
     // *************** return the result
@@ -87,17 +87,17 @@ async function CreateTest(_, { input }) {
     ValidateTestInput(input);
 
     // *************** Create a new Test instance
-    const createTest = await TesttModel.create({
+    const createTest = await TestModel.create({
       name: input.name,
       description: input.description,
       weight: input.weight,
-      notation: input.notation,
+      notations: input.notations,
       subject_id: input.subject_id,
     });
 
     // *************** Add the new test's ID to the corresponding Subject `tests` array
     await SubjectModel.updateOne(
-      { subject_id: input.subject_id },
+      { _id: input.subject_id },
       { $addToSet: { test_ids: createSubject._id } }
     );
 
@@ -138,8 +138,8 @@ async function UpdateTest(_, { _id, input }) {
     };
 
     // *************** Update the test data if active
-    const updatedTest = await TesttModel.findOneAndUpdate(
-      { _id: _id, status: 'active' },
+    const updatedTest = await TestModel.findOneAndUpdate(
+      { _id: _id, test_status: 'active' },
       { $set: updateFields },
       { new: true }
     ).lean();
@@ -186,7 +186,7 @@ async function PublishTest(_, { _id, input }) {
 
     // *************** Update the Test document with published_date
     const publishTest = await TestModel.updateOne(
-      { _id: _id, status: 'active' },
+      { _id: _id, test_status: 'active' },
       { $set: { published_date: new Date() } }
     );
 
@@ -226,8 +226,8 @@ async function DeleteTest(_, { _id }) {
 
     // *************** Find the Test with the given ID and "active" status, then update it to "deleted"
     const deletedTest = await TestModel.findOneAndUpdate(
-      { _id, status: 'active' },
-      { $set: { status: 'deleted', deleted_at: new Date() } }
+      { _id, test_status: 'active' },
+      { $set: { test_status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Handle case if Test not found or already deleted
@@ -240,7 +240,7 @@ async function DeleteTest(_, { _id }) {
 
     // *************** Delete test from relate subject
     await SubjectModel.updateOne(
-      { subject_id: deletedTest.subject_id },
+      { _id: deletedTest.subject_id },
       { $pull: { test_ids: _id } }
     );
 
