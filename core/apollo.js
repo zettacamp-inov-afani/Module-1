@@ -31,7 +31,7 @@ async function CreateApolloServer() {
       }),
     });
   } catch (error) {
-    throw new ApolloError('Server not starting', 'SERVER_FAIL');
+    throw new ApolloError(error.message, 'SERVER_FAIL');
   }
 }
 

@@ -55,6 +55,7 @@ const TestTypeDefs = gql`
   type Mutation {
     CreateTest(input: CreateTestInput!): Test!
     UpdateTest(_id: ID!, input: UpdateTestInput!): Test!
+    PublishTest(_id: ID!, input: AssignCorrectorInput!): ID!
     DeleteTest(_id: ID!): ID!
   }
 `;
