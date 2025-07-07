@@ -23,7 +23,7 @@ const TestSchema = new mongoose.Schema(
     // Set the published date
     published_date: { type: Date, default: null },
 
-    // Subject reference
+    // Subject reference of test
     subject_id: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -49,3 +49,6 @@ const TestSchema = new mongoose.Schema(
     },
   }
 );
+
+// *************** EXPORT MODULE ***************
+module.exports = mongoose.model('test', TestSchema);

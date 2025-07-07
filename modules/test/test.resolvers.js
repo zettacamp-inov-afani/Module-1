@@ -3,9 +3,12 @@ const { ApolloError } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
 const TesttModel = require('./test.model');
+const TaskModel = require('../task/task.model');
+const UserModel = require('../user/user.model');
 
 // *************** IMPORT VALIDATOR ***************
 const ValidateTestInput = require('./test.validator');
+const ValidatePublishTestInput = require('./test.validator');
 const CommonValidator = require('../../utilities/validator');
 
 // *************** QUERY ***************
@@ -156,6 +159,59 @@ async function UpdateTest(_, { _id, input }) {
   }
 }
 
+/**
+ * Publishes a test by updating its published date and creating a task to assign a corrector.
+ *
+ * This function performs the following steps:
+ * 1. Validates the test ID.
+ * 2. Validates the input payload (e.g., user ID and optional due date).
+ * 3. Updates the test's `published_date` if it is currently active.
+ * 4. Creates an `assign_corrector` task linked to the test.
+ * 5. Returns the ID of the published test.
+ *
+ * Throws an ApolloError if any of the validation steps fail,
+ * if the test is not found or cannot be updated,
+ * or if the task creation fails.
+ *
+ * @returns {Object} An object containing the `id` of the published test.
+ * @throws {ApolloError} If validation fails or the update/task creation fails.
+ */
+async function PublishTest(_, { _id, input }) {
+  try {
+    // *************** Validate test ID (must be valid MongoDB ObjectId)
+    CommonValidator.ValidateObjectId(_id, 'Test ID');
+
+    // *************** Validate User ID
+    ValidatePublishTestInput(input);
+
+    // *************** Update the Test document with published_date
+    const publishTest = await TestModel.updateOne(
+      { _id: _id, status: 'active' },
+      { $set: { published_date: new Date() } }
+    );
+
+    // *************** Handle case when update did not affect any document
+    if (!publishTest || publishTest.modifiedCount === 0) {
+      throw new ApolloError('Failed to publish test', 'UPDATE_FAILED');
+    }
+
+    // *************** Create a Task to assign the corrector for the test
+    await TaskModel.create({
+      test_id: _id,
+      user_id: input.user_id,
+      task_type: 'assign_corrector',
+      task_status: 'in_progress',
+      due_date: input.due_date,
+    });
+
+    return { _id: _id };
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
+async function DeleteTest() {}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
@@ -165,5 +221,7 @@ module.exports = {
   Mutation: {
     CreateTest,
     UpdateTest,
+    PublishTest,
+    DeleteTest,
   },
 };

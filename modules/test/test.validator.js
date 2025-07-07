@@ -92,5 +92,26 @@ function ValidateTestInput(input) {
   CommonValidator.ValidateObjectId(input.subject_id, 'Subject ID');
 }
 
+function ValidatePublishTestInput(input) {
+  // *************** Validate that user_id is provided
+  if (!input?.user_id) {
+    throw new ApolloError('User ID is required.', 'USER_ID_REQUIRED');
+  }
+
+  // *************** Validate that user_id is a valid MongoDB ObjectId
+  CommonValidator.ValidateObjectId(input.user_id, 'User ID');
+
+  // *************** Validate due_date if provided (optional)
+  if (input.due_date) {
+    const parsedDate = new Date(input.due_date);
+    if (isNaN(parsedDate)) {
+      throw new ApolloError(
+        'due_date must be a valid date.',
+        'INVALID_DUE_DATE'
+      );
+    }
+  }
+}
+
 // *************** EXPORT MODULE ***************
-module.exports = ValidateTestInput;
+module.exports = { ValidateTestInput, ValidatePublishTestInput };
