@@ -1,7 +1,7 @@
 // *************** IMPORT CORE ***************
 const { ApolloError } = require('apollo-server-express');
 
-// *************** IMPORT VALIDATORS ***************
+// *************** IMPORT VALIDATOR ***************
 const CommonValidator = require('../../utilities/validator');
 
 function ValidateSubjectInput(input) {
@@ -9,7 +9,7 @@ function ValidateSubjectInput(input) {
   if (!input || typeof input !== 'object') {
     throw new ApolloError(
       'Input must be a valid object.',
-      'INVALID_SCHOOL_INPUT'
+      'INVALID_SUBJECT_INPUT'
     );
   }
 
@@ -17,7 +17,7 @@ function ValidateSubjectInput(input) {
   if (typeof input.name !== 'string' || input.name.trim() === '') {
     throw new ApolloError(
       'name must be a non-empty string.',
-      'INVALID_SCHOOL_LONG_NAME'
+      'INVALID_SUBJECT_NAME'
     );
   }
 
@@ -28,7 +28,7 @@ function ValidateSubjectInput(input) {
   ) {
     throw new ApolloError(
       'description must be a non-empty string.',
-      'INVALID_SCHOOL_LONG_NAME'
+      'INVALID_SUBJECT_DESCRIPTION'
     );
   }
 

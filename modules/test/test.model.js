@@ -13,7 +13,7 @@ const TestSchema = new mongoose.Schema(
     weight: { type: Number, required: true, min: 0 },
 
     // Notations of test
-    notation: [
+    notations: [
       {
         notation_text: { type: String, required: true, unique: true },
         max_points: { type: Number, required: true, min: 0 },

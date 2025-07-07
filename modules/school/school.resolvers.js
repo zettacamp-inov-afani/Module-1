@@ -4,7 +4,7 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT MODULE ***************
 const SchoolModel = require('./school.model');
 
-// *************** IMPORT VALIDATORS ***************
+// *************** IMPORT VALIDATOR ***************
 const ValidateSchoolInput = require('./school.validator');
 const CommonValidator = require('../../utilities/validator');
 

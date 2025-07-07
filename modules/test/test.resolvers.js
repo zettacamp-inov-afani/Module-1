@@ -4,7 +4,7 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT MODULE ***************
 const TesttModel = require('./test.model');
 
-// *************** IMPORT VALIDATORS ***************
+// *************** IMPORT VALIDATOR ***************
 const ValidateTestInput = require('./test.validator');
 const CommonValidator = require('../../utilities/validator');
 
@@ -14,8 +14,7 @@ const CommonValidator = require('../../utilities/validator');
  * Retrieves a single active Test by its ID.
  *
  * @param {Object} _ - Unused root parameter (standard in GraphQL resolvers).
- * @param {Object} args - The arguments passed to the resolver.
- * @param {string} args._id - The ID of the Test to retrieve.
+ * @param {string} _id - The ID of the Test to retrieve.
  * @returns {Promise<Object>} The Test object if found and active.
  * @throws {ApolloError} If the ID is invalid, the Test is not found, or another error occurs.
  */
@@ -47,12 +46,10 @@ async function GetOneTest(_, { _id }) {
 /**
  * Retrieves all active Test documents.
  *
- * @param {Object} _ - Unused root parameter (standard in GraphQL resolvers).
- * @param {Object} args - Arguments passed to the resolver (currently unused).
  * @returns {Promise<Array<Object>>} A list of Test objects with status 'active'.
  * @throws {ApolloError} If an error occurs during the database query.
  */
-async function GetAllTests(_, args) {
+async function GetAllTests() {
   try {
     // *************** Retrieve all tests with status 'active'
     const tests = await TesttModel.find({
@@ -68,11 +65,52 @@ async function GetAllTests(_, args) {
 
 // *************** MUTATION ***************
 
+/**
+ * Creates a new Test and updates the corresponding Subject with the new Test's ID.
+ *
+ * @param {Object} _ - Unused root parameter (standard in GraphQL resolvers).
+ * @param {Object} input - Input data for creating the Test.
+ * @param {string} input.name - The name of the Test.
+ * @param {string} input.description - A description of the Test.
+ * @param {number} input.weight - The weight of the Test.
+ * @param {Array<Object>} input.notation - An array of notation objects related to the Test.
+ * @param {string} input.subject_id - The ID of the related Subject.
+ * @returns {Promise<Object>} The created Test document.
+ * @throws {ApolloError} If validation fails or database operations fail.
+ */
+async function CreateTest(_, { input }) {
+  try {
+    // *************** Validate required input
+    ValidateTestInput(input);
+
+    // *************** Create a new Test instance
+    const createTest = await TesttModel.create({
+      name: input.name,
+      description: input.description,
+      weight: input.weight,
+      notation: input.notation,
+      subject_id: input.subject_id,
+    });
+
+    // *************** Add the new test's ID to the corresponding Subject `tests` array
+    await SubjectModel.updateOne(
+      { subject_id: input.subject_id },
+      { $addToSet: { test_ids: createSubject._id } }
+    );
+
+    return createTest;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
     GetOneTest,
     GetAllTests,
   },
-  Mutation: {},
+  Mutation: {
+    CreateTest,
+  },
 };

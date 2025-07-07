@@ -1,7 +1,7 @@
 // *************** IMPORT CORE ***************
 const { ApolloError } = require('apollo-server-express');
 
-// *************** IMPORT VALIDATORS ***************
+// *************** IMPORT VALIDATOR ***************
 const CommonValidator = require('../../utilities/validator');
 
 function ValidateBlockInput(input) {
@@ -9,7 +9,7 @@ function ValidateBlockInput(input) {
   if (!input || typeof input !== 'object') {
     throw new ApolloError(
       'Input must be a valid object.',
-      'INVALID_SCHOOL_INPUT'
+      'INVALID_BLOCK_INPUT'
     );
   }
 
@@ -17,7 +17,7 @@ function ValidateBlockInput(input) {
   if (typeof input.name !== 'string' || input.name.trim() === '') {
     throw new ApolloError(
       'name must be a non-empty string.',
-      'INVALID_SCHOOL_LONG_NAME'
+      'INVALID_BLOCK_NAME'
     );
   }
 
@@ -28,12 +28,12 @@ function ValidateBlockInput(input) {
   ) {
     throw new ApolloError(
       'description must be a non-empty string.',
-      'INVALID_SCHOOL_LONG_NAME'
+      'INVALID_BLOCK_DESCRIPTION'
     );
   }
 
   // *************** Validate subject_ids
-  CommonValidator.ValidateObjectId(input.subject_id, 'School ID');
+  CommonValidator.ValidateObjectId(input.subject_id, 'Subject ID');
 }
 
 // *************** EXPORT MODULE ***************

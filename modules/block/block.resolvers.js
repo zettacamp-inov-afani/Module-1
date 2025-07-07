@@ -4,7 +4,7 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT MODULE ***************
 const BlockModel = require('./block.model');
 
-// *************** IMPORT VALIDATORS ***************
+// *************** IMPORT VALIDATOR ***************
 const ValidateBlockInput = require('./block.validator');
 const CommonValidator = require('../../utilities/validator');
 
@@ -14,8 +14,6 @@ const CommonValidator = require('../../utilities/validator');
  * GetOneBlock resolver to retrieve a single active Block document by its _id.
  *
  * @param {object} _ - Unused first argument (parent resolver), required by GraphQL resolver signature.
- * @param {object} args - The arguments object containing the _id of the Block to retrieve.
- * @param {string} args._id - The MongoDB ObjectId of the Block to fetch.
  * @returns {Promise<object>} - A Promise that resolves to the Block document if found and active.
  *
  * @throws {ApolloError} - Throws BLOCK_NOT_FOUND if no matching Block is found or if it has been deleted.
@@ -50,13 +48,10 @@ async function GetOneBlock(_, { _id }) {
 /**
  * GetAllBlocks resolver to retrieve all Block documents with status 'active'.
  *
- * @param {object} _ - Unused first argument (parent resolver), required by GraphQL resolver signature.
- * @param {object} args - GraphQL arguments object (currently unused).
  * @returns {Promise<object[]>} - A Promise that resolves to an array of active Block documents.
- *
  * @throws {ApolloError} - Throws an ApolloError if any error occurs during the operation.
  */
-async function GetAllBlocks(_, args) {
+async function GetAllBlocks() {
   try {
     // *************** Retrieve all blocks with status 'active'
     const blocks = await BlockModel.find({
@@ -76,11 +71,10 @@ async function GetAllBlocks(_, args) {
  * CreateBlock resolver to create a new Block document with the provided input.
  *
  * @param {object} _ - Unused parent resolver argument, required by GraphQL resolver signature.
- * @param {object} args - The arguments object containing input for the new Block.
- * @param {object} args.input - The input data to create the Block.
- * @param {string} args.input.name - The name of the Block.
- * @param {string} args.input.description - The description of the Block.
- * @param {string[]} args.input.subject_ids - An array of Subject IDs associated with the Block.
+ * @param {object} input - The input data to create the Block.
+ * @param {string} input.name - The name of the Block.
+ * @param {string} input.description - The description of the Block.
+ * @param {string[]} input.subject_ids - An array of Subject IDs associated with the Block.
  * @returns {Promise<object>} - A Promise that resolves to the newly created Block document.
  *
  * @throws {ApolloError} - Throws an ApolloError if validation fails or creation encounters an error.
@@ -109,12 +103,11 @@ async function CreateBlock(_, { input }) {
  * UpdateBlock resolver to update an existing active Block document by its _id.
  *
  * @param {object} _ - Unused parent resolver argument, required by GraphQL resolver signature.
- * @param {object} args - Arguments object containing the _id of the Block and input fields to update.
- * @param {string} args._id - The MongoDB ObjectId of the Block to update.
- * @param {object} args.input - The input fields for updating the Block.
- * @param {string} args.input.name - The updated name of the Block.
- * @param {string} args.input.description - The updated description of the Block.
- * @param {string[]} args.input.subject_ids - The updated array of Subject IDs.
+ * @param {string} _id - The MongoDB ObjectId of the Block to update.
+ * @param {object} input - The input fields for updating the Block.
+ * @param {string} input.name - The updated name of the Block.
+ * @param {string} input.description - The updated description of the Block.
+ * @param {string[]} input.subject_ids - The updated array of Subject IDs.
  * @returns {Promise<object>} - A Promise that resolves to the updated Block document.
  *
  * @throws {ApolloError} - Throws BLOCK_NOT_FOUND if no active Block is found with the given _id.
@@ -158,8 +151,7 @@ async function UpdateBlock(_, { _id, input }) {
  * DeleteBlock resolver to soft-delete a Block by updating its status to 'deleted'.
  *
  * @param {object} _ - Unused parent resolver argument, required by GraphQL resolver signature.
- * @param {object} args - Arguments object containing the _id of the Block to delete.
- * @param {string} args._id - The MongoDB ObjectId of the Block to soft-delete.
+ * @param {string} _id - The MongoDB ObjectId of the Block to soft-delete.
  * @returns {Promise<string>} - A Promise that resolves to the _id of the deleted Block.
  *
  * @throws {ApolloError} - Throws BLOCK_NOT_FOUND if no active Block is found with the given _id.
