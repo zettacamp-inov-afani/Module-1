@@ -33,7 +33,31 @@ async function GetOneTask(_, { _id }) {
   }
 }
 
-async function GetAllTasks() {}
+/**
+ * Retrieves all tasks that are not marked as deleted.
+ *
+ * This function queries the `Task` collection to find all documents
+ * where the `task_status` is not equal to `'deleted'`, then returns
+ * them as plain JavaScript objects.
+ *
+ * @async
+ * @function GetAllTasks
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of task documents.
+ * @throws {ApolloError} If there is an error during the database query.
+ */
+async function GetAllTasks() {
+  try {
+    // *************** Retrieve all tasks with status is not deleted
+    const tasks = await TaskModel.find({
+      task_status: { $ne: 'deleted' },
+    }).lean();
+
+    // *************** return the result
+    return tasks;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
 
 async function CreateTask() {}
 
