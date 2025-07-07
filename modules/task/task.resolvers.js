@@ -149,6 +149,8 @@ async function UpdateTask(_, { _id, input }) {
   }
 }
 
+async function AssignCorrector() {}
+
 /**
  * Soft deletes a task by updating its status to 'deleted' and setting the deleted timestamp.
  *
@@ -182,5 +184,10 @@ module.exports = {
     GetOneTask,
     GetAllTasks,
   },
-  Mutation: { CreateTask, UpdateTask, DeleteTask },
+  Mutation: {
+    CreateTask,
+    UpdateTask,
+    AssignCorrector,
+    DeleteTask,
+  },
 };

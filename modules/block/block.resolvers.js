@@ -183,6 +183,20 @@ async function DeleteBlock(_, { _id }) {
   }
 }
 
+// *************** LOADER ***************
+
+async function subject_ids(parent, args, { loaders }) {
+  // *************** sanity check to ensure parent.subjects is an array with elements before attempting to use DataLoader
+  CommonValidator.ValidateMongoObjectIds(parent.subjects);
+
+  // *************** Load subjects via DataLoader
+  const loadedSubjects = await loaders.SubjectLoader.loadMany(
+    parent.subjects.map((id) => String(id))
+  );
+
+  return loadedSubjects;
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
@@ -193,5 +207,8 @@ module.exports = {
     CreateBlock,
     UpdateBlock,
     DeleteBlock,
+  },
+  Block: {
+    subject_ids: subject_ids,
   },
 };
