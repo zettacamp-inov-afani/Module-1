@@ -44,10 +44,35 @@ async function GetOneTest(_, { _id }) {
   }
 }
 
+/**
+ * Retrieves all active Test documents.
+ *
+ * @param {Object} _ - Unused root parameter (standard in GraphQL resolvers).
+ * @param {Object} args - Arguments passed to the resolver (currently unused).
+ * @returns {Promise<Array<Object>>} A list of Test objects with status 'active'.
+ * @throws {ApolloError} If an error occurs during the database query.
+ */
+async function GetAllTests(_, args) {
+  try {
+    // *************** Retrieve all tests with status 'active'
+    const tests = await TesttModel.find({
+      status: 'activve',
+    }).lean();
+
+    // *************** return the result
+    return tests;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
+// *************** MUTATION ***************
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
     GetOneTest,
+    GetAllTests,
   },
   Mutation: {},
 };
