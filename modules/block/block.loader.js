@@ -24,7 +24,7 @@ function BlockLoader() {
       blockMap[String(block._id)] = block;
     });
 
-    // *************** Return an array containing subjects in the order of the requested subject ids.
+    // *************** Return an array containing blocks in the order of the requested block ids.
     const orderedBlocks = block_id.map((_id) => blockMap[String(_id)]);
     return orderedBlocks;
   });
