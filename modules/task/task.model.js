@@ -42,7 +42,7 @@ const TaskSchema = new mongoose.Schema(
     },
 
     // Task's delete_at detail
-    delete_at: { type: Date, default: null },
+    deleted_at: { type: Date, default: null },
   },
   {
     timestamps: {

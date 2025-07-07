@@ -22,9 +22,9 @@ async function GetOneTask(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Test ID');
 
     // *************** Find task by ID and check if status is not deleted
-    const test = await TestModel.findOne({
+    const test = await TaskModel.findOne({
       _id: _id,
-      status: { $ne: 'deleted' },
+      task_status: { $ne: 'deleted' },
     }).lean();
 
     return test;

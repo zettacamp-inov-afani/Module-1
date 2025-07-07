@@ -2,8 +2,6 @@
 const { gql } = require('apollo-server-express');
 
 const BlockTypeDefs = gql`
-  scalar Date
-
   enum EnumBlockStatus {
     active
     deleted

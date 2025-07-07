@@ -44,7 +44,7 @@ const TaskTypeDefs = gql`
 
   input AssignCorrectorInput {
     user_id: ID!
-    due_date: Daye
+    due_date: Date
   }
 
   type Query {
@@ -56,7 +56,7 @@ const TaskTypeDefs = gql`
     CreateTask(input: CreateTaskInput!): Task!
     UpdateTask(_id: ID!, input: UpdateTaskInput!): Task!
     AssignCorrector(_id: ID!, input: AssignCorrectorInput!): Task!
-    Deletetask(_id: ID!): ID!
+    DeleteTask(_id: ID!): ID!
   }
 `;
 
