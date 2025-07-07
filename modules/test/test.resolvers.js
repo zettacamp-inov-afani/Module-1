@@ -210,7 +210,46 @@ async function PublishTest(_, { _id, input }) {
   }
 }
 
-async function DeleteTest() {}
+/**
+ * Soft deletes a test and removes its reference from the related subject.
+ *
+ * Marks the test as deleted by updating its status and deleted timestamp,
+ * then removes the test ID from the subject's test list.
+ *
+ * @returns {string} The ID of the deleted test.
+ * @throws {ApolloError} If validation fails or the test is not found.
+ */
+async function DeleteTest(_, { _id }) {
+  try {
+    // *************** Validate the test id
+    CommonValidator.ValidateObjectId(_id, 'Test ID');
+
+    // *************** Find the Test with the given ID and "active" status, then update it to "deleted"
+    const deletedTest = await TestModel.findOneAndUpdate(
+      { _id, status: 'active' },
+      { $set: { status: 'deleted', deleted_at: new Date() } }
+    );
+
+    // *************** Handle case if Test not found or already deleted
+    if (!deletedTest) {
+      throw new ApolloError(
+        'Test not found or already deleted.',
+        'TEST_NOT_FOUND'
+      );
+    }
+
+    // *************** Delete test from relate subject
+    await SubjectModel.updateOne(
+      { subject_id: deletedTest.subject_id },
+      { $pull: { test_ids: _id } }
+    );
+
+    // *************** Return the _id
+    return _id;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
 
 // *************** EXPORT MODULE ***************
 module.exports = {

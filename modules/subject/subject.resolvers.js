@@ -171,30 +171,22 @@ async function UpdateSubject(_, { _id, input }) {
 }
 
 /**
- * Soft deletes a subject by setting its status to 'deleted' and recording the deletion timestamp.
+ * Soft deletes a subject and removes its reference from the related block.
  *
- * @async
- * @function DeleteSubject
- * @param {Object} _ - Unused parent resolver argument (ignored).
- * @param {string} _id - The ID of the subject to delete.
- * @returns {Promise<string>} The ID of the deleted subject.
- * @throws {ApolloError} Throws if the subject ID is invalid, subject not found, or update fails.
+ * Updates the subject's status to "deleted" and removes its ID from the block's subject list.
+ *
+ * @returns {string} The ID of the deleted subject.
+ * @throws {ApolloError} If validation fails or the subject is not found.
  */
 async function DeleteSubject(_, { _id }) {
   try {
-    // *************** Validate required input field
+    // *************** Validate the subject id
     CommonValidator.ValidateObjectId(_id, 'Subject ID');
 
     // *************** Find the Subject with the given ID and "active" status, then update it to "deleted"
     const deletedSubject = await SubjectModel.findOneAndUpdate(
       { _id, status: 'active' },
       { $set: { status: 'deleted', deleted_at: new Date() } }
-    );
-
-    // *************** Delete subject from relate block
-    await BlockModel.updateOne(
-      { block_id: input.block_id },
-      { $pull: { stubject_ids: _id } }
     );
 
     // *************** Handle case if Subject not found or already deleted
@@ -204,6 +196,12 @@ async function DeleteSubject(_, { _id }) {
         'SUBJECT_NOT_FOUND'
       );
     }
+
+    // *************** Delete subject from relate block
+    await BlockModel.updateOne(
+      { block_id: deletedSubject.block_id },
+      { $pull: { subject_ids: _id } }
+    );
 
     // *************** Return the _id
     return _id;
