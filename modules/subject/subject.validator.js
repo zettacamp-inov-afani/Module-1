@@ -4,7 +4,7 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT VALIDATORS ***************
 const CommonValidator = require('../../utilities/validator');
 
-function ValidateSubjectInput(inputu) {
+function ValidateSubjectInput(input) {
   // *************** Validate that the input exists and is an object
   if (!input || typeof input !== 'object') {
     throw new ApolloError(
