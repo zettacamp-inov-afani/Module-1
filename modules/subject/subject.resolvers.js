@@ -37,8 +37,8 @@ async function GetOneSubject(_, { _id }) {
     // *************** Handle case if Subject not found or already deleted
     if (!subject) {
       throw new ApolloError(
-        'Block not found or already deleted.',
-        'BLOCK_NOT_FOUND'
+        'Subject not found or already deleted.',
+        'SUBJECT_NOT_FOUND'
       );
     }
 
