@@ -18,7 +18,7 @@ const TestTypeDefs = gql`
     subject_id: Subject!
     created_at: Date!
     updated_at: Date!
-    deleted_at: Date!
+    deleted_at: Date
   }
 
   type Notation {
