@@ -3,6 +3,7 @@ const { ApolloError } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
 const SubjectModel = require('./subject.model');
+const BlockModel = require('../block/block.model');
 
 // *************** IMPORT VALIDATOR ***************
 const ValidateSubjectInput = require('./subject.validator');
@@ -208,6 +209,29 @@ async function DeleteSubject(_, { _id }) {
     throw new ApolloError(error.message);
   }
 }
+
+// *************** LOADER ***************
+
+async function block_id(parent, args, { loaders }) {
+  // *************** sanity check to ensure parent.block_id is an array with elements before attempting to use DataLoader
+  CommonValidator.ValidateObjectId(parent.block_id);
+
+  const loadedBlock = await loaders.BlockLoader.load(String(parent.block_id));
+
+  return loadedBlock;
+}
+
+async function test_ids(parent, args, { loaders }) {
+  // *************** sanity check to ensure parent.test_ids is an array with elements before attempting to use DataLoader
+  CommonValidator.ValidateMongoObjectIds(parent.test_ids);
+
+  const loadedTests = await loaders.TestLoader.loadMany(
+    parent.test_ids.map((id) => String(id))
+  );
+
+  return loadedTests;
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
@@ -218,5 +242,9 @@ module.exports = {
     CreateSubject,
     UpdateSubject,
     DeleteSubject,
+  },
+  Subject: {
+    block_id: block_id,
+    test_ids: test_ids,
   },
 };

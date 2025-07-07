@@ -47,7 +47,7 @@ function ValidateSubjectInput(input) {
   // *************** Validate block_id
   CommonValidator.ValidateObjectId(input.block_id, 'Block ID');
 
-  if (input.test_ids) {
+  if (input.test_ids !== undefined) {
     if (!Array.isArray(input.test_ids)) {
       throw new ApolloError('test_ids must be an array.', 'INVALID_TEST_IDS');
     }

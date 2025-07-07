@@ -17,7 +17,7 @@ const SubjectTypeDefs = gql`
     test_ids: [Test!]
     created_at: Date!
     updated_at: Date!
-    deleted_at: Date!
+    deleted_at: Date
   }
 
   input CreateSubjectInput {

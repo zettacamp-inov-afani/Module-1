@@ -14,7 +14,6 @@ const BlockSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'subject',
-        required: true,
       },
     ],
 

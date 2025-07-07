@@ -186,12 +186,12 @@ async function DeleteBlock(_, { _id }) {
 // *************** LOADER ***************
 
 async function subject_ids(parent, args, { loaders }) {
-  // *************** sanity check to ensure parent.subjects is an array with elements before attempting to use DataLoader
-  CommonValidator.ValidateMongoObjectIds(parent.subjects);
+  // *************** sanity check to ensure parent.subject_ids is an array with elements before attempting to use DataLoader
+  CommonValidator.ValidateMongoObjectIds(parent.subject_ids);
 
   // *************** Load subjects via DataLoader
   const loadedSubjects = await loaders.SubjectLoader.loadMany(
-    parent.subjects.map((id) => String(id))
+    parent.subject_ids.map((id) => String(id))
   );
 
   return loadedSubjects;

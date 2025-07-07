@@ -32,8 +32,19 @@ function ValidateBlockInput(input) {
     );
   }
 
-  // *************** Validate subject_ids
-  CommonValidator.ValidateObjectId(input.subject_ids, 'Subject ID');
+  // *************** Validate subject_ids (if provided)
+  if (input.subject_ids !== undefined) {
+    if (!Array.isArray(input.subject_ids)) {
+      throw new ApolloError(
+        'subject_ids must be an array of IDs.',
+        'INVALID_SUBJECT_IDS'
+      );
+    }
+
+    input.subject_ids.forEach((subjectId) => {
+      CommonValidator.ValidateObjectId(subjectId, 'Subject ID');
+    });
+  }
 }
 
 // *************** EXPORT MODULE ***************

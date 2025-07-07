@@ -15,7 +15,7 @@ const BlockTypeDefs = gql`
     block_status: EnumBlockStatus!
     created_at: Date!
     updated_at: Date!
-    deleted_at: Date!
+    deleted_at: Date
   }
 
   input CreateBlockInput {

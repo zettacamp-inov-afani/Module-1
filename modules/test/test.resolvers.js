@@ -251,6 +251,19 @@ async function DeleteTest(_, { _id }) {
   }
 }
 
+// *************** LOADER ***************
+
+async function subject_id(parent, args, { loaders }) {
+  // *************** sanity check to ensure parent.block_id is an array with elements before attempting to use DataLoader
+  CommonValidator.ValidateMongoObjectIds(parent.subject_id);
+
+  const loadedSubject = await loaders.SubjectLoader.load(
+    String(parent.subject_id)
+  );
+
+  return loadedSubject;
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
@@ -262,5 +275,8 @@ module.exports = {
     UpdateTest,
     PublishTest,
     DeleteTest,
+  },
+  Test: {
+    subject_id: subject_id,
   },
 };
