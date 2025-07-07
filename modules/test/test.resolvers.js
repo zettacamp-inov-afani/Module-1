@@ -104,6 +104,58 @@ async function CreateTest(_, { input }) {
   }
 }
 
+/**
+ * Updates an existing active Test document by its ID.
+ *
+ * @param {Object} _ - Unused root parameter (standard in GraphQL resolvers).
+ * @param {string} _id - The ID of the Test to update.
+ * @param {Object} input - The new data to update the Test with.
+ * @param {string} input.name - The updated name of the Test.
+ * @param {string} input.description - The updated description of the Test.
+ * @param {number} input.weight - The updated weight of the Test.
+ * @param {Array<Object>} input.notations - The updated array of notations.
+ * @param {string} input.subject_id - The updated subject ID linked to the Test.
+ * @returns {Promise<Object>} The updated Test document.
+ * @throws {ApolloError} If the ID is invalid, the Test is not found, or a database error occurs.
+ */
+async function UpdateTest(_, { _id, input }) {
+  try {
+    // *************** Validate test ID (must be valid MongoDB ObjectId)
+    CommonValidator.ValidateObjectId(_id, 'Test ID');
+
+    // *************** Validate test input
+    ValidateTestInput(input);
+
+    const updateFields = {
+      name: input.name,
+      description: input.description,
+      weight: input.weight,
+      notations: input.notations,
+      subject_id: input.subject_id,
+    };
+
+    // *************** Update the test data if active
+    const updatedTest = await TesttModel.findOneAndUpdate(
+      { _id: _id, status: 'active' },
+      { $set: updateFields },
+      { new: true }
+    ).lean();
+
+    // *************** Handle case if Test not found or already deleted
+    if (!updatedTest) {
+      throw new ApolloError(
+        'Test not found or already deleted.',
+        'TEST_NOT_FOUND'
+      );
+    }
+
+    // *************** Return the updated data
+    return updatedTest;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
@@ -112,5 +164,6 @@ module.exports = {
   },
   Mutation: {
     CreateTest,
+    UpdateTest,
   },
 };
