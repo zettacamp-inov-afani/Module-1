@@ -149,7 +149,32 @@ async function UpdateTask(_, { _id, input }) {
   }
 }
 
-async function DeleteTask() {}
+/**
+ * Soft deletes a task by updating its status to 'deleted' and setting the deleted timestamp.
+ *
+ * @async
+ * @function DeleteTask
+ * @param {Object} _ - Unused root parameter (standard in GraphQL resolvers).
+ * @param {string} _id - The ID of the task to delete.
+ * @returns {Promise<Object>} The updated (soft-deleted) task document.
+ * @throws {ApolloError} If validation fails or the deletion operation fails.
+ */
+async function DeleteTask(_, { _id }) {
+  try {
+    // *************** Validate the task id
+    CommonValidator.ValidateObjectId(_id, 'Task ID');
+
+    // *************** Find the Task with the given ID and not 'deleted' status, then update it to "deleted"
+    const deletedTask = await TaskModel.findOneAndUpdate(
+      { _id, task_status: { $ne: 'deleted' } },
+      { $set: { task_status: 'deleted', deleted_at: new Date() } }
+    );
+
+    return deletedTask;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
 
 // *************** EXPORT MODULE ***************
 module.exports = {
