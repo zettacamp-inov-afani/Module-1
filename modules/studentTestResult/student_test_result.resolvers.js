@@ -92,12 +92,24 @@ async function EnterMarks(_, { input }) {
     // *************** Validate required input
     ValidateStudentTestResultInput(input);
 
+    // *************** Calculate average_mark
+    let total = 0;
+    let averageMark = 0;
+
+    if (Array.isArray(input.marks) && input.marks.length > 0) {
+      for (let i = 0; i < input.marks.length; i++) {
+        total += input.marks[i].mark;
+      }
+      averageMark = total / input.marks.length;
+    }
+
     // *************** Create a new StudentTestResult instance
     const createEnterMarks = await StudentTestResultModel.create({
       student_id: input.student_id,
       test_id: input.test_id,
       marks: input.marks,
-      average_mark: input.average_mark,
+      average_mark: averageMark,
+      mark_entry_date: new Date(),
     });
 
     // *************** Update "Enter Marks" task to Completed
