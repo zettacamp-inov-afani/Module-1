@@ -172,6 +172,17 @@ async function UpdateMarks(_, { _id, input }) {
   }
 }
 
+/**
+ * Validates a student's test result by setting the validation date and
+ * completing the corresponding "Validate Marks" task.
+ *
+ * This function:
+ * - Updates the `mark_validate_date` field on the StudentTestResult document.
+ * - Changes the status of the associated "Validate Marks" task to `completed`.
+ *
+ * @returns {Promise<Object>} The updated StudentTestResult document.
+ * @throws {ApolloError} If the StudentTestResult is not found or a database error occurs.
+ */
 async function ValidateMarks(_, { _id }) {
   try {
     // *************** Validate StudentTestResult ID (must be valid MongoDB ObjectId)
@@ -220,6 +231,42 @@ async function ValidateMarks(_, { _id }) {
   }
 }
 
+/**
+ * Soft deletes a StudentTestResult by marking its status as 'deleted' and setting the deleted timestamp.
+ *
+ * @returns {Promise<string>} The ID of the soft-deleted StudentTestResult.
+ * @throws {ApolloError} If the document is not found or a database error occurs.
+ */
+async function DeleteStudentTestResult(_, { _id }) {
+  try {
+    // *************** Validate StudentTestResult ID (must be valid MongoDB ObjectId)
+    CommonValidator.ValidateObjectId(_id, 'StudentTestResult ID');
+
+    const deletedStudentTestResult =
+      await StudentTestResultModel.findOneAndUpdate(
+        { _id, student_test_result_status: 'active' },
+        {
+          $set: {
+            student_test_result_status: 'deleted',
+            deleted_at: new Date(),
+          },
+        }
+      );
+
+    // *************** Handle case if StudentTestResult not found or already deleted
+    if (!deletedStudentTestResult) {
+      throw new ApolloError(
+        'StudentTestResult not found or already deleted.',
+        'STUDENT_TEST_RESULT_NOT_FOUND'
+      );
+    }
+
+    return _id;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
@@ -230,5 +277,6 @@ module.exports = {
     EnterMarks,
     UpdateMarks,
     ValidateMarks,
+    DeleteStudentTestResult,
   },
 };
