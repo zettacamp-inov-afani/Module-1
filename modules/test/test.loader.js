@@ -21,7 +21,7 @@ function TestLoader() {
     // *************** Create testMap object for dictionary
     const testMap = {};
     tests.forEach((test) => {
-      blockMap[String(test._id)] = test;
+      testMap[String(test._id)] = test;
     });
 
     // *************** Return an array containing tests in the order of the requested test ids.

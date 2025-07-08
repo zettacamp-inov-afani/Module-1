@@ -4,11 +4,14 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT MODULE ***************
 const TestModel = require('./test.model');
 const TaskModel = require('../task/task.model');
+const SubjectModel = require('../subject/subject.model');
 const UserModel = require('../user/user.model');
 
 // *************** IMPORT VALIDATOR ***************
-const ValidateTestInput = require('./test.validator');
-const ValidatePublishTestInput = require('./test.validator');
+const {
+  ValidateTestInput,
+  ValidatePublishTestInput,
+} = require('./test.validator');
 const CommonValidator = require('../../utilities/validator');
 
 // *************** QUERY ***************
@@ -98,7 +101,7 @@ async function CreateTest(_, { input }) {
     // *************** Add the new test's ID to the corresponding Subject `tests` array
     await SubjectModel.updateOne(
       { _id: input.subject_id },
-      { $addToSet: { test_ids: createSubject._id } }
+      { $addToSet: { test_ids: createTest._id } }
     );
 
     return createTest;
@@ -255,7 +258,7 @@ async function DeleteTest(_, { _id }) {
 
 async function subject_id(parent, args, { loaders }) {
   // *************** sanity check to ensure parent.block_id is an array with elements before attempting to use DataLoader
-  CommonValidator.ValidateMongoObjectIds(parent.subject_id);
+  CommonValidator.ValidateObjectId(parent.subject_id);
 
   const loadedSubject = await loaders.SubjectLoader.load(
     String(parent.subject_id)
