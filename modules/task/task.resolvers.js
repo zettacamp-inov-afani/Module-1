@@ -149,7 +149,17 @@ async function UpdateTask(_, { _id, input }) {
   }
 }
 
-async function AssignCorrector() {}
+async function AssignCorrector(_, { _id, user_id }) {
+  try {
+    // *************** Validate _id using CommonValidator
+    CommonValidator.ValidateObjectId(_id, 'Task ID');
+
+    // *************** Validate user_id
+    ValidateTaskInput({ user_id });
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
 
 /**
  * Soft deletes a task by updating its status to 'deleted' and setting the deleted timestamp.
