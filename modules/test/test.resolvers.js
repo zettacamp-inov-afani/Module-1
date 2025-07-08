@@ -26,7 +26,7 @@ const CommonValidator = require('../../utilities/validator');
  */
 async function GetOneTest(_, { _id }) {
   try {
-    // *************** Validate Subject ID
+    // *************** Validate Test ID
     CommonValidator.ValidateObjectId(_id, 'Test ID');
 
     // *************** Find test by ID and check if status is active
