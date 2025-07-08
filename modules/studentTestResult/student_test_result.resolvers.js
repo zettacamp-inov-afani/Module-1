@@ -3,6 +3,7 @@ const { ApolloError } = require('apollo-server-express');
 
 // *************** IMPORT MODULE ***************
 const StudentTestResultModel = require('./student_test_result.model');
+const TaskModel = require('../task/task.model');
 const TestModel = require('../test/test.model');
 const StudentModel = require('../student/student.model');
 
@@ -73,15 +74,18 @@ async function GetAllStudentTestResults() {
 }
 
 /**
- * Create a new StudentTestResult document.
+ * Enter student marks for a test, update the corresponding task to "Completed",
+ * and create a new "Validate Marks" task for further evaluation.
+ * @param {Object} _ - Unused parent argument from GraphQL resolver
+ * @param {Object} input - Input payload for entering marks
+ * @param {string} input.student_id - The ID of the student
+ * @param {string} input.test_id - The ID of the test
+ * @param {Array<{notation_text: string, mark: number}>} input.marks - Array of mark entries
+ * @param {number} input.average_mark - Average mark calculated from the provided marks
+ * @param {string} input.user_id - The ID of the user assigned to validate marks
  *
- * This function:
- * - Validates the input payload.
- * - Ensures all required fields are provided.
- * - Lets Mongoose handle default fields like mark_entry_date and status.
- *
- * @returns {Promise<Object>} The newly created StudentTestResult document.
- * @throws {ApolloError} If validation or creation fails.
+ * @returns {Promise<Object>} The created `StudentTestResult` document
+ * @throws {ApolloError} If validation fails or any DB operation encounters an error
  */
 async function EnterMarks(_, { input }) {
   try {
@@ -94,6 +98,29 @@ async function EnterMarks(_, { input }) {
       test_id: input.test_id,
       marks: input.marks,
       average_mark: input.average_mark,
+    });
+
+    // *************** Update "Enter Marks" task to Completed
+    await TaskModel.findOneAndUpdate(
+      {
+        test_id: input.test_id,
+        task_type: 'enter_marks',
+        task_status: 'pending',
+      },
+      {
+        $set: {
+          task_status: 'completed',
+          updated_at: new Date(),
+        },
+      }
+    );
+
+    // *************** Create a new "Validate Marks" task
+    await TaskModel.create({
+      test_id: input.test_id,
+      user_id: input.user_id,
+      task_type: 'validate_marks',
+      task_status: 'pending',
     });
 
     return createEnterMarks;
@@ -145,8 +172,49 @@ async function UpdateMarks(_, { _id, input }) {
   }
 }
 
-async function ValidateMarks() {
+async function ValidateMarks(_, { _id }) {
   try {
+    // *************** Validate StudentTestResult ID (must be valid MongoDB ObjectId)
+    CommonValidator.ValidateObjectId(_id, 'StudentTestResult ID');
+
+    // *************** Update validate date
+    const validateMarks = await StudentTestResultModel.findOneAndUpdate(
+      {
+        _id,
+        student_test_result_status: 'active',
+      },
+      {
+        $set: {
+          mark_validate_date: new Date(),
+        },
+      },
+      { new: true }
+    ).lean();
+
+    // *************** Handle not found
+    if (!validateMarks) {
+      throw new ApolloError(
+        'Student Test Result not found or already deleted.',
+        'STUDENT_TEST_RESULT_NOT_FOUND'
+      );
+    }
+
+    // *************** Update related "Validate Marks" task to completed
+    await TaskModel.findOneAndUpdate(
+      {
+        test_id: validateMarks.test_id,
+        task_type: 'validate_marks',
+        task_status: 'pending',
+      },
+      {
+        $set: {
+          task_status: 'completed',
+          updated_at: new Date(),
+        },
+      }
+    );
+
+    return validateMarks;
   } catch (error) {
     throw new ApolloError(error.message);
   }
