@@ -72,10 +72,95 @@ async function GetAllStudentTestResults() {
   }
 }
 
+/**
+ * Create a new StudentTestResult document.
+ *
+ * This function:
+ * - Validates the input payload.
+ * - Ensures all required fields are provided.
+ * - Lets Mongoose handle default fields like mark_entry_date and status.
+ *
+ * @returns {Promise<Object>} The newly created StudentTestResult document.
+ * @throws {ApolloError} If validation or creation fails.
+ */
+async function EnterMarks(_, { input }) {
+  try {
+    // *************** Validate required input
+    ValidateStudentTestResultInput(input);
+
+    // *************** Create a new StudentTestResult instance
+    const createEnterMarks = await StudentTestResultModel.create({
+      student_id: input.student_id,
+      test_id: input.test_id,
+      marks: input.marks,
+      average_mark: input.average_mark,
+    });
+
+    return createEnterMarks;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
+/**
+ * Update an active StudentTestResult document by its ID.
+ *
+ * @returns {Promise<Object>} The updated StudentTestResult.
+ * @throws {ApolloError} If ID is invalid or record not found/deleted.
+ */
+async function UpdateMarks(_, { _id, input }) {
+  try {
+    // *************** Validate Student Test Result ID (must be valid MongoDB ObjectId)
+    CommonValidator.ValidateObjectId(_id, 'StudentTestResult ID');
+
+    // *************** Validate student test result input
+    ValidateStudentTestResultInput(input);
+
+    const updateFields = {
+      student_id: input.student_id,
+      test_id: input.test_id,
+      marks: input.marks,
+      average_mark: input.average_mark,
+    };
+
+    // *************** Update the student test result data if active
+    const updatedStudentTestResult =
+      await StudentTestResultModel.findOneAndUpdate(
+        { _id: _id, student_test_result_status: 'active' },
+        { $set: updateFields },
+        { new: true }
+      ).lean();
+
+    // *************** Handle case if StudentTestResult not found or already deleted
+    if (!updatedStudentTestResult) {
+      throw new ApolloError(
+        'StudentTestResult not found or already deleted.',
+        'STUDENT_TEST_RESULT_NOT_FOUND'
+      );
+    }
+
+    return updatedStudentTestResult;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
+async function ValidateMarks() {
+  try {
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
     GetOneStudentTestResult,
     GetAllStudentTestResults,
+  },
+  Mutation: {
+    EnterMarks,
+    UpdateMarks,
+    ValidateMarks,
   },
 };
