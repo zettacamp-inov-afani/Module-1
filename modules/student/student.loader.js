@@ -24,21 +24,21 @@ const CommonValidator = require('../../utilities/validator');
 function StudentLoader() {
   // *************** Create new instance of DataLoader
   return new DataLoader(async (studentIds) => {
-    // ***************  Validate the incoming schoolIds
+    // ***************  Validate the incoming studentIds
     CommonValidator.ValidateMongoObjectIds(studentIds);
 
-    // *************** Find all Schools whose id is in the schoolIds array
+    // *************** Find all Students whose id is in the studentIds array
     const students = await StudentModel.find({
       _id: { $in: studentIds },
     }).lean();
 
-    // *************** Create schoolMap object for dictionary
+    // *************** Create studentMap object for dictionary
     const studentMap = {};
     students.forEach((student) => {
       studentMap[String(student._id)] = student;
     });
 
-    // *************** Return an array containing schools in the order of the requested schoolIds.
+    // *************** Return an array containing students in the order of the requested schoolIds.
     const orderedStudents = studentIds.map((_id) => studentMap[String(_id)]);
     return orderedStudents;
   });

@@ -61,6 +61,8 @@ async function GetAllTasks() {
   }
 }
 
+// *************** MUTATION ***************
+
 /**
  * Creates a new Task document in the database.
  *

@@ -73,6 +73,8 @@ async function GetAllStudentTestResults() {
   }
 }
 
+// *************** MUTATION ***************
+
 /**
  * Enter student marks for a test, update the corresponding task to "Completed",
  * and create a new "Validate Marks" task for further evaluation.
@@ -279,6 +281,52 @@ async function DeleteStudentTestResult(_, { _id }) {
   }
 }
 
+// *************** LOADER ***************
+
+/**
+ * Resolves the student associated with a StudentTestResult using DataLoader.
+ *
+ * @function student_id
+ * @param {Object} parent - The parent object containing the student_id.
+ * @param {Object} context - GraphQL context containing DataLoaders.
+ * @param {Object} context.loaders - An object containing all DataLoaders.
+ * @param {Function} context.loaders.StudentLoader - DataLoader for fetching students by ID.
+ * @returns {Promise<Object|null>} The associated student document or null if invalid ID.
+ */
+async function student_id(parent, args, { loaders }) {
+  // *************** Validate student_id format; return null if invalid ObjectId
+  CommonValidator.ValidateObjectId(parent.student_id);
+
+  // *************** Load the student document using DataLoader
+  const loadedStudent = await loaders.StudentLoader.load(
+    String(parent.student_id)
+  );
+
+  // *************** Return the resolved student document
+  return loadedStudent;
+}
+
+/**
+ * Resolves the user associated with a StudentTestResult using DataLoader.
+ *
+ * @function user_id
+ * @param {Object} parent - The parent object containing the user_id.
+ * @param {Object} context - GraphQL context containing DataLoaders.
+ * @param {Object} context.loaders - An object containing all DataLoaders.
+ * @param {Function} context.loaders.UserLoader - DataLoader for fetching users by ID.
+ * @returns {Promise<Object|null>} The associated user document or null if invalid ID.
+ */
+async function user_id(parent, args, { loaders }) {
+  // *************** Validate user_id format; return null if invalid ObjectId
+  CommonValidator.ValidateObjectId(parent.user_id);
+
+  // *************** Load the user document using DataLoader for efficiency
+  const loadedUser = await loaders.UserLoader.load(String(parent.user_id));
+
+  // *************** Return the resolved user document
+  return loadedUser;
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
@@ -290,5 +338,9 @@ module.exports = {
     UpdateMarks,
     ValidateMarks,
     DeleteStudentTestResult,
+  },
+  studentTestResult: {
+    student_id: student_id,
+    user_id: user_id,
   },
 };
