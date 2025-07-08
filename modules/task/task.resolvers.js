@@ -76,7 +76,7 @@ async function GetAllTasks() {
  * @returns {Promise<Object>} A promise that resolves to the created Task document.
  * @throws {ApolloError} If input validation fails or if an error occurs during task creation.
  */
-async function CreateTask() {
+async function CreateTask(_, { input }) {
   try {
     // *************** Validate required input
     ValidateTaskInput(input);

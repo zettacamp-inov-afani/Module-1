@@ -207,7 +207,7 @@ async function PublishTest(_, { _id, input }) {
       due_date: input.due_date,
     });
 
-    return { _id: _id };
+    return _id;
   } catch (error) {
     throw new ApolloError(error.message);
   }

@@ -4,6 +4,7 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT MODULE ***************
 const SubjectModel = require('./subject.model');
 const BlockModel = require('../block/block.model');
+const TestModel = require('../test/test.model');
 
 // *************** IMPORT VALIDATOR ***************
 const ValidateSubjectInput = require('./subject.validator');
@@ -201,6 +202,12 @@ async function DeleteSubject(_, { _id }) {
     await BlockModel.updateOne(
       { block_id: deletedSubject.block_id },
       { $pull: { subject_ids: _id } }
+    );
+
+    // *************** Soft delete all Tests under this Block
+    await TestModel.updateMany(
+      { subject_id: _id, test_status: 'active' },
+      { $set: { test_status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Return the _id

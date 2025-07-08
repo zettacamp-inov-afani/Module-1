@@ -4,7 +4,7 @@ const { ApolloError } = require('apollo-server-express');
 
 // *************** GLOBAL VARIABLES ***************
 const allowedCivilities = ['Mr', 'Mrs'];
-const allowedRoles = ['operator', 'acadir', 'student'];
+const allowedRoles = ['acadir', 'admin', 'corrector'];
 
 /**
  * Validates user input (for create or update — all fields are required).
