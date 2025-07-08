@@ -41,7 +41,7 @@ const StudentTestResultSchema = new mongoose.Schema(
     // Mark validate date for Student Test Result
     mark_validate_date: {
       type: Date,
-      default: Date.now,
+      default: null,
     },
 
     // Student Test Result's status
