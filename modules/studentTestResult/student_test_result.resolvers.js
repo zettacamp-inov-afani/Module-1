@@ -48,9 +48,34 @@ async function GetOneStudentTestResult(_, { _id }) {
   }
 }
 
+/**
+ * Get all active StudentTestResult documents.
+ *
+ * This function:
+ * - Queries the database for all StudentTestResults with `student_test_result_status: 'active'`.
+ * - Returns an array of matching documents.
+ *
+ * @returns {Promise<Object[]>} An array of active StudentTestResult documents.
+ * @throws {ApolloError} If a database error occurs.
+ */
+async function GetAllStudentTestResults() {
+  try {
+    // *************** Retrieve all Student Test Results with status 'active'
+    const studentTestResults = await StudentTestResultModel.find({
+      student_test_result_status: 'active',
+    }).lean();
+
+    // *************** return the result
+    return studentTestResults;
+  } catch (error) {
+    throw new ApolloError(error.message);
+  }
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
     GetOneStudentTestResult,
+    GetAllStudentTestResults,
   },
 };
