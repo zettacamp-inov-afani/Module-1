@@ -24,7 +24,6 @@ const SubjectSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'test',
-        required: true,
       },
     ],
 

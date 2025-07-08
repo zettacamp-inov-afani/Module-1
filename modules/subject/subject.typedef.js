@@ -14,7 +14,7 @@ const SubjectTypeDefs = gql`
     coefficient: Int!
     subject_status: EnumSubjectStatus!
     block_id: Block!
-    test_ids: [Test!]
+    test_ids: [Test]
     created_at: Date!
     updated_at: Date!
     deleted_at: Date
