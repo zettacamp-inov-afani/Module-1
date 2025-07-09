@@ -44,7 +44,7 @@ const StudentTestResultSchema = new mongoose.Schema(
       default: null,
     },
 
-    // Student Test Result's status
+    // Status of Student Test Result
     student_test_result_status: {
       type: String,
       enum: ['active', 'deleted'],

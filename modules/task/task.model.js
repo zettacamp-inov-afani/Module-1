@@ -24,7 +24,7 @@ const TaskSchema = new mongoose.Schema(
       default: 'assign_corrector',
     },
 
-    // Task status
+    // Status of task
     task_status: {
       type: String,
       enum: ['pending', 'in_progress', 'completed'],

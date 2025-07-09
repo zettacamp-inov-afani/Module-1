@@ -17,7 +17,7 @@ const BlockSchema = new mongoose.Schema(
       },
     ],
 
-    // Block status
+    // Status of block
     block_status: {
       type: String,
       enum: ['active', 'deleted'],

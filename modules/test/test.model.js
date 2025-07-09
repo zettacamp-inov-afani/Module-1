@@ -30,7 +30,7 @@ const TestSchema = new mongoose.Schema(
       required: true,
     },
 
-    // Test status
+    // Status of test
     test_status: {
       type: String,
       enum: ['active', 'deleted'],
