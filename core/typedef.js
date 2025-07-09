@@ -9,6 +9,7 @@ const BlockTypeDefs = require('../modules/block/block.typedef');
 const SubjectTypeDefs = require('../modules/subject/subject.typedef');
 const TestTypeDefs = require('../modules/test/test.typedef');
 const TaskTypeDefs = require('../modules/task/task.typedef');
+const StudentTestResultTypeDefs = require('../modules/studentTestResult/student_test_result.typedef');
 
 // *************** Merge typedefs
 const typeDefs = mergeTypeDefs([
@@ -19,6 +20,7 @@ const typeDefs = mergeTypeDefs([
   SubjectTypeDefs,
   TestTypeDefs,
   TaskTypeDefs,
+  StudentTestResultTypeDefs,
 ]);
 
 // *************** EXPORT MODULE ***************
