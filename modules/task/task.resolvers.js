@@ -153,6 +153,20 @@ async function UpdateTask(_, { _id, input }) {
   }
 }
 
+/**
+ * Assigns a user as a test corrector by updating the task status,
+ * creating a new task for entering marks, and sending a notification email.
+ *
+ * @async
+ * @function AssignCorrector
+ * @param {Object} _ - The parent resolver object (unused).
+ * @param {Object} inputObj - The input object containing corrector assignment data.
+ * @param {Object} inputObj.input - The actual input fields.
+ * @param {string} inputObj.input.test_id - The ID of the test to assign.
+ * @param {string} inputObj.input.user_id - The ID of the user being assigned.
+ * @returns {Promise<string>} The ID of the updated `assign_corrector` task.
+ * @throws {ApolloError} If validation fails, task/user/test is not found, or sending email fails.
+ */
 async function AssignCorrector(_, { input }) {
   try {
     // Validasi ID
@@ -207,7 +221,7 @@ async function AssignCorrector(_, { input }) {
     // *************** Step 3: Send email via SendGrid
     const emailPayload = {
       to: corrector.email,
-      from: 'inovafani@gmail.com', // Change to verified sender in SendGrid
+      from: 'inovafani@gmail.com',
       subject: 'You have been assigned as a Test Corrector!',
       html: `
         <h2>You have been assigned as a Test Corrector!</h2>
