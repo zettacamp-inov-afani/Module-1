@@ -47,6 +47,11 @@ const TestTypeDefs = gql`
     notations: [NotationInput!]!
   }
 
+  input PublishTestInput {
+    user_id: ID!
+    due_date: Date
+  }
+
   type Query {
     GetOneTest(_id: ID!): Test
     GetAllTests: [Test!]!
@@ -55,7 +60,7 @@ const TestTypeDefs = gql`
   type Mutation {
     CreateTest(input: CreateTestInput!): Test!
     UpdateTest(_id: ID!, input: UpdateTestInput!): Test!
-    PublishTest(_id: ID!, input: AssignCorrectorInput!): ID!
+    PublishTest(_id: ID!, input: PublishTestInput!): ID!
     DeleteTest(_id: ID!): ID!
   }
 `;
