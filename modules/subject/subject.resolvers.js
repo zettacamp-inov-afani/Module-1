@@ -75,25 +75,37 @@ async function GetAllSubjects() {
 // *************** MUTATION ***************
 
 /**
- * Creates a new subject and updates the corresponding Block to include the subject's ID.
+ * Creates a new Subject and links it to an existing active Block.
  *
- * @async
- * @function CreateSubject
- * @param {Object} _ - Unused parent resolver argument (ignored).
- * @param {Object} input - Input data for the new subject.
+ * @param {Object} _ - Unused parent resolver argument.
+ * @param {Object} input - Object containing subject creation input.
  * @param {string} input.name - Name of the subject.
- * @param {string} [input.description] - Optional description of the subject.
- * @param {number} input.coefficient - Coefficient value (must be >= 0).
- * @param {string} input.block_id - The ID of the Block to associate this subject with.
- * @param {string[]} [input.test_ids] - Optional array of related Test IDs.
- * @returns {Promise<Object>} The newly created subject document.
- * @throws {ApolloError} Throws an error if validation or database operations fail.
+ * @param {string} input.description - Description of the subject.
+ * @param {number} input.coefficient - Coefficient value of the subject.
+ * @param {string} input.block_id - The ID of the Block to associate with.
+ * @param {string[]} [input.test_ids] - Optional array of associated Test IDs.
  *
+ * @returns {Promise<Object>} The newly created Subject document.
+ *
+ * @throws {ApolloError} If the Block is not found or already deleted, or any other error occurs.
  */
 async function CreateSubject(_, { input }) {
   try {
     // *************** Validate required input
     ValidateSubjectInput(input);
+
+    // *************** Check if the block is active
+    const block = await BlockModel.findOne({
+      _id: input.block_id,
+      block_status: 'active',
+    }).lean();
+
+    if (!block) {
+      throw new ApolloError(
+        'Block not found or already deleted.',
+        'BLOCK_NOT_FOUND'
+      );
+    }
 
     // *************** Create a new Subject instance
     const createSubject = await SubjectModel.create({
@@ -106,7 +118,7 @@ async function CreateSubject(_, { input }) {
 
     // *************** Add the new subject's ID to the corresponding Block's `subjects` array
     await BlockModel.updateOne(
-      { _id: input.block_id },
+      { _id: input.block_id, block_status: 'active' },
       { $addToSet: { subject_ids: createSubject._id } }
     );
 

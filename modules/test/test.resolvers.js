@@ -89,6 +89,19 @@ async function CreateTest(_, { input }) {
     // *************** Validate required input
     ValidateTestInput(input);
 
+    // *************** Check if the subject is active
+    const subject = await SubjectModel.findOne({
+      _id: input.subject_id,
+      subject_status: 'active',
+    }).lean();
+
+    if (!subject) {
+      throw new ApolloError(
+        'Subject not found or already deleted.',
+        'SUBJECT_NOT_FOUND'
+      );
+    }
+
     // *************** Create a new Test instance
     const createTest = await TestModel.create({
       name: input.name,
