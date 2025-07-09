@@ -306,6 +306,15 @@ async function student_id(parent, args, { loaders }) {
   return loadedStudent;
 }
 
+async function test_id(parent, args, { loaders }) {
+  // *************** sanity check to ensure parent.test_ids is an array with elements before attempting to use DataLoader
+  CommonValidator.ValidateObjectId(parent.test_id);
+
+  const loadedTest = await loaders.TestLoader.load(String(parent.test_id));
+
+  return loadedTest;
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
@@ -320,5 +329,6 @@ module.exports = {
   },
   StudentTestResult: {
     student_id: student_id,
+    test_id: test_id,
   },
 };
