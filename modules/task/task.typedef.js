@@ -44,6 +44,7 @@ const TaskTypeDefs = gql`
 
   input AssignCorrectorInput {
     user_id: ID!
+    test_id: ID!
     due_date: Date
   }
 

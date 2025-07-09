@@ -151,13 +151,41 @@ async function UpdateTask(_, { _id, input }) {
   }
 }
 
-async function AssignCorrector(_, { _id, user_id }) {
+async function AssignCorrector(_, { _id, input }) {
   try {
-    // *************** Validate _id using CommonValidator
-    CommonValidator.ValidateObjectId(_id, 'Task ID');
+    // Validasi ID
+    CommonValidator.ValidateObjectId(input.test_id, 'Test ID');
+    CommonValidator.ValidateObjectId(input.user_id, 'User ID');
 
-    // *************** Validate user_id
-    ValidateTaskInput({ user_id });
+    // *************** Update AssignCorrector Task Status Only
+    const updatedTask = await TaskModel.findOneAndUpdate(
+      {
+        test_id: input.test_id,
+        task_type: 'assign_corrector',
+        task_status: 'pending',
+      },
+      {
+        $set: {
+          task_status: 'completed',
+          updated_at: new Date(),
+        },
+      }
+    );
+
+    if (!updatedTask) {
+      throw new ApolloError(
+        'Assign Corrector task not found or already completed.',
+        'TASK_NOT_FOUND'
+      );
+    }
+
+    // *************** Create Enter Marks Task for the Corrector
+    await TaskModel.create({
+      test_id: input.test_id,
+      user_id: input.user_id,
+      task_type: 'enter_marks',
+      task_status: 'pending',
+    });
   } catch (error) {
     throw new ApolloError(error.message);
   }
