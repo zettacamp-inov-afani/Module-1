@@ -59,9 +59,7 @@ async function GetOneTask(_, { _id }) {
 async function GetAllTasks() {
   try {
     // *************** Retrieve all tasks with status is not deleted
-    const tasks = await TaskModel.find({
-      task_status: { $ne: 'deleted' },
-    }).lean();
+    const tasks = await TaskModel.find({}).lean();
 
     // *************** return the result
     return tasks;
