@@ -16,10 +16,16 @@ const CommonValidator = require('../../utilities/validator');
 // *************** QUERY ***************
 
 /**
- * Retrieve a single test document by its ID, only if its status is not "deleted".
+ * Retrieves a single Task by its ID, excluding those marked as deleted.
  *
- * @returns {Promise<Object|null>} Returns the found test document or null if not found.
- * @throws {ApolloError} If the ID is invalid or if an error occurs during retrieval.
+ * Validates the provided Task ID and fetches the Task document
+ * from the database if its `task_status` is not `'deleted'`.
+ *
+ * @param {Object} _ - Unused first resolver argument (parent/root).
+ * @param {string} _id - The ID of the Task to retrieve.
+ * @returns {Promise<Object|null>} The Task document if found and not deleted, otherwise null.
+ *
+ * @throws {ApolloError} If the ID is invalid or the query fails.
  */
 async function GetOneTask(_, { _id }) {
   try {

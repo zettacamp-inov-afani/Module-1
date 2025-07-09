@@ -14,16 +14,13 @@ const CommonValidator = require('../../utilities/validator');
 // *************** QUERY ***************
 
 /**
- * Get a single active StudentTestResult document by its ID.
+ * Get a single active StudentTestResult by ID.
  *
- * This function:
- * - Validates the provided ID.
- * - Finds a StudentTestResult with matching _id and `student_test_result_status: 'active'`.
- * - Returns the document if found.
- * - Throws an error if the result is not found or already deleted.
+ * @param {Object} _ - Unused first resolver argument (parent/root).
+ * @param {string} _id - The ID of the StudentTestResult to retrieve.
+ * @returns {Promise<Object>} The StudentTestResult document if found and active.
  *
- * @returns {Promise<Object>} The active StudentTestResult document.
- * @throws {ApolloError} If validation fails or document is not found.
+ * @throws {ApolloError} If the ID is invalid or the StudentTestResult is not found or already deleted.
  */
 async function GetOneStudentTestResult(_, { _id }) {
   try {
@@ -144,58 +141,13 @@ async function EnterMarks(_, { input }) {
 }
 
 /**
- * Update an active StudentTestResult document by its ID.
+ * Validate a StudentTestResult by setting the mark_validate_date and completing the related task.
  *
- * @returns {Promise<Object>} The updated StudentTestResult.
- * @throws {ApolloError} If ID is invalid or record not found/deleted.
- */
-async function UpdateMarks(_, { _id, input }) {
-  try {
-    // *************** Validate Student Test Result ID (must be valid MongoDB ObjectId)
-    CommonValidator.ValidateObjectId(_id, 'StudentTestResult ID');
-
-    // *************** Validate student test result input
-    ValidateStudentTestResultInput(input);
-
-    const updateFields = {
-      student_id: input.student_id,
-      test_id: input.test_id,
-      marks: input.marks,
-      average_mark: input.average_mark,
-    };
-
-    // *************** Update the student test result data if active
-    const updatedStudentTestResult =
-      await StudentTestResultModel.findOneAndUpdate(
-        { _id: _id, student_test_result_status: 'active' },
-        { $set: updateFields },
-        { new: true }
-      ).lean();
-
-    // *************** Handle case if StudentTestResult not found or already deleted
-    if (!updatedStudentTestResult) {
-      throw new ApolloError(
-        'StudentTestResult not found or already deleted.',
-        'STUDENT_TEST_RESULT_NOT_FOUND'
-      );
-    }
-
-    return updatedStudentTestResult;
-  } catch (error) {
-    throw new ApolloError(error.message);
-  }
-}
-
-/**
- * Validates a student's test result by setting the validation date and
- * completing the corresponding "Validate Marks" task.
- *
- * This function:
- * - Updates the `mark_validate_date` field on the StudentTestResult document.
- * - Changes the status of the associated "Validate Marks" task to `completed`.
- *
+ * @param {Object} _ - Unused first resolver argument (parent/root).
+ * @param {string} _id - The ID of the StudentTestResult to validate.
  * @returns {Promise<Object>} The updated StudentTestResult document.
- * @throws {ApolloError} If the StudentTestResult is not found or a database error occurs.
+ *
+ * @throws {ApolloError} If the ID is invalid or the StudentTestResult is not found or already deleted.
  */
 async function ValidateMarks(_, { _id }) {
   try {
@@ -246,10 +198,13 @@ async function ValidateMarks(_, { _id }) {
 }
 
 /**
- * Soft deletes a StudentTestResult by marking its status as 'deleted' and setting the deleted timestamp.
+ * Soft delete a StudentTestResult by setting its status to 'deleted' and recording the deletion date.
  *
- * @returns {Promise<string>} The ID of the soft-deleted StudentTestResult.
- * @throws {ApolloError} If the document is not found or a database error occurs.
+ * @param {Object} _ - Unused first resolver argument (parent/root).
+ * @param {string} _id - The ID of the StudentTestResult to delete.
+ * @returns {Promise<string>} The ID of the deleted StudentTestResult.
+ *
+ * @throws {ApolloError} If the ID is invalid or the StudentTestResult is not found or already deleted.
  */
 async function DeleteStudentTestResult(_, { _id }) {
   try {
@@ -335,7 +290,6 @@ module.exports = {
   },
   Mutation: {
     EnterMarks,
-    UpdateMarks,
     ValidateMarks,
     DeleteStudentTestResult,
   },

@@ -37,13 +37,6 @@ const StudentTestResultTypeDefs = gql`
     marks: [MarkInput!]!
   }
 
-  input UpdateEnterMark {
-    student_id: ID!
-    test_id: ID!
-    marks: [MarkInput!]!
-    average_mark: Float!
-  }
-
   type Query {
     GetOneStudentTestResult(_id: ID!): StudentTestResult!
     GetAllStudentTestResults: [StudentTestResult!]!
@@ -51,7 +44,6 @@ const StudentTestResultTypeDefs = gql`
 
   type Mutation {
     EnterMarks(input: EnterMarkInput): StudentTestResult!
-    UpdateMarks(_id: ID!, input: UpdateEnterMark): StudentTestResult!
     ValidateMarks(_id: ID!): StudentTestResult!
     DeleteStudentTestResult(_id: ID!): ID!
   }

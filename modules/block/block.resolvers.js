@@ -12,13 +12,17 @@ const CommonValidator = require('../../utilities/validator');
 // *************** QUERY ***************
 
 /**
- * GetOneBlock resolver to retrieve a single active Block document by its _id.
+ * Retrieves a single active Block by its ID.
  *
- * @param {object} _ - Unused first argument (parent resolver), required by GraphQL resolver signature.
- * @returns {Promise<object>} - A Promise that resolves to the Block document if found and active.
+ * This function validates the provided Block ID, fetches the corresponding
+ * Block document from the database if its `block_status` is 'active',
+ * and returns it. If not found or already deleted, throws an error.
  *
- * @throws {ApolloError} - Throws BLOCK_NOT_FOUND if no matching Block is found or if it has been deleted.
- * @throws {ApolloError} - Throws a generic ApolloError if other errors occur.
+ * @param {Object} _ - Unused first resolver argument (parent/root).
+ * @param {string} _id - The ID of the Block to retrieve.
+ * @returns {Promise<Object>} The Block document if found and active.
+ *
+ * @throws {ApolloError} If the ID is invalid or the Block is not found or already deleted.
  */
 async function GetOneBlock(_, { _id }) {
   try {
@@ -192,6 +196,22 @@ async function DeleteBlock(_, { _id }) {
 
 // *************** LOADER ***************
 
+/**
+ * Resolves the list of Subject documents associated with a parent entity via DataLoader.
+ *
+ * This function:
+ * - Validates that the `subject_ids` field in the parent is a valid array of MongoDB ObjectIds.
+ * - Uses DataLoader (`SubjectLoader`) to batch and cache retrieval of the subjects.
+ *
+ * @param {Object} parent - The parent object containing the array of subject_ids.
+ * @param {Object} context - GraphQL context object.
+ * @param {Object} context.loaders - Context object that holds all DataLoaders.
+ * @param {Function} context.loaders.SubjectLoader - DataLoader function for fetching subjects by ID.
+ *
+ * @returns {Promise<Object[]>} - A promise that resolves to an array of subject documents.
+ *
+ * @throws {ApolloError} - If subject_ids is invalid or not an array of valid MongoDB ObjectIds.
+ */
 async function subject_ids(parent, args, { loaders }) {
   // *************** sanity check to ensure parent.subject_ids is an array with elements before attempting to use DataLoader
   CommonValidator.ValidateMongoObjectIds(parent.subject_ids);

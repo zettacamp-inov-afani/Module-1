@@ -4,6 +4,27 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT VALIDATOR ***************
 const CommonValidator = require('../../utilities/validator');
 
+/**
+ * Validates the input payload for creating or updating a StudentTestResult.
+ *
+ * This function performs several validation steps:
+ * - Ensures the input is a non-null object.
+ * - Validates that `student_id` and `test_id` are valid MongoDB ObjectIds.
+ * - Ensures `marks` is a non-empty array.
+ * - For each mark object in the `marks` array:
+ *   - Validates it is a non-null object.
+ *   - Ensures `notation_text` is a non-empty string.
+ *   - Validates that `mark` is a number greater than or equal to 0.
+ *
+ * Throws an `ApolloError` with specific error codes if any validation fails.
+ *
+ * @param {Object} input - The input object for StudentTestResult.
+ * @param {string} input.student_id - MongoDB ObjectId string referencing the Student.
+ * @param {string} input.test_id - MongoDB ObjectId string referencing the Test.
+ * @param {Array<{notation_text: string, mark: number}>} input.marks - Array of marks, each containing a notation label and score.
+ *
+ * @throws {ApolloError} If the input is invalid, malformed, or missing required fields.
+ */
 function ValidateStudentTestResultInput(input) {
   // *************** Validate that the input exists and is an object
   if (!input || typeof input !== 'object') {

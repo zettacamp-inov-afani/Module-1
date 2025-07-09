@@ -163,21 +163,22 @@ async function UpdateTest(_, { _id, input }) {
 }
 
 /**
- * Publishes a test by updating its published date and creating a task to assign a corrector.
+ * Publishes a Test by setting its `published_date` and creates an "assign_corrector" Task.
  *
- * This function performs the following steps:
- * 1. Validates the test ID.
- * 2. Validates the input payload (e.g., user ID and optional due date).
- * 3. Updates the test's `published_date` if it is currently active.
- * 4. Creates an `assign_corrector` task linked to the test.
- * 5. Returns the ID of the published test.
+ * This function performs the following actions:
+ * - Validates the Test ID and input payload.
+ * - Updates the Test document to set `published_date` if it is still active.
+ * - Creates a new Task to assign the corrector for the test.
  *
- * Throws an ApolloError if any of the validation steps fail,
- * if the test is not found or cannot be updated,
- * or if the task creation fails.
+ * @param {Object} _ - Unused first resolver argument (parent/root).
+ * @param {string} _id - The ID of the Test to be published.
+ * @param {Object} input - Input object containing user_id and due_date for the task.
+ * @param {string} input.user_id - The ID of the user to assign as corrector.
+ * @param {string} input.due_date - The due date for the "assign_corrector" task.
  *
- * @returns {Object} An object containing the `id` of the published test.
- * @throws {ApolloError} If validation fails or the update/task creation fails.
+ * @returns {Promise<string>} The ID of the published Test.
+ *
+ * @throws {ApolloError} If the ID is invalid, the update fails, or task creation fails.
  */
 async function PublishTest(_, { _id, input }) {
   try {
@@ -214,13 +215,19 @@ async function PublishTest(_, { _id, input }) {
 }
 
 /**
- * Soft deletes a test and removes its reference from the related subject.
+ * Soft deletes a Test by setting its status to `'deleted'` and removing its reference from the related Subject.
  *
- * Marks the test as deleted by updating its status and deleted timestamp,
- * then removes the test ID from the subject's test list.
+ * This function performs the following actions:
+ * - Validates the Test ID.
+ * - Marks the Test as deleted by updating its `test_status` and `deleted_at`.
+ * - Removes the Test ID from the `test_ids` array of the associated Subject.
  *
- * @returns {string} The ID of the deleted test.
- * @throws {ApolloError} If validation fails or the test is not found.
+ * @param {Object} _ - Unused first resolver argument (parent/root).
+ * @param {string} _id - The ID of the Test to delete.
+ *
+ * @returns {Promise<string>} The ID of the deleted Test.
+ *
+ * @throws {ApolloError} If the Test ID is invalid, not found, already deleted, or if any update fails.
  */
 async function DeleteTest(_, { _id }) {
   try {
@@ -256,6 +263,19 @@ async function DeleteTest(_, { _id }) {
 
 // *************** LOADER ***************
 
+/**
+ * Field resolver to load the Subject associated with a parent object using DataLoader.
+ *
+ * Validates the `subject_id` from the parent object, then loads the corresponding
+ * Subject document using `SubjectLoader`.
+ *
+ * @param {Object} parent - The parent object containing the `subject_id` field.
+ * @param {Object} context - GraphQL context object.
+ * @param {Object} context.loaders - Object containing configured DataLoaders.
+ * @returns {Promise<Object>} The loaded Subject document.
+ *
+ * @throws {ApolloError} If the `subject_id` is invalid or if loading fails.
+ */
 async function subject_id(parent, args, { loaders }) {
   // *************** sanity check to ensure parent.block_id is an array with elements before attempting to use DataLoader
   CommonValidator.ValidateObjectId(parent.subject_id);

@@ -7,6 +7,25 @@ const CommonValidator = require('../../utilities/validator');
 const task_types = ['assign_corrector', 'enter_marks', 'validate_marks'];
 const task_statuses = ['pending', 'in_progress', 'completed'];
 
+/**
+ * Validates the input object for creating or updating a Task.
+ *
+ * This function performs the following validations:
+ * - Ensures the input is a valid object.
+ * - Validates that `test_id` and `user_id` are valid MongoDB ObjectIds.
+ * - Validates that `task_type` is one of the allowed enum values.
+ * - Validates that `task_status` is one of the allowed enum values.
+ * - Validates that `due_date` (if provided) is a valid date.
+ *
+ * @param {Object} input - The input object containing task details.
+ * @param {string} input.test_id - The ID of the Test associated with the Task.
+ * @param {string} input.user_id - The ID of the User assigned to the Task.
+ * @param {string} input.task_type - The type of the Task (must match enum `task_types`).
+ * @param {string} input.task_status - The status of the Task (must match enum `task_statuses`).
+ * @param {string} [input.due_date] - Optional due date string for the Task.
+ *
+ * @throws {ApolloError} If any validation rule fails.
+ */
 function ValidateTaskInput(input) {
   // *************** Validate that the input exists and is an object
   if (!input || typeof input !== 'object') {

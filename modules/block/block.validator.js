@@ -4,6 +4,26 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT VALIDATOR ***************
 const CommonValidator = require('../../utilities/validator');
 
+/**
+ * Validates the input payload for creating or updating a Block.
+ *
+ * This function performs the following checks:
+ * - Ensures the input is a valid object.
+ * - Validates that `name` is a non-empty string.
+ * - Validates that `description` is a non-empty string.
+ * - If `subject_ids` is provided:
+ *   - Ensures it is an array.
+ *   - Validates each element in `subject_ids` as a valid MongoDB ObjectId.
+ *
+ * Throws an `ApolloError` with specific error codes if validation fails.
+ *
+ * @param {Object} input - The input object to validate.
+ * @param {string} input.name - The name of the block.
+ * @param {string} input.description - The description of the block.
+ * @param {string[]} [input.subject_ids] - Optional array of Subject ObjectIds.
+ *
+ * @throws {ApolloError} If any validation rule fails.
+ */
 function ValidateBlockInput(input) {
   // *************** Validate that the input exists and is an object
   if (!input || typeof input !== 'object') {

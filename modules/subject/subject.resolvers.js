@@ -219,6 +219,16 @@ async function DeleteSubject(_, { _id }) {
 
 // *************** LOADER ***************
 
+/**
+ * Field resolver to load the Block associated with a StudentTestResult using DataLoader.
+ *
+ * @param {Object} parent - The parent object that contains the `block_id` field.
+ * @param {Object} context - GraphQL context object.
+ * @param {Object} context.loaders - Contains configured DataLoaders.
+ * @returns {Promise<Object>} The Block document corresponding to the given block_id.
+ *
+ * @throws {ApolloError} If the block_id is invalid or loading fails.
+ */
 async function block_id(parent, args, { loaders }) {
   // *************** sanity check to ensure parent.block_id is an array with elements before attempting to use DataLoader
   CommonValidator.ValidateObjectId(parent.block_id);
@@ -228,6 +238,16 @@ async function block_id(parent, args, { loaders }) {
   return loadedBlock;
 }
 
+/**
+ * Field resolver to load multiple Test documents associated with a parent object using DataLoader.
+ *
+ * @param {Object} parent - The parent object that contains the `test_ids` array.
+ * @param {Object} context - GraphQL context object.
+ * @param {Object} context.loaders - Contains configured DataLoaders.
+ * @returns {Promise<Array<Object>>} An array of Test documents corresponding to the given test_ids.
+ *
+ * @throws {ApolloError} If the test_ids are invalid or loading fails.
+ */
 async function test_ids(parent, args, { loaders }) {
   // *************** sanity check to ensure parent.test_ids is an array with elements before attempting to use DataLoader
   CommonValidator.ValidateMongoObjectIds(parent.test_ids);

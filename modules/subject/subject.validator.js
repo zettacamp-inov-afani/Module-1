@@ -4,6 +4,26 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT VALIDATOR ***************
 const CommonValidator = require('../../utilities/validator');
 
+/**
+ * Validates the input object for creating or updating a Subject.
+ *
+ * This function checks:
+ * - That the input is a non-null object.
+ * - That `name` is a non-empty string.
+ * - That `description` is a non-empty string.
+ * - That `coefficient` is a non-negative number.
+ * - That `block_id` is a valid MongoDB ObjectId.
+ * - That `test_ids`, if provided, is an array of valid MongoDB ObjectIds.
+ *
+ * @param {Object} input - The input object containing subject details.
+ * @param {string} input.name - The name of the subject.
+ * @param {string} input.description - The description of the subject.
+ * @param {number} input.coefficient - The coefficient value of the subject.
+ * @param {string} input.block_id - The ID of the related Block.
+ * @param {string[]} [input.test_ids] - Optional array of Test IDs associated with this subject.
+ *
+ * @throws {ApolloError} If any validation rule fails.
+ */
 function ValidateSubjectInput(input) {
   // *************** Validate that the input exists and is an object
   if (!input || typeof input !== 'object') {
