@@ -35,7 +35,6 @@ const StudentTestResultTypeDefs = gql`
     student_id: ID!
     test_id: ID!
     marks: [MarkInput!]!
-    average_mark: Float!
   }
 
   input UpdateEnterMark {

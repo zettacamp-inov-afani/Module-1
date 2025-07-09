@@ -19,9 +19,6 @@ function ValidateStudentTestResultInput(input) {
   // *************** Validate test_id of StudentTestResult
   CommonValidator.ValidateObjectId(input.test_id, 'Test ID');
 
-  // *************** Validate user_id (for assigning validation task)
-  CommonValidator.ValidateObjectId(input.user_id, 'User ID');
-
   // *************** Validate that the notations input is an array
   if (!Array.isArray(input.marks)) {
     throw new ApolloError(

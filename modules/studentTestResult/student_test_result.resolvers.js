@@ -115,7 +115,7 @@ async function EnterMarks(_, { input }) {
     });
 
     // *************** Update "Enter Marks" task to Completed
-    await TaskModel.findOneAndUpdate(
+    const updateTask = await TaskModel.findOneAndUpdate(
       {
         test_id: input.test_id,
         task_type: 'enter_marks',
@@ -132,7 +132,7 @@ async function EnterMarks(_, { input }) {
     // *************** Create a new "Validate Marks" task
     await TaskModel.create({
       test_id: input.test_id,
-      user_id: input.user_id,
+      user_id: updateTask.user_id,
       task_type: 'validate_marks',
       task_status: 'pending',
     });
