@@ -1,5 +1,7 @@
 // *************** IMPORT LIBRARY ***************
 const { ApolloError } = require('apollo-server-express');
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // *************** IMPORT MODULE ***************
 const TaskModel = require('./task.model');
@@ -151,7 +153,7 @@ async function UpdateTask(_, { _id, input }) {
   }
 }
 
-async function AssignCorrector(_, { _id, input }) {
+async function AssignCorrector(_, { input }) {
   try {
     // Validasi ID
     CommonValidator.ValidateObjectId(input.test_id, 'Test ID');
@@ -186,6 +188,38 @@ async function AssignCorrector(_, { _id, input }) {
       task_type: 'enter_marks',
       task_status: 'pending',
     });
+
+    // *************** Find Corrector User
+    const corrector = await UserModel.findById(input.user_id).lean();
+    if (!corrector || !corrector.email) {
+      throw new ApolloError(
+        'Corrector not found or missing email.',
+        'USER_NOT_FOUND'
+      );
+    }
+
+    // *************** Find Test
+    const test = await TestModel.findById(updatedTask.test_id).lean();
+    if (!test) {
+      throw new ApolloError('Test not found.', 'TEST_NOT_FOUND');
+    }
+
+    // *************** Step 3: Send email via SendGrid
+    const emailPayload = {
+      to: corrector.email,
+      from: 'inovafani@gmail.com', // Change to verified sender in SendGrid
+      subject: 'You have been assigned as a Test Corrector!',
+      html: `
+        <h2>You have been assigned as a Test Corrector!</h2>
+        <p><strong>Test Name:</strong> ${test.name}</p>
+        <p><strong>Subject:</strong> ${test.subject_id}</p>
+        <p><strong>Description:</strong> ${test.description || '-'}</p>
+      `,
+    };
+
+    await sgMail.send(emailPayload);
+
+    return updatedTask._id;
   } catch (error) {
     throw new ApolloError(error.message);
   }
