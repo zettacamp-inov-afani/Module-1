@@ -306,6 +306,18 @@ async function student_id(parent, args, { loaders }) {
   return loadedStudent;
 }
 
+/**
+ * Resolves the `test_id` field on a StudentTestResult document using DataLoader.
+ *
+ * @param {Object} parent - The parent object, expected to contain the `test_id` field.
+ * @param {Object} context - GraphQL context object.
+ * @param {Object} context.loaders - An object containing DataLoader instances.
+ * @param {Function} context.loaders.TestLoader - DataLoader instance for loading Test documents by ID.
+ *
+ * @returns {Promise<Object|null>} The loaded Test document, or null if not found or ID is invalid.
+ *
+ * @throws {ApolloError} If `test_id` is not a valid MongoDB ObjectId or a DataLoader error occurs.
+ */
 async function test_id(parent, args, { loaders }) {
   // *************** sanity check to ensure parent.test_ids is an array with elements before attempting to use DataLoader
   CommonValidator.ValidateObjectId(parent.test_id);
