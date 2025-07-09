@@ -276,6 +276,51 @@ async function DeleteTask(_, { _id }) {
   }
 }
 
+// *************** LOADER ***************
+
+/**
+ * Resolves the `test_id` field on a StudentTestResult document using DataLoader.
+ *
+ * @param {Object} parent - The parent object, expected to contain the `test_id` field.
+ * @param {Object} context - GraphQL context object.
+ * @param {Object} context.loaders - An object containing DataLoader instances.
+ * @param {Function} context.loaders.TestLoader - DataLoader instance for loading Test documents by ID.
+ *
+ * @returns {Promise<Object|null>} The loaded Test document, or null if not found or ID is invalid.
+ *
+ * @throws {ApolloError} If `test_id` is not a valid MongoDB ObjectId or a DataLoader error occurs.
+ */
+async function test_id(parent, args, { loaders }) {
+  // *************** sanity check to ensure parent.test_id is an array with elements before attempting to use DataLoader
+  CommonValidator.ValidateObjectId(parent.test_id);
+
+  const loadedTest = await loaders.TestLoader.load(String(parent.test_id));
+
+  return loadedTest;
+}
+
+/**
+ * Resolves the user associated with a Task using DataLoader.
+ *
+ * @async
+ * @function user_id
+ * @param {Object} parent - The parent Task object containing the `user_id`.
+ * @param {Object} context - The GraphQL context object.
+ * @param {Object} context.loaders - Contains all configured DataLoaders.
+ * @param {Function} context.loaders.UserLoader - DataLoader for fetching User documents by ID.
+ *
+ * @returns {Promise<Object|null>} The resolved user document or null if not found.
+ * @throws {ApolloError} If the `user_id` is not a valid MongoDB ObjectId.
+ */
+async function user_id(parent, args, { loaders }) {
+  // *************** sanity check to ensure parent.user_id is an array with elements before attempting to use DataLoader
+  CommonValidator.ValidateObjectId(parent.user_id);
+
+  const loadedUser = await loaders.UserLoader.load(String(parent.user_id));
+
+  return loadedUser;
+}
+
 // *************** EXPORT MODULE ***************
 module.exports = {
   Query: {
@@ -287,5 +332,9 @@ module.exports = {
     UpdateTask,
     AssignCorrector,
     DeleteTask,
+  },
+  Task: {
+    test_id: test_id,
+    user_id: user_id,
   },
 };

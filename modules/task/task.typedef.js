@@ -16,8 +16,8 @@ const TaskTypeDefs = gql`
 
   type Task {
     _id: ID!
-    test_id: ID!
-    user_id: ID!
+    test_id: Test
+    user_id: User
     task_type: EnumTaskType!
     task_status: EnumTaskStatus!
     due_date: Date
