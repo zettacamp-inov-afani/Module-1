@@ -96,8 +96,8 @@ async function EnterMarks(_, { input }) {
     let averageMark = 0;
 
     if (Array.isArray(input.marks) && input.marks.length) {
-      for (let i = 0; i < input.marks.length; i++) {
-        total += input.marks[i].mark;
+      for (const markEntry of input.marks) {
+        total += markEntry.mark;
       }
       averageMark = total / input.marks.length;
     }
