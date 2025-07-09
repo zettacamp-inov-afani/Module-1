@@ -7,6 +7,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const TaskModel = require('./task.model');
 const TestModel = require('../test/test.model.js');
 const UserModel = require('../user/user.model.js');
+const StudentModel = require('../student/student.model.js');
 
 // *************** IMPORT VALIDATOR ***************
 const ValidateTaskInput = require('./task.validator');
@@ -218,6 +219,9 @@ async function AssignCorrector(_, { input }) {
       throw new ApolloError('Test not found.', 'TEST_NOT_FOUND');
     }
 
+    // *************** Get All Students
+    const students = await StudentModel.find({}).lean();
+
     // *************** Step 3: Send email via SendGrid
     const emailPayload = {
       to: corrector.email,
@@ -228,6 +232,12 @@ async function AssignCorrector(_, { input }) {
         <p><strong>Test Name:</strong> ${test.name}</p>
         <p><strong>Subject:</strong> ${test.subject_id}</p>
         <p><strong>Description:</strong> ${test.description || '-'}</p>
+        <p><strong>List of Students:</strong></p>
+        <ul>
+          ${students
+            .map((student) => `<li>${student.first_name}</li>`)
+            .join('')}
+        </ul>
       `,
     };
 
