@@ -20,7 +20,7 @@ const StudentTestResultSchema = new mongoose.Schema(
     // Marks for Student Test Result
     marks: [
       {
-        notation_text: { type: String, required: true, unique: true },
+        notation_text: { type: String, required: true },
         mark: { type: Number, required: true, min: 0 },
       },
     ],
