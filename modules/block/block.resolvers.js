@@ -173,7 +173,7 @@ async function DeleteBlock(_, { _id }) {
       { $set: { block_status: 'deleted', deleted_at: new Date() } }
     );
 
-    // *************** Handle case if School not found or already deleted
+    // *************** Handle case if Block not found or already deleted
     if (deletedBlock.matchedCount === 0) {
       throw new ApolloError(
         'Block not found or already deleted.',

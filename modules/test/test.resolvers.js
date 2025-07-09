@@ -290,7 +290,7 @@ async function DeleteTest(_, { _id }) {
  * @throws {ApolloError} If the `subject_id` is invalid or if loading fails.
  */
 async function subject_id(parent, args, { loaders }) {
-  // *************** sanity check to ensure parent.block_id is an array with elements before attempting to use DataLoader
+  // *************** sanity check to ensure parent.subject_id is an array with elements before attempting to use DataLoader
   CommonValidator.ValidateObjectId(parent.subject_id);
 
   const loadedSubject = await loaders.SubjectLoader.load(
