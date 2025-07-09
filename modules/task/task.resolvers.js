@@ -269,12 +269,20 @@ async function DeleteTask(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Task ID');
 
     // *************** Find the Task with the given ID and not 'deleted' status, then update it to "deleted"
-    const deletedTask = await TaskModel.findOneAndUpdate(
+    const deletedTask = await TaskModel.updateOne(
       { _id, task_status: { $ne: 'deleted' } },
       { $set: { task_status: 'deleted', deleted_at: new Date() } }
     );
 
-    return deletedTask;
+    // *************** Handle case if School not found or already deleted
+    if (deletedTask.matchedCount === 0) {
+      throw new ApolloError(
+        'Task not found or already deleted.',
+        'TASK_NOT_FOUND'
+      );
+    }
+
+    return _id;
   } catch (error) {
     throw new ApolloError(error.message);
   }

@@ -197,13 +197,13 @@ async function DeleteSubject(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Subject ID');
 
     // *************** Find the Subject with the given ID and "active" status, then update it to "deleted"
-    const deletedSubject = await SubjectModel.findOneAndUpdate(
+    const deletedSubject = await SubjectModel.updateOne(
       { _id, subject_status: 'active' },
       { $set: { subject_status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Handle case if Subject not found or already deleted
-    if (!deletedSubject) {
+    if (deletedSubject.matchedCount === 0) {
       throw new ApolloError(
         'Subject not found or already deleted.',
         'SUBJECT_NOT_FOUND'

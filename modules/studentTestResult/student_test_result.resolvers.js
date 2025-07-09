@@ -211,19 +211,18 @@ async function DeleteStudentTestResult(_, { _id }) {
     // *************** Validate StudentTestResult ID (must be valid MongoDB ObjectId)
     CommonValidator.ValidateObjectId(_id, 'StudentTestResult ID');
 
-    const deletedStudentTestResult =
-      await StudentTestResultModel.findOneAndUpdate(
-        { _id, student_test_result_status: 'active' },
-        {
-          $set: {
-            student_test_result_status: 'deleted',
-            deleted_at: new Date(),
-          },
-        }
-      );
+    const deletedStudentTestResult = await StudentTestResultModel.updateOne(
+      { _id, student_test_result_status: 'active' },
+      {
+        $set: {
+          student_test_result_status: 'deleted',
+          deleted_at: new Date(),
+        },
+      }
+    );
 
     // *************** Handle case if StudentTestResult not found or already deleted
-    if (!deletedStudentTestResult) {
+    if (deletedStudentTestResult.matchedCount === 0) {
       throw new ApolloError(
         'StudentTestResult not found or already deleted.',
         'STUDENT_TEST_RESULT_NOT_FOUND'
