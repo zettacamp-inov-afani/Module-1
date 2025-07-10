@@ -41,6 +41,7 @@ const TaskSchema = new mongoose.Schema(
     deleted_at: { type: Date, default: null },
   },
   {
+    // Task's timestamps
     timestamps: {
       createdAt: 'created_at',
       updatedAt: 'updated_at',

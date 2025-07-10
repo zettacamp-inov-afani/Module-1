@@ -28,6 +28,7 @@ const BlockSchema = new mongoose.Schema(
     deleted_at: { type: Date, default: null },
   },
   {
+    // Block's timestamps
     timestamps: {
       createdAt: 'created_at',
       updatedAt: 'updated_at',

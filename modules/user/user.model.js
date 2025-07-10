@@ -40,6 +40,7 @@ const UserSchema = new mongoose.Schema(
     deleted_at: { type: Date, default: null },
   },
   {
+    // User's timestamps
     timestamps: {
       createdAt: 'created_at',
       updatedAt: 'updated_at',

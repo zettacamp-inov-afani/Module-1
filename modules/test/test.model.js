@@ -41,6 +41,7 @@ const TestSchema = new mongoose.Schema(
     deleted_at: { type: Date, default: null },
   },
   {
+    // Test's timestamps
     timestamps: {
       createdAt: 'created_at',
       updatedAt: 'updated_at',
