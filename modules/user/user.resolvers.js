@@ -4,7 +4,7 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT MODULE ***************
 const UserModel = require('./user.model');
 
-// *************** IMPORT VALIDATOR ***************
+// *************** IMPORT VALIDATORS ***************
 const ValidateUserInput = require('./user.validator');
 const CommonValidator = require('../../utilities/validator');
 
@@ -161,7 +161,7 @@ async function DeleteUser(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'User ID');
 
     // *************** Find the User with the given ID and "active" status, then update it to "deleted"
-    const deletedUser = await UserModel.updateOne(
+    const deletedUser = await UserModel.findOneAndUpdate(
       { _id, status: 'active' },
       {
         $set: { status: 'deleted', deleted_at: new Date() },
@@ -169,7 +169,7 @@ async function DeleteUser(_, { _id }) {
     );
 
     // *************** Handle case if User not found or already deleted
-    if (deletedUser.matchedCount === 0) {
+    if (!deletedUser) {
       throw new ApolloError(
         'User not found or already deleted.',
         'USER_NOT_FOUND'
