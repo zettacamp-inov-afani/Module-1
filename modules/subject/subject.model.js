@@ -7,7 +7,7 @@ const SubjectSchema = new mongoose.Schema(
     name: { type: String, required: true, unique: true },
 
     // Description of the subject
-    description: { type: String, required: true, unique: true },
+    description: { type: String, required: true },
 
     // Coefficient of the subject
     coefficient: { type: Number, required: true, min: 0 },

@@ -7,7 +7,7 @@ const TestSchema = new mongoose.Schema(
     name: { type: String, required: true, unique: true },
 
     // Description of the test
-    description: { type: String, required: true, unique: true },
+    description: { type: String, required: true },
 
     // Weight of the test
     weight: { type: Number, required: true, min: 0 },

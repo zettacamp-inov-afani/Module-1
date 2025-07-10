@@ -4,8 +4,6 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT MODULE ***************
 const StudentTestResultModel = require('./student_test_result.model');
 const TaskModel = require('../task/task.model');
-const TestModel = require('../test/test.model');
-const StudentModel = require('../student/student.model');
 
 // *************** IMPORT VALIDATOR ***************
 const ValidateStudentTestResultInput = require('./student_test_result.validator');

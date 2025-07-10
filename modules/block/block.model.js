@@ -7,7 +7,7 @@ const BlockSchema = new mongoose.Schema(
     name: { type: String, required: true, unique: true },
 
     // Description of the block
-    description: { type: String, required: true, unique: true },
+    description: { type: String, required: true },
 
     // Subject reference of Block
     subject_ids: [
