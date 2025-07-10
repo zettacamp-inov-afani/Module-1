@@ -168,13 +168,13 @@ async function DeleteBlock(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Block ID');
 
     // *************** Find the Block with the given ID and "active" status, then update it to "deleted"
-    const deletedBlock = await BlockModel.updateOne(
+    const deletedBlock = await BlockModel.findOneAndUpdate(
       { _id, block_status: 'active' },
       { $set: { block_status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Handle case if Block not found or already deleted
-    if (deletedBlock.matchedCount === 0) {
+    if (!deletedBlock) {
       throw new ApolloError(
         'Block not found or already deleted.',
         'BLOCK_NOT_FOUND'

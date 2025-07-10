@@ -174,7 +174,7 @@ async function UpdateTask(_, { _id, input }) {
  */
 async function AssignCorrector(_, { input }) {
   try {
-    // Validasi ID
+    // Validate test_id and user_id
     CommonValidator.ValidateObjectId(input.test_id, 'Test ID');
     CommonValidator.ValidateObjectId(input.user_id, 'User ID');
 

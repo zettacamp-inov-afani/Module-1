@@ -115,6 +115,19 @@ function ValidateTestInput(input) {
   CommonValidator.ValidateObjectId(input.subject_id, 'Subject ID');
 }
 
+/**
+ * Validates the input for publishing a test.
+ *
+ * Ensures that the `user_id` is provided and is a valid MongoDB ObjectId.
+ * Optionally validates the `due_date` if it is provided.
+ *
+ * @param {Object} input - The input object containing user_id and optional due_date.
+ * @param {string} input.user_id - The ID of the user assigned to the test.
+ * @param {string} [input.due_date] - Optional due date string to be validated as a Date.
+ *
+ * @throws {ApolloError} Throws `USER_ID_REQUIRED` if user_id is missing.
+ * @throws {ApolloError} Throws `INVALID_DUE_DATE` if due_date is provided but invalid.
+ */
 function ValidatePublishTestInput(input) {
   // *************** Validate that user_id is provided
   if (!input || !input.user_id) {

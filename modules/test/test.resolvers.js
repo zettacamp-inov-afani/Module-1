@@ -248,13 +248,13 @@ async function DeleteTest(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Test ID');
 
     // *************** Find the Test with the given ID and "active" status, then update it to "deleted"
-    const deletedTest = await TestModel.updateOne(
+    const deletedTest = await TestModel.findOneAndUpdate(
       { _id, test_status: 'active' },
       { $set: { test_status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Handle case if Test not found or already deleted
-    if (deletedTest.matchedCount === 0) {
+    if (!deletedTest) {
       throw new ApolloError(
         'Test not found or already deleted.',
         'TEST_NOT_FOUND'
