@@ -4,6 +4,7 @@ const { ApolloError } = require('apollo-server-express');
 // *************** IMPORT VALIDATOR ***************
 const CommonValidator = require('../../utilities/validator');
 
+// *************** GLOBAL VARIABLE ***************
 const task_types = ['assign_corrector', 'enter_marks', 'validate_marks'];
 const task_statuses = ['pending', 'in_progress', 'completed'];
 
