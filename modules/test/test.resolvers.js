@@ -217,6 +217,7 @@ async function PublishTest(_, { _id, input }) {
       user_id: input.user_id,
       task_type: 'assign_corrector',
       task_status: 'pending',
+      status: 'active',
       due_date: input.due_date,
     });
 

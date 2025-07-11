@@ -87,7 +87,7 @@ async function GetAllStudentTestResults() {
 async function EnterMarks(_, { input }) {
   try {
     // *************** Validate required input
-    ValidateStudentTestResultInput(input);
+    await ValidateStudentTestResultInput(input);
 
     // *************** Calculate average_mark
     let total = 0;
@@ -115,6 +115,7 @@ async function EnterMarks(_, { input }) {
         test_id: input.test_id,
         task_type: 'enter_marks',
         task_status: 'pending',
+        status: 'active',
       },
       {
         $set: {
@@ -124,12 +125,20 @@ async function EnterMarks(_, { input }) {
       }
     );
 
+    if (!updateTask) {
+      throw new ApolloError(
+        'Failed to update Enter Marks task.',
+        'UPDATE_FAILED'
+      );
+    }
+
     // *************** Create a new "Validate Marks" task
     await TaskModel.create({
       test_id: input.test_id,
       user_id: updateTask.user_id,
       task_type: 'validate_marks',
       task_status: 'pending',
+      status: 'active',
     });
 
     return createEnterMarks;

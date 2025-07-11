@@ -35,7 +35,7 @@ async function GetOneTask(_, { _id }) {
     // *************** Find task by ID and check if status is not deleted
     const test = await TaskModel.findOne({
       _id: _id,
-      task_status: { $ne: 'deleted' },
+      status: 'active',
     }).lean();
 
     return test;
@@ -45,21 +45,19 @@ async function GetOneTask(_, { _id }) {
 }
 
 /**
- * Retrieves all tasks that are not marked as deleted.
- *
- * This function queries the `Task` collection to find all documents
- * where the `task_status` is not equal to `'deleted'`, then returns
- * them as plain JavaScript objects.
+ * Retrieves all tasks from the database with status set to "active".
  *
  * @async
  * @function GetAllTasks
- * @returns {Promise<Array<Object>>} A promise that resolves to an array of task documents.
- * @throws {ApolloError} If there is an error during the database query.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of active task objects.
+ * @throws {ApolloError} If an error occurs during the database query.
  */
 async function GetAllTasks() {
   try {
     // *************** Retrieve all tasks with status is not deleted
-    const tasks = await TaskModel.find({}).lean();
+    const tasks = await TaskModel.find({
+      status: 'active',
+    }).lean();
 
     // *************** return the result
     return tasks;
@@ -270,8 +268,8 @@ async function DeleteTask(_, { _id }) {
 
     // *************** Find the Task with the given ID and not 'deleted' status, then update it to "deleted"
     const deletedTask = await TaskModel.updateOne(
-      { _id, task_status: { $ne: 'deleted' } },
-      { $set: { task_status: 'deleted', deleted_at: new Date() } }
+      { _id, status: 'active' },
+      { $set: { status: 'deleted', deleted_at: new Date() } }
     );
 
     // *************** Handle case if School not found or already deleted

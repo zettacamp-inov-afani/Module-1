@@ -31,6 +31,13 @@ const TaskSchema = new mongoose.Schema(
       default: 'pending',
     },
 
+    // Task's 'active' or 'deleted'
+    status: {
+      type: String,
+      enum: ['active', 'deleted'],
+      default: ['active'],
+    },
+
     // Optional due date for the task
     due_date: {
       type: Date,

@@ -14,12 +14,18 @@ const TaskTypeDefs = gql`
     completed
   }
 
+  enum Status {
+    active
+    deleted
+  }
+
   type Task {
     _id: ID!
     test_id: Test
     user_id: User
     task_type: EnumTaskType!
     task_status: EnumTaskStatus!
+    status: Status!
     due_date: Date
     created_at: Date!
     updated_at: Date!
@@ -31,6 +37,7 @@ const TaskTypeDefs = gql`
     user_id: ID!
     task_type: EnumTaskType!
     task_status: EnumTaskStatus!
+    status: Status!
     due_date: Date
   }
 
