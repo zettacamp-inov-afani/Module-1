@@ -29,8 +29,8 @@ const CommonValidator = require('../../utilities/validator');
  */
 async function GetOneTask(_, { _id }) {
   try {
-    // *************** Validate Subject ID
-    CommonValidator.ValidateObjectId(_id, 'Test ID');
+    // *************** Validate Task ID
+    CommonValidator.ValidateObjectId(_id, 'Task ID');
 
     // *************** Find task by ID and check if status is not deleted
     const task = await TaskModel.findOne({
