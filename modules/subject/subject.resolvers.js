@@ -239,7 +239,7 @@ async function DeleteSubject(_, { _id }) {
 // *************** LOADER ***************
 
 /**
- * Field resolver to load the Block associated with a StudentTestResult using DataLoader.
+ * Field resolver to load the Block associated with a Subject using DataLoader.
  *
  * @param {Object} parent - The parent object that contains the `block_id` field.
  * @param {Object} context - GraphQL context object.
