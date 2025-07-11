@@ -71,18 +71,20 @@ async function GetAllStudentTestResults() {
 // *************** MUTATION ***************
 
 /**
- * Enter student marks for a test, update the corresponding task to "Completed",
- * and create a new "Validate Marks" task for further evaluation.
- * @param {Object} _ - Unused parent argument from GraphQL resolver
- * @param {Object} input - Input payload for entering marks
- * @param {string} input.student_id - The ID of the student
- * @param {string} input.test_id - The ID of the test
- * @param {Array<{notation_text: string, mark: number}>} input.marks - Array of mark entries
- * @param {number} input.average_mark - Average mark calculated from the provided marks
- * @param {string} input.user_id - The ID of the user assigned to validate marks
+ * Enters a student's marks for a specific test and manages related tasks.
  *
- * @returns {Promise<Object>} The created `StudentTestResult` document
- * @throws {ApolloError} If validation fails or any DB operation encounters an error
+ *
+ * @async
+ * @function EnterMarks
+ * @param {Object} _ - Unused resolver parent argument (GraphQL convention).
+ * @param {Object} input - The input payload for entering marks.
+ * @param {string} input.student_id - The ID of the student being marked.
+ * @param {string} input.test_id - The ID of the test the marks are for.
+ * @param {Array<Object>} input.marks - Array of marks with structure `{ notation_text: string, mark: number }`.
+ *
+ * @returns {Promise<Object>} The created `StudentTestResult` document.
+ *
+ * @throws {ApolloError} If validation fails, task not found, or any database operation fails.
  */
 async function EnterMarks(_, { input }) {
   try {
