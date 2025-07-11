@@ -212,7 +212,7 @@ async function DeleteSubject(_, { _id }) {
 
     // *************** Delete subject from relate block
     await BlockModel.updateOne(
-      { block_id: deletedSubject.block_id },
+      { _id: deletedSubject.block_id },
       { $pull: { subject_ids: _id } }
     );
 

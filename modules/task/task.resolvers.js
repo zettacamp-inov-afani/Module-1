@@ -33,12 +33,12 @@ async function GetOneTask(_, { _id }) {
     CommonValidator.ValidateObjectId(_id, 'Test ID');
 
     // *************** Find task by ID and check if status is not deleted
-    const test = await TaskModel.findOne({
+    const task = await TaskModel.findOne({
       _id: _id,
       status: 'active',
     }).lean();
 
-    return test;
+    return task;
   } catch (error) {
     throw new ApolloError(error.message);
   }
@@ -272,7 +272,7 @@ async function DeleteTask(_, { _id }) {
       { $set: { status: 'deleted', deleted_at: new Date() } }
     );
 
-    // *************** Handle case if School not found or already deleted
+    // *************** Handle case if Task not found or already deleted
     if (deletedTask.matchedCount === 0) {
       throw new ApolloError(
         'Task not found or already deleted.',

@@ -282,7 +282,7 @@ async function student_id(parent, args, { loaders }) {
  * @throws {ApolloError} If `test_id` is not a valid MongoDB ObjectId or a DataLoader error occurs.
  */
 async function test_id(parent, args, { loaders }) {
-  // *************** sanity check to ensure parent.test_ids is an array with elements before attempting to use DataLoader
+  // *************** Validate test_id format before using DataLoader
   CommonValidator.ValidateObjectId(parent.test_id);
 
   const loadedTest = await loaders.TestLoader.load(String(parent.test_id));
