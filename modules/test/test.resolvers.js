@@ -262,10 +262,17 @@ async function DeleteTest(_, { _id }) {
     }
 
     // *************** Delete test from relate subject
-    await SubjectModel.updateOne(
+    const subjectUpdate = await SubjectModel.updateOne(
       { _id: deletedTest.subject_id },
       { $pull: { test_ids: _id } }
     );
+
+    if (!subjectUpdate || subjectUpdate.matchedCount === 0) {
+      throw new ApolloError(
+        'Failed to update Subject, subject not found or already updated.',
+        'SUBJECT_UPDATE_FAILED'
+      );
+    }
 
     // *************** Return the _id
     return _id;

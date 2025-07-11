@@ -211,10 +211,17 @@ async function DeleteSubject(_, { _id }) {
     }
 
     // *************** Delete subject from relate block
-    await BlockModel.updateOne(
+    const blockUpdate = await BlockModel.updateOne(
       { _id: deletedSubject.block_id },
       { $pull: { subject_ids: _id } }
     );
+
+    if (!blockUpdate || blockUpdate.matchedCount === 0) {
+      throw new ApolloError(
+        'Failed to update Block, block not found or already updated.',
+        'BLOCK_UPDATE_FAILED'
+      );
+    }
 
     // *************** Soft delete all Tests under this Block
     await TestModel.updateMany(
