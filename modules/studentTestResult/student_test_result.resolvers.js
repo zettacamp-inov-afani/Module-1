@@ -89,7 +89,7 @@ async function GetAllStudentTestResults() {
 async function EnterMarks(_, { input }) {
   try {
     // *************** Validate required input
-    await ValidateStudentTestResultInput(input);
+    ValidateStudentTestResultInput(input);
 
     // *************** Calculate average_mark
     let total = 0;
