@@ -2,7 +2,7 @@
 const { isEmail } = require('validator');
 const { ApolloError } = require('apollo-server-express');
 
-// *************** IMPORT VALIDATORS ***************
+// *************** IMPORT VALIDATOR ***************
 const CommonValidator = require('../../utilities/validator');
 
 // *************** GLOBAL VARIABLE ***************

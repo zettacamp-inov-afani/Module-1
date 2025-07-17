@@ -30,7 +30,7 @@ async function StartServer() {
     // *************** Start Express server
     app.listen({ port: PORT }, () => console.log('Server ready'));
   } catch (error) {
-    console.error('Server failed to start:', error.message);
+    console.error('Server failed to start:', error);
     process.exit(1);
   }
 }
