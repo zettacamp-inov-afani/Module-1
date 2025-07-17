@@ -27,6 +27,52 @@ const SubjectSchema = new mongoose.Schema(
       },
     ],
 
+    // Passing criteria of Subject
+    criteria: [
+      {
+        // The expected goal of subject's criteria
+        goal: {
+          type: String,
+          enum: ['PASS', 'FAIL'],
+          required: true,
+        },
+        // Rule of block's criteria
+        rules: [
+          {
+            // Logical operator for subject's rule
+            logical_operator: {
+              type: String,
+              enum: ['AND', 'OR'],
+              required: true,
+            },
+            // Operator for subject's rule
+            operator: {
+              type: String,
+              enum: ['GT', 'GTE', 'LT', 'LTE', 'EQ'],
+              required: true,
+            },
+            // Type for subject's rule
+            type: {
+              type: String,
+              enum: ['total_mark', 'test_result'],
+              required: true,
+            },
+            // Reference to test for subject's rule
+            test_id: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: 'test',
+              required: true,
+            },
+            // Value for subject's rule
+            value: {
+              type: Number,
+              required: true,
+            },
+          },
+        ],
+      },
+    ],
+
     // Status of subject
     subject_status: {
       type: String,
