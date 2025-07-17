@@ -37,6 +37,40 @@ const TestSchema = new mongoose.Schema(
       default: 'active',
     },
 
+    // Passing criteria of Test
+    criteria: [
+      {
+        // The expected goal of test's criteria
+        goal: {
+          type: String,
+          enum: ['PASS', 'FAIL'],
+          required: true,
+        },
+        // Rule of test's criteria
+        rules: [
+          {
+            // Logical operator for test's rule
+            logical_operator: {
+              type: String,
+              enum: ['AND', 'OR'],
+              required: true,
+            },
+            // Operator for test's rule
+            operator: {
+              type: String,
+              enum: ['GT', 'GTE', 'LT', 'LTE', 'EQ'],
+              required: true,
+            },
+            // Value for test's rule
+            value: {
+              type: Number,
+              required: true,
+            },
+          },
+        ],
+      },
+    ],
+
     // Test's delete_at detail
     deleted_at: { type: Date, default: null },
   },
