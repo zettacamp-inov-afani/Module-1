@@ -24,6 +24,57 @@ const BlockSchema = new mongoose.Schema(
       default: 'active',
     },
 
+    // Passing criteria of Block
+    criteria: [
+      {
+        // The expected goal of block's criteria
+        goal: {
+          type: String,
+          enum: ['PASS', 'FAIL'],
+          required: true,
+        },
+        // Rule of block's criteria
+        rule: [
+          {
+            // Logical operator for block's rule
+            logical_operator: {
+              type: String,
+              enum: ['AND', 'OR'],
+              required: true,
+            },
+            // Operator for block's rule
+            operator: {
+              type: String,
+              enum: ['GT', 'GTE', 'LT', 'LTE', 'EQ'],
+              required: true,
+            },
+            // Type for block's rule
+            type: {
+              type: String,
+              enum: ['total_mark', 'subject_result'],
+              required: true,
+            },
+            // Reference to subject for block's rule
+            subject_id: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: 'subject',
+              required: true,
+            },
+            // Reference to test for block's rule
+            test_id: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: 'test',
+              required: true,
+            },
+            // Value for block's rule
+            value: {
+              type: Schema.Types.Mixed,
+              required: true,
+            },
+          },
+        ],
+      },
+    ],
     // Block's delete_at detail
     deleted_at: { type: Date, default: null },
   },
