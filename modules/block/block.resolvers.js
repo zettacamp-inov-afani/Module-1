@@ -94,6 +94,7 @@ async function CreateBlock(_, { input }) {
       name: input.name,
       description: input.description,
       subject_ids: input.subject_ids,
+      criteria: input.criteria,
       block_status: 'active',
     });
 
@@ -130,6 +131,7 @@ async function UpdateBlock(_, { _id, input }) {
       name: input.name,
       description: input.description,
       subject_ids: input.subject_ids,
+      criteria: input.criteria,
     };
 
     const updatedBlock = await BlockModel.findOneAndUpdate(
