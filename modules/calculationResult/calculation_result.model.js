@@ -79,6 +79,12 @@ const CalculationResultSchema = new mongoose.Schema(
 
     // CalculationResult's delete_at detail
     deleted_at: { type: Date, default: null },
+
+    calculation_result_status: {
+      type: String,
+      enum: ['active', 'deleted'],
+      default: 'active',
+    },
   },
   {
     // CalculationResult's timestamps
