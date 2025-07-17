@@ -7,6 +7,17 @@ const TestTypeDefs = gql`
     deleted
   }
 
+  type TestRule {
+    logical_operator: EnumLogicOperator!
+    operator: EnumConditionOperator!
+    value: Float!
+  }
+
+  type TestCriteria {
+    goal: EnumGoal!
+    rules: [TestRule!]!
+  }
+
   type Test {
     _id: ID!
     name: String!
@@ -31,12 +42,24 @@ const TestTypeDefs = gql`
     max_points: Float!
   }
 
+  input TestRuleInput {
+    logical_operator: EnumLogicOperator!
+    operator: EnumConditionOperator!
+    value: Float!
+  }
+
+  input TestCriteriaInput {
+    goal: EnumGoal!
+    rules: [TestRuleInput!]!
+  }
+
   input CreateTestInput {
     subject_id: ID!
     name: String!
     description: String!
     weight: Float!
     notations: [NotationInput!]!
+    criteria: [TestCriteriaInput!]!
   }
 
   input UpdateTestInput {
@@ -45,6 +68,7 @@ const TestTypeDefs = gql`
     description: String!
     weight: Float!
     notations: [NotationInput!]!
+    criteria: [TestCriteriaInput!]!
   }
 
   input PublishTestInput {
