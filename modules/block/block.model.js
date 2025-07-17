@@ -34,7 +34,7 @@ const BlockSchema = new mongoose.Schema(
           required: true,
         },
         // Rule of block's criteria
-        rule: [
+        rules: [
           {
             // Logical operator for block's rule
             logical_operator: {
@@ -68,7 +68,7 @@ const BlockSchema = new mongoose.Schema(
             },
             // Value for block's rule
             value: {
-              type: Schema.Types.Mixed,
+              type: Number,
               required: true,
             },
           },
