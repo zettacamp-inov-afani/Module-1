@@ -114,6 +114,7 @@ async function CreateSubject(_, { input }) {
       coefficient: input.coefficient,
       block_id: input.block_id,
       test_ids: input.test_ids,
+      criteria: input.criteria,
     });
 
     // *************** Add the new subject's ID to the corresponding Block's `subjects` array
@@ -159,6 +160,7 @@ async function UpdateSubject(_, { _id, input }) {
       coefficient: input.coefficient,
       block_id: input.block_id,
       test_ids: input.test_ids,
+      criteria: input.criteria,
     };
 
     // *************** Update the subject data if active
