@@ -48,7 +48,7 @@ const SubjectTypeDefs = gql`
   }
 
   input SubjectCriteriaInput {
-    goal: EnumGoal
+    goal: EnumGoal!
     rules: [SubjectRuleInput!]!
   }
 
@@ -57,7 +57,7 @@ const SubjectTypeDefs = gql`
     name: String!
     description: String!
     coefficient: Int!
-    criteria: [SubjectRuleInput!]!
+    criteria: [SubjectCriteriaInput!]!
   }
 
   input UpdateSubjectInput {
@@ -65,7 +65,7 @@ const SubjectTypeDefs = gql`
     name: String!
     description: String!
     coefficient: Int!
-    criteria: [SubjectRuleInput!]!
+    criteria: [SubjectCriteriaInput!]!
   }
 
   type Query {

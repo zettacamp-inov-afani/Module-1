@@ -128,7 +128,12 @@ function ValidateSubjectInput(input) {
           );
         }
 
-        CommonValidator.ValidateObjectId(rule.test_id, `${ruleLabel}.test_id`);
+        if (rule.test_id !== undefined) {
+          CommonValidator.ValidateObjectId(
+            rule.test_id,
+            `${ruleLabel}.test_id`
+          );
+        }
 
         if (typeof rule.value !== 'number' || isNaN(rule.value)) {
           throw new ApolloError(

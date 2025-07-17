@@ -61,7 +61,6 @@ const SubjectSchema = new mongoose.Schema(
             test_id: {
               type: mongoose.Schema.Types.ObjectId,
               ref: 'test',
-              required: true,
             },
             // Value for subject's rule
             value: {

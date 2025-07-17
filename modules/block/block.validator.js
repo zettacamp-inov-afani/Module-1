@@ -116,11 +116,19 @@ function ValidateBlockInput(input) {
           );
         }
 
-        CommonValidator.ValidateObjectId(
-          rule.subject_id,
-          `${ruleLabel}.subject_id`
-        );
-        CommonValidator.ValidateObjectId(rule.test_id, `${ruleLabel}.test_id`);
+        if (rule.subject_id !== undefined) {
+          CommonValidator.ValidateObjectId(
+            rule.subject_id,
+            `${ruleLabel}.subject_id`
+          );
+        }
+
+        if (rule.test_id !== undefined) {
+          CommonValidator.ValidateObjectId(
+            rule.test_id,
+            `${ruleLabel}.test_id`
+          );
+        }
 
         if (typeof rule.value !== 'number' || isNaN(rule.value)) {
           throw new ApolloError(

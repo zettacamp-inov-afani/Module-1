@@ -58,13 +58,11 @@ const BlockSchema = new mongoose.Schema(
             subject_id: {
               type: mongoose.Schema.Types.ObjectId,
               ref: 'subject',
-              required: true,
             },
             // Reference to test for block's rule
             test_id: {
               type: mongoose.Schema.Types.ObjectId,
               ref: 'test',
-              required: true,
             },
             // Value for block's rule
             value: {
