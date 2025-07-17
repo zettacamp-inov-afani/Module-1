@@ -7,11 +7,30 @@ const SubjectTypeDefs = gql`
     deleted
   }
 
+  enum EnumSubjectConditionType {
+    total_mark
+    test_result
+  }
+
+  type SubjectRule {
+    logical_operator: EnumLogicOperator
+    operator: EnumConditionOperator
+    test_id: ID
+    type: EnumSubjectConditionType
+    value: Float
+  }
+
+  type SubjectCriteria {
+    goal: EnumGoal!
+    rules: [SubjectRule!]!
+  }
+
   type Subject {
     _id: ID!
     name: String!
     description: String!
     coefficient: Int!
+    criteria: [SubjectCriteria]!
     subject_status: EnumSubjectStatus!
     block_id: Block!
     test_ids: [Test]
@@ -20,11 +39,25 @@ const SubjectTypeDefs = gql`
     deleted_at: Date
   }
 
+  input SubjectRuleInput {
+    logical_operator: EnumLogicOperator
+    operator: EnumConditionOperator
+    test_id: ID
+    type: EnumSubjectConditionType
+    value: Float
+  }
+
+  input SubjectCriteriaInput {
+    goal: EnumGoal
+    rules: [SubjectRuleInput!]!
+  }
+
   input CreateSubjectInput {
     block_id: ID!
     name: String!
     description: String!
     coefficient: Int!
+    criteria: [SubjectRuleInput!]!
   }
 
   input UpdateSubjectInput {
@@ -32,6 +65,7 @@ const SubjectTypeDefs = gql`
     name: String!
     description: String!
     coefficient: Int!
+    criteria: [SubjectRuleInput!]!
   }
 
   type Query {
