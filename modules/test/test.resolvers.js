@@ -71,17 +71,22 @@ async function GetAllTests() {
 // *************** MUTATION ***************
 
 /**
- * Creates a new Test and updates the corresponding Subject with the new Test's ID.
+ * Creates a new Test and associates it with an existing active Subject.
  *
- * @param {Object} _ - Unused root parameter (standard in GraphQL resolvers).
- * @param {Object} input - Input data for creating the Test.
+ * This function performs validation on the input, ensures the related Subject is active,
+ * creates a new Test document, and then adds the Test ID to the `test_ids` array of the Subject.
+ *
+ * @async
+ * @function CreateTest
+ * @param {object} input - The input data for creating the Test.
  * @param {string} input.name - The name of the Test.
- * @param {string} input.description - A description of the Test.
- * @param {number} input.weight - The weight of the Test.
- * @param {Array<Object>} input.notation - An array of notation objects related to the Test.
- * @param {string} input.subject_id - The ID of the related Subject.
- * @returns {Promise<Object>} The created Test document.
- * @throws {ApolloError} If validation fails or database operations fail.
+ * @param {string} [input.description] - Optional description of the Test.
+ * @param {number} input.weight - The weight of the Test in the final subject mark calculation.
+ * @param {Array<object>} input.notations - Array of scoring notations for this Test.
+ * @param {string} input.subject_id - The ID of the Subject to associate this Test with.
+ * @param {Array<object>} [input.criteria] - Optional dynamic passing criteria for the Test.
+ * @returns {Promise<object>} The newly created Test document.
+ * @throws {ApolloError} If validation fails, the Subject is not found or inactive, or a database error occurs.
  */
 async function CreateTest(_, { input }) {
   try {
@@ -124,18 +129,23 @@ async function CreateTest(_, { input }) {
 }
 
 /**
- * Updates an existing active Test document by its ID.
+ * Updates an existing Test document by its ID, if it is still active.
  *
- * @param {Object} _ - Unused root parameter (standard in GraphQL resolvers).
+ * This function performs validation on the input and test ID, then updates the Test's fields
+ * (name, description, weight, notations, subject_id, criteria) if the test is still marked as active.
+ *
+ * @async
+ * @function UpdateTest
  * @param {string} _id - The ID of the Test to update.
- * @param {Object} input - The new data to update the Test with.
- * @param {string} input.name - The updated name of the Test.
- * @param {string} input.description - The updated description of the Test.
- * @param {number} input.weight - The updated weight of the Test.
- * @param {Array<Object>} input.notations - The updated array of notations.
- * @param {string} input.subject_id - The updated subject ID linked to the Test.
- * @returns {Promise<Object>} The updated Test document.
- * @throws {ApolloError} If the ID is invalid, the Test is not found, or a database error occurs.
+ * @param {object} input - The updated data for the Test.
+ * @param {string} input.name - The name of the Test.
+ * @param {string} [input.description] - Optional description of the Test.
+ * @param {number} input.weight - The weight of the Test in the final subject mark calculation.
+ * @param {Array<object>} input.notations - Array of scoring notations for this Test.
+ * @param {string} input.subject_id - The ID of the Subject this Test is associated with.
+ * @param {Array<object>} [input.criteria] - Optional dynamic passing criteria for the Test.
+ * @returns {Promise<object>} The updated Test document.
+ * @throws {ApolloError} If validation fails, the Test is not found, already deleted, or a database error occurs.
  */
 async function UpdateTest(_, { _id, input }) {
   try {

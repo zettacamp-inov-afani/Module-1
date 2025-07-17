@@ -5,22 +5,23 @@ const { ApolloError } = require('apollo-server-express');
 const CommonValidator = require('../../utilities/validator');
 
 /**
- * Validates the input payload for creating or updating a Block.
+ * Validates the input object for creating or updating a Block.
  *
- * This function performs the following checks:
- * - Ensures the input is a valid object.
- * - Validates that `name` is a non-empty string.
- * - Validates that `description` is a non-empty string.
- * - If `subject_ids` is provided:
- *   - Ensures it is an array.
- *   - Validates each element in `subject_ids` as a valid MongoDB ObjectId.
+ * Throws an ApolloError with descriptive messages if validation fails.
  *
- * Throws an `ApolloError` with specific error codes if validation fails.
- *
- * @param {Object} input - The input object to validate.
+ * @param {Object} input - The block input object to validate.
  * @param {string} input.name - The name of the block.
  * @param {string} input.description - The description of the block.
- * @param {string[]} [input.subject_ids] - Optional array of Subject ObjectIds.
+ * @param {string[]} [input.subject_ids] - Optional array of subject MongoDB ObjectIds.
+ * @param {Object[]} [input.criteria] - Optional array of criteria groups.
+ * @param {string} input.criteria[].goal - The target outcome ("PASS" or "FAIL").
+ * @param {Object[]} input.criteria[].rules - Array of rule objects within the group.
+ * @param {string} input.criteria[].rules[].logical_operator - Logical operator ("AND" or "OR").
+ * @param {string} input.criteria[].rules[].operator - Comparison operator ("GT", "GTE", "LT", "LTE", "EQ").
+ * @param {string} input.criteria[].rules[].type - Type of data ("total_mark" or "subject_result").
+ * @param {string} input.criteria[].rules[].subject_id - MongoDB ObjectId of the subject.
+ * @param {string} input.criteria[].rules[].test_id - MongoDB ObjectId of the test.
+ * @param {number} input.criteria[].rules[].value - The target value to compare against.
  *
  * @throws {ApolloError} If any validation rule fails.
  */

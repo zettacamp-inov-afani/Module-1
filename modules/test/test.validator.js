@@ -5,27 +5,18 @@ const { ApolloError } = require('apollo-server-express');
 const CommonValidator = require('../../utilities/validator');
 
 /**
- * Validates the input object for creating or updating a Test.
+ * Validates the input data for creating or updating a Test.
  *
- * This function performs the following validations:
- * - Ensures the input is a valid object.
- * - Validates `name` and `description` are non-empty strings.
- * - Validates `weight` is a non-negative number.
- * - Validates `notations` is an array of valid objects with required fields:
- *   - `notation_text`: non-empty string
- *   - `max_points`: non-negative number
- * - Validates `subject_id` is a valid MongoDB ObjectId.
  *
- * @param {Object} input - The input object for Test creation or update.
- * @param {string} input.name - The name of the Test.
- * @param {string} input.description - The description of the Test.
- * @param {number} input.weight - The weight/importance of the Test.
- * @param {Array<Object>} input.notations - Array of notation objects.
- * @param {string} input.notations[].notation_text - Description of the notation.
- * @param {number} input.notations[].max_points - Maximum score for this notation.
- * @param {string} input.subject_id - The ID of the related Subject.
- *
- * @throws {ApolloError} If any validation rule fails.
+ * @function
+ * @param {Object} input - The input object to validate.
+ * @param {string} input.name - The name of the test.
+ * @param {string} input.description - The description of the test.
+ * @param {number} input.weight - The weight of the test.
+ * @param {Array<Object>} input.notations - An array of notations, each with `notation_text` and `max_points`.
+ * @param {string} input.subject_id - MongoDB ObjectId of the related subject.
+ * @param {Array<Object>} [input.criteria] - Optional criteria array for evaluation.
+ * @throws {ApolloError} Throws error if any field is invalid or missing.
  */
 function ValidateTestInput(input) {
   // *************** Validate that the input exists and is an object

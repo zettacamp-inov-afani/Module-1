@@ -73,16 +73,22 @@ async function GetAllBlocks() {
 // *************** MUTATION ***************
 
 /**
- * CreateBlock resolver to create a new Block document with the provided input.
+ * Creates a new Block document in the database.
  *
- * @param {object} _ - Unused parent resolver argument, required by GraphQL resolver signature.
- * @param {object} input - The input data to create the Block.
- * @param {string} input.name - The name of the Block.
- * @param {string} input.description - The description of the Block.
- * @param {string[]} input.subject_ids - An array of Subject IDs associated with the Block.
- * @returns {Promise<object>} - A Promise that resolves to the newly created Block document.
+ * This function validates the input, constructs a new Block with the provided
+ * name, description, subject_ids, and dynamic criteria, and sets its initial
+ * status to `'active'`.
  *
- * @throws {ApolloError} - Throws an ApolloError if validation fails or creation encounters an error.
+ * @async
+ * @function CreateBlock
+ * @param {object} _ - Unused parent resolver argument.
+ * @param {object} input - Input object containing block creation data.
+ * @param {string} input.name - The name of the block.
+ * @param {string} [input.description] - Optional description of the block.
+ * @param {Array<string>} input.subject_ids - Array of Subject ObjectId strings assigned to this block.
+ * @param {Array<Object>} input.criteria - Array of dynamic criteria groups for passing evaluation.
+ * @returns {Promise<Object>} The newly created Block document.
+ * @throws {ApolloError} If validation fails or the database operation encounters an error.
  */
 async function CreateBlock(_, { input }) {
   try {
@@ -106,18 +112,23 @@ async function CreateBlock(_, { input }) {
 }
 
 /**
- * UpdateBlock resolver to update an existing active Block document by its _id.
+ * Updates an existing Block document by its ID.
  *
- * @param {object} _ - Unused parent resolver argument, required by GraphQL resolver signature.
- * @param {string} _id - The MongoDB ObjectId of the Block to update.
- * @param {object} input - The input fields for updating the Block.
+ * This function first validates the provided Block ID and input fields.
+ * If a matching active Block is found, it updates the name, description,
+ * subject_ids, and criteria fields. Returns the updated Block document.
+ *
+ * @async
+ * @function UpdateBlock
+ * @param {object} _ - Unused parent resolver argument.
+ * @param {string} _id - The ID of the Block to update (must be a valid MongoDB ObjectId).
+ * @param {object} input - The new data for the Block.
  * @param {string} input.name - The updated name of the Block.
- * @param {string} input.description - The updated description of the Block.
- * @param {string[]} input.subject_ids - The updated array of Subject IDs.
- * @returns {Promise<object>} - A Promise that resolves to the updated Block document.
- *
- * @throws {ApolloError} - Throws BLOCK_NOT_FOUND if no active Block is found with the given _id.
- * @throws {ApolloError} - Throws a generic ApolloError if validation or update fails.
+ * @param {string} [input.description] - Optional updated description of the Block.
+ * @param {Array<string>} input.subject_ids - Updated array of Subject ObjectId strings.
+ * @param {Array<Object>} input.criteria - Updated dynamic passing criteria.
+ * @returns {Promise<Object>} The updated Block document.
+ * @throws {ApolloError} If validation fails, the block is not found, or any other error occurs during the operation.
  */
 async function UpdateBlock(_, { _id, input }) {
   try {

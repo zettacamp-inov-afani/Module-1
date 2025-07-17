@@ -75,19 +75,23 @@ async function GetAllSubjects() {
 // *************** MUTATION ***************
 
 /**
- * Creates a new Subject and links it to an existing active Block.
+ * Creates a new Subject and associates it with a Block.
  *
- * @param {Object} _ - Unused parent resolver argument.
- * @param {Object} input - Object containing subject creation input.
- * @param {string} input.name - Name of the subject.
- * @param {string} input.description - Description of the subject.
- * @param {number} input.coefficient - Coefficient value of the subject.
- * @param {string} input.block_id - The ID of the Block to associate with.
- * @param {string[]} [input.test_ids] - Optional array of associated Test IDs.
+ * This function validates the input, ensures the referenced Block exists and is active,
+ * creates a new Subject document, and updates the Block to include the new Subject's ID.
  *
- * @returns {Promise<Object>} The newly created Subject document.
- *
- * @throws {ApolloError} If the Block is not found or already deleted, or any other error occurs.
+ * @async
+ * @function CreateSubject
+ * @param {object} _ - Unused parent resolver argument.
+ * @param {object} input - The input data to create the Subject.
+ * @param {string} input.name - The name of the Subject.
+ * @param {string} [input.description] - Optional description of the Subject.
+ * @param {number} input.coefficient - The coefficient used for transcript weight calculation.
+ * @param {string} input.block_id - The ID of the Block to which the Subject belongs.
+ * @param {Array<string>} [input.test_ids] - Optional array of Test ObjectId strings related to the Subject.
+ * @param {Array<object>} [input.criteria] - Optional dynamic passing criteria for the Subject.
+ * @returns {Promise<object>} The newly created Subject document.
+ * @throws {ApolloError} If validation fails, the referenced Block is not found, or an error occurs during creation.
  */
 async function CreateSubject(_, { input }) {
   try {
@@ -131,20 +135,23 @@ async function CreateSubject(_, { input }) {
 }
 
 /**
- * Updates an existing subject with the provided input fields.
+ * Updates an existing Subject by its ID.
+ *
+ * This function validates the subject ID and input fields, then updates the subject document
+ * if it is still active. It returns the updated subject data if successful.
  *
  * @async
  * @function UpdateSubject
- * @param {Object} _ - Unused parent resolver argument (ignored).
- * @param {string} _id - The ID of the subject to update.
- * @param {Object} input - Updated subject data.
- * @param {string} input.name - Updated name of the subject.
- * @param {string} [input.description] - Updated description of the subject (optional).
- * @param {number} input.coefficient - Updated coefficient (must be ≥ 0).
+ * @param {string} _id - The ID of the Subject to update.
+ * @param {object} input - The input data to update the Subject.
+ * @param {string} input.name - The updated name of the Subject.
+ * @param {string} [input.description] - Optional updated description of the Subject.
+ * @param {number} input.coefficient - The updated coefficient for transcript weight.
  * @param {string} input.block_id - The ID of the associated Block.
- * @param {string[]} [input.test_ids] - Updated array of associated Test IDs (optional).
- * @returns {Promise<Object>} The updated subject document.
- * @throws {ApolloError} Throws if subject ID is invalid, subject not found, or update fails.
+ * @param {Array<string>} [input.test_ids] - Optional array of updated Test ObjectId strings.
+ * @param {Array<object>} [input.criteria] - Optional updated dynamic passing criteria.
+ * @returns {Promise<object>} The updated Subject document.
+ * @throws {ApolloError} If validation fails, the Subject is not found or inactive, or a database error occurs.
  */
 async function UpdateSubject(_, { _id, input }) {
   try {

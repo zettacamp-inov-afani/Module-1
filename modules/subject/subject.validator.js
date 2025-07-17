@@ -5,24 +5,26 @@ const { ApolloError } = require('apollo-server-express');
 const CommonValidator = require('../../utilities/validator');
 
 /**
- * Validates the input object for creating or updating a Subject.
+ * Validates the input data for creating or updating a Subject.
  *
- * This function checks:
- * - That the input is a non-null object.
- * - That `name` is a non-empty string.
- * - That `description` is a non-empty string.
- * - That `coefficient` is a non-negative number.
- * - That `block_id` is a valid MongoDB ObjectId.
- * - That `test_ids`, if provided, is an array of valid MongoDB ObjectIds.
  *
- * @param {Object} input - The input object containing subject details.
- * @param {string} input.name - The name of the subject.
- * @param {string} input.description - The description of the subject.
- * @param {number} input.coefficient - The coefficient value of the subject.
- * @param {string} input.block_id - The ID of the related Block.
- * @param {string[]} [input.test_ids] - Optional array of Test IDs associated with this subject.
+ * @function
+ * @param {Object} input - The subject input object to validate.
+ * @param {string} input.name - Name of the subject.
+ * @param {string} input.description - Description of the subject.
+ * @param {number} input.coefficient - Coefficient for the subject's weight.
+ * @param {string} input.block_id - MongoDB ObjectId of the parent Block.
+ * @param {string[]} [input.test_ids] - Optional array of related Test ObjectIds.
+ * @param {Array<Object>} [input.criteria] - Optional evaluation criteria.
+ * @param {string} input.criteria[].goal - Evaluation outcome: "PASS" or "FAIL".
+ * @param {Array<Object>} input.criteria[].rules - Rules to determine the goal.
+ * @param {string} input.criteria[].rules[].logical_operator - "AND" or "OR".
+ * @param {string} input.criteria[].rules[].operator - Comparison operator: "GT", "GTE", "LT", "LTE", "EQ".
+ * @param {string} input.criteria[].rules[].type - Type of value to compare: "total_mark" or "test_result".
+ * @param {string} input.criteria[].rules[].test_id - MongoDB ObjectId of the related Test.
+ * @param {number} input.criteria[].rules[].value - The numeric value to compare against.
  *
- * @throws {ApolloError} If any validation rule fails.
+ * @throws {ApolloError} If any field is invalid or missing.
  */
 function ValidateSubjectInput(input) {
   // *************** Validate that the input exists and is an object
