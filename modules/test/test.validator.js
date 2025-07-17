@@ -113,6 +113,59 @@ function ValidateTestInput(input) {
 
   // *************** Validate subject_id
   CommonValidator.ValidateObjectId(input.subject_id, 'Subject ID');
+
+  // *************** Validate criteria
+  if (input.criteria !== undefined) {
+    if (!Array.isArray(input.criteria)) {
+      throw new ApolloError(
+        'criteria must be an array.',
+        'INVALID_CRITERIA_ARRAY'
+      );
+    }
+
+    input.criteria.forEach((group, index) => {
+      const label = 'criteria[${index}]';
+
+      // *************** Validate goal of criteria
+      if (!['PASS', 'FAIL'].includes(group.goal)) {
+        throw new ApolloError(
+          `${label}.goal must be either "PASS" or "FAIL".`,
+          'INVALID_CRITERIA_GOAL'
+        );
+      }
+
+      // *************** Validate rules of criteria
+      if (!Array.isArray(group.rules)) {
+        throw new ApolloError(
+          `${label}.rules must be an array.`,
+          'INVALID_CRITERIA_RULES'
+        );
+      }
+
+      group.rules.forEach((rule, rIdx) => {
+        const ruleLabel = `${label}.rules[${rIdx}]`;
+
+        if (!['AND', 'OR'].includes(rule.logical_operator)) {
+          throw new ApolloError(
+            `${ruleLabel}.operator must be one of "AND", "OR".``INVALID_LOGICAL_OPERATOR`
+          );
+        }
+
+        if (!['GT', 'GTE', 'LT', 'LTE', 'EQ'].includes(rule.operator)) {
+          throw new ApolloError(
+            `${ruleLabel}.operator must be one of "GT", "GTE", "LT", "LTE", "EQ".``INVALID_OPERATOR`
+          );
+        }
+
+        if (typeof rule.value !== 'number' || isNaN(rule.value)) {
+          throw new ApolloError(
+            `${ruleLabel}.value must be a valid number`,
+            'INVALID_CRITERIA_VALUE'
+          );
+        }
+      });
+    });
+  }
 }
 
 /**

@@ -108,6 +108,7 @@ async function CreateTest(_, { input }) {
       weight: input.weight,
       notations: input.notations,
       subject_id: input.subject_id,
+      criteria: input.criteria,
     });
 
     // *************** Add the new test's ID to the corresponding Subject `tests` array
@@ -150,6 +151,7 @@ async function UpdateTest(_, { _id, input }) {
       weight: input.weight,
       notations: input.notations,
       subject_id: input.subject_id,
+      criteria: input.criteria,
     };
 
     // *************** Update the test data if active

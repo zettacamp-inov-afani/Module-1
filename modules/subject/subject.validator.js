@@ -120,7 +120,7 @@ function ValidateSubjectInput(input) {
           );
         }
 
-        if (!['total_mark', 'test_result'].includes(rule.operator)) {
+        if (!['total_mark', 'test_result'].includes(rule.type)) {
           throw new ApolloError(
             `${ruleLabel}.operator must be one of "total_mark", "test_result".``INVALID_CRITERIA_TYPE`
           );
