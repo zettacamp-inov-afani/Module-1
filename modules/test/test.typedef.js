@@ -26,6 +26,7 @@ const TestTypeDefs = gql`
     notations: [Notation!]!
     published_date: Date
     test_status: EnumTestStatus!
+    criteria: [TestCriteria]
     subject_id: Subject!
     created_at: Date!
     updated_at: Date!
