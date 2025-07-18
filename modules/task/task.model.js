@@ -35,7 +35,7 @@ const TaskSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['active', 'deleted'],
-      default: ['active'],
+      default: 'active',
     },
 
     // Optional due date for the task
